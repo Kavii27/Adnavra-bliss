@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ChevronRight } from "lucide-react";
 import { VenueCard } from "./venue-card";
+import { Reveal } from "./reveal";
 
 type Venue = {
   id: string;
@@ -13,6 +14,7 @@ type Venue = {
   categories?: string[] | null;
   salonTypes?: string[] | null;
   featured?: boolean | null;
+  fromPriceMinor?: number | null;
 };
 
 type VenueRailProps = {
@@ -20,9 +22,11 @@ type VenueRailProps = {
   businesses: Venue[];
   href?: string;
   emptyText?: string;
+  /** Render as a wrapping grid (matches reference layout) instead of a horizontal scroll rail. */
+  layout?: "rail" | "grid";
 };
 
-export function VenueRail({ title, businesses, href, emptyText }: VenueRailProps) {
+export function VenueRail({ title, businesses, href, emptyText, layout = "rail" }: VenueRailProps) {
   return (
     <section className="py-8">
       <div className="flex items-center justify-between px-6 lg:px-12 max-w-[1200px] mx-auto">
@@ -46,6 +50,28 @@ export function VenueRail({ title, businesses, href, emptyText }: VenueRailProps
             </p>
           </div>
         </div>
+      ) : layout === "grid" ? (
+        <Reveal
+          className="mt-4 px-6 lg:px-12 max-w-[1200px] mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 reveal-stagger"
+        >
+          {businesses.slice(0, 4).map((b) => (
+            <div key={b.id} className="w-full [&>a]:w-full">
+              <VenueCard
+                id={b.id}
+                name={b.name}
+                slug={b.slug}
+                logoUrl={b.logoUrl}
+                address={b.address}
+                city={b.city}
+                category={b.category}
+                categories={b.categories}
+                salonTypes={b.salonTypes}
+                featured={b.featured}
+                fromPriceMinor={b.fromPriceMinor}
+              />
+            </div>
+          ))}
+        </Reveal>
       ) : (
         <div className="mt-4 overflow-x-auto scrollbar-thin">
           <div className="flex gap-4 px-6 lg:px-12 max-w-[1200px] mx-auto pb-2">

@@ -157,7 +157,7 @@ export function DateTimePicker({ value, onChange }: DateTimePickerProps) {
   const isClearable = value !== null;
 
   return (
-    <div ref={ref} className="relative flex-1 overflow-visible">
+    <div ref={ref} className="relative flex-1 min-w-0 overflow-visible">
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}

@@ -51,12 +51,12 @@ export function TreatmentsDropdown({ value, onChange, query, onQueryChange }: Tr
   const isTreatmentsTab = activeTab === "treatments" || activeTab === "all";
 
   return (
-    <div ref={ref} className="relative flex-1 overflow-visible">
+    <div ref={ref} className="relative flex-1 min-w-0 overflow-visible">
       {/* Trigger — controlled text input so customers can type a salon
           name or treatment; picking a category mirrors its label here. */}
       <div
         onClick={() => setOpen(true)}
-        className="flex w-full items-center gap-2 px-4 py-2.5 text-left outline-none"
+        className="flex w-full min-w-0 items-center gap-2 px-4 py-2.5 text-left outline-none"
       >
         <Search className="h-4 w-4 shrink-0 text-[#8A8377]" />
         <input
@@ -74,7 +74,7 @@ export function TreatmentsDropdown({ value, onChange, query, onQueryChange }: Tr
           onFocus={() => setOpen(true)}
           placeholder="Search treatments or salons"
           aria-label="Search treatments or salons"
-          className="flex-1 truncate bg-transparent text-sm text-[#1F1E1D] outline-none placeholder:text-[#8A8377]"
+          className="min-w-0 flex-1 truncate bg-transparent text-sm text-[#1F1E1D] outline-none placeholder:text-[#8A8377]"
         />
         {value || query ? (
           <span

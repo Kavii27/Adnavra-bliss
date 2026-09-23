@@ -127,7 +127,7 @@ export function LocationAutocomplete({ value, onChange }: LocationAutocompletePr
   const displayPlaceholder = "Current location";
 
   return (
-    <div ref={ref} className="relative flex-1 overflow-visible">
+    <div ref={ref} className="relative flex-1 min-w-0 overflow-visible">
       <div className="flex items-center gap-2 px-4 py-0">
         <MapPin className="h-4 w-4 shrink-0 text-[#8A8377]" />
         <input
