@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "next lint",
     "test": "vitest run",
-    "make-admin": "node scripts/make-admin.mjs"
+    "make-admin": "node scripts/make-admin.mjs",
+    "seed:subscriptions": "node scripts/seed-subscriptions.mjs"
   },
   "dependencies": {
     "@prisma/client": "^6.19.3",
