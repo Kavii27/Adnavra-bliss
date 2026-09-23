@@ -13,11 +13,14 @@ import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcryptjs";
 
 async function main() {
-  const [email, password, name] = process.argv.slice(2);
-  if (!email || !password) {
+  const [rawEmail, password, name] = process.argv.slice(2);
+  if (!rawEmail || !password) {
     console.error('Usage: npm run make-admin -- <email> "<password>" [name]');
     process.exit(1);
   }
+  // Login (lib/auth.ts) lowercases the submitted email before lookup —
+  // store it lowercase here too, or sign-in won't match a mixed-case address.
+  const email = rawEmail.toLowerCase().trim();
   const db = new PrismaClient();
   try {
     const hashed = await bcrypt.hash(password, 12);

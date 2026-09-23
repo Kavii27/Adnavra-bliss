@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
+import { rankBusinessIds } from "@/lib/ranking-service";
 
 function distanceKm(lat1: number, lon1: number, lat2: number, lon2: number): number {
   const R = 6371;
@@ -64,23 +65,28 @@ export async function GET(request: NextRequest) {
   });
 
   const hasCoords = !Number.isNaN(lat) && !Number.isNaN(lng);
-  // Step 6.4 — Featured follows the Premium plan, not just the flag. The flag
-  // is the owner's opt-in (marketing → priority placement, PREMIUM-gated; or
-  // the Step-9 admin screen which sets it on upgrade). Gating it here keeps a
-  // stale `true` from boosting a salon after it downgrades off PREMIUM.
+  // Legacy flag kept for the (soon to be replaced) old Subscription model —
+  // real ranking below now comes from the new BusinessSubscription/SalonBoost
+  // system via lib/ranking-service.ts, not from this boolean.
   const withDistance = businesses
     .map(({ subscription, marketplacePriority, ...b }) => ({
       ...b,
       marketplacePriority: marketplacePriority && subscription?.plan === "PREMIUM",
       distanceKm: hasCoords ? distanceKm(lat, lng, b.latitude!, b.longitude!) : null,
     }))
-    .filter((b) => !hasCoords || b.distanceKm! <= radiusKm)
-    // Priority placement (PREMIUM campaigns feature) sorts boosted salons
-    // first; distance still decides order within each tier.
-    .sort((a, b) => {
-      if (a.marketplacePriority !== b.marketplacePriority) return a.marketplacePriority ? -1 : 1;
-      return (a.distanceKm ?? 0) - (b.distanceKm ?? 0);
-    });
+    .filter((b) => !hasCoords || b.distanceKm! <= radiusKm);
 
-  return NextResponse.json({ data: withDistance });
+  const distanceById = new Map(withDistance.map((b) => [b.id, b.distanceKm]));
+  const rankingById = await rankBusinessIds(
+    withDistance.map((b) => b.id),
+    distanceById
+  );
+
+  // Every business is scored (Silver included) — a plan never fully hides
+  // another one from search; boosting/priority just changes the order.
+  const ranked = withDistance
+    .map((b) => ({ ...b, ...(rankingById.get(b.id) ?? { score: 0, isBoosted: false, planKey: null }) }))
+    .sort((a, b) => b.score - a.score);
+
+  return NextResponse.json({ data: ranked });
 }
