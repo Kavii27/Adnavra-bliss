@@ -31,28 +31,53 @@ export default async function AdminLayout({ children }: { children: React.ReactN
     );
   }
 
+  const initials = (session.user.name ?? session.user.email ?? "A").slice(0, 1).toUpperCase();
+
   return (
     <div className="min-h-screen bg-[#faf6ef]">
-      <nav className="h-16 border-b border-[#E3E8F0] flex items-center px-6 bg-[#3a2f22] text-white">
-        <Link href="/admin" className="flex items-center gap-2 font-semibold">
-          <Image src="/logo.png" alt="ADNAVRA logo" width={28} height={28} className="h-7 w-7 rounded-md object-contain" />
-          <Shield className="h-4 w-4 text-[#f5ead9]" /> ADNAVRA Admin
+      <nav className="flex h-16 items-center gap-2 overflow-hidden bg-[linear-gradient(135deg,#3a2f22_0%,#5f4630_55%,#8a6d4f_100%)] px-4 text-white shadow-[0_1px_2px_rgba(58,47,34,0.10),0_4px_16px_rgba(58,47,34,0.18)] sm:px-6">
+        <Link href="/admin" className="flex min-w-0 shrink items-center gap-2 font-semibold tracking-tight sm:gap-2.5">
+          <Image
+            src="/logo.png"
+            alt="ADNAVRA logo"
+            width={30}
+            height={30}
+            className="h-7 w-7 shrink-0 rounded-lg object-contain ring-1 ring-white/20 sm:h-[30px] sm:w-[30px]"
+          />
+          <span className="flex min-w-0 items-center gap-1.5">
+            <Shield className="h-4 w-4 shrink-0 text-[#c9a26d]" />
+            <span className="truncate">ADNAVRA</span>
+            <span className="ml-1 hidden shrink-0 rounded-full bg-white/10 px-2 py-0.5 text-[11px] font-medium tracking-wide text-[#f5ead9] md:inline-flex">
+              Platform Console
+            </span>
+          </span>
         </Link>
-        <div className="ml-auto flex items-center gap-4">
-          <span className="text-sm text-[#C4B8B0]">{session.user.email} • ADMIN</span>
+        <div className="ml-auto flex shrink-0 items-center gap-2 sm:gap-3">
+          <div className="flex items-center gap-2 rounded-full bg-white/10 py-1 pl-1 pr-1 sm:pr-3">
+            <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#c9a26d] text-[11px] font-semibold text-[#3a2f22]">
+              {initials}
+            </span>
+            <span className="hidden max-w-[160px] truncate text-xs font-medium text-[#f0e6d6] sm:inline">
+              {session.user.email}
+            </span>
+          </div>
           <form
             action={async () => {
               "use server";
               await signOut({ redirectTo: "/" });
             }}
           >
-            <button type="submit" className="inline-flex items-center gap-1.5 text-sm text-[#C4B8B0] hover:text-white">
-              <LogOut className="h-4 w-4" /> Sign out
+            <button
+              type="submit"
+              className="inline-flex shrink-0 items-center gap-1.5 rounded-full px-2.5 py-1.5 text-sm text-[#C4B8B0] transition hover:bg-white/10 hover:text-white sm:px-3"
+            >
+              <LogOut className="h-4 w-4" />
+              <span className="hidden sm:inline">Sign out</span>
             </button>
           </form>
         </div>
       </nav>
-      <div className="max-w-[1200px] mx-auto px-6 py-8">{children}</div>
+      <div className="w-full px-4 py-6 sm:px-8 sm:py-8">{children}</div>
     </div>
   );
 }
