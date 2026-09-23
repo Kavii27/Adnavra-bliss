@@ -9,7 +9,7 @@ import { MenuDropdown } from "./menu-dropdown";
 const NAV_LINKS = [
   { href: "/about#business-types", label: "Business types" },
   { href: "/about#features", label: "Features" },
-  { href: "/for-business", label: "For business" },
+  { href: "/for-business", label: "Partners" },
 ];
 
 export function SiteHeader() {

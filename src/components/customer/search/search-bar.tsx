@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Button } from "@/components/ui/button";
+import { Search } from "lucide-react";
 import { TreatmentsDropdown } from "./treatments-dropdown";
 import { LocationAutocomplete, type LocationValue } from "./location-autocomplete";
 import { SERVICE_CATEGORIES } from "@/lib/categories";
@@ -137,12 +137,17 @@ export function SearchBar({ variant }: SearchBarProps) {
       onSubmit={handleSubmit}
       className={
         isHero
-          ? "flex flex-col sm:flex-row gap-0 bg-white rounded-full border border-[#E5DDD0] p-2 shadow-[0_4px_20px_rgba(16,24,40,0.08)] text-left items-stretch overflow-visible"
-          : "flex flex-col sm:flex-row gap-0 bg-white rounded-xl border border-[#E5DDD0] p-1.5 shadow-sm text-left items-stretch overflow-visible"
+          ? "flex flex-col lg:flex-row items-stretch bg-white rounded-2xl border border-[#E5DDD0] shadow-[0_4px_24px_rgba(16,24,40,0.08)] overflow-visible"
+          : "flex flex-col sm:flex-row items-stretch bg-white rounded-xl border border-[#E5DDD0] shadow-sm overflow-visible"
       }
     >
       {/* Treatments segment — free-text input lives inside the dropdown trigger */}
-      <div className="flex items-center gap-0 flex-1 min-w-0 overflow-visible">
+      <div className="flex flex-col justify-center flex-1 min-w-0 px-5 py-2.5">
+        {isHero && (
+          <span className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[#B3ACA0]">
+            Treatment
+          </span>
+        )}
         <TreatmentsDropdown
           value={categorySlug}
           onChange={(slug) => {
@@ -153,24 +158,34 @@ export function SearchBar({ variant }: SearchBarProps) {
         />
       </div>
 
-      <div className="hidden sm:block w-px bg-[#E5DDD0] self-stretch my-1 shrink-0" />
-      <div className="flex-1 flex items-center min-w-0 border-t sm:border-t-0 border-[#E5DDD0] pt-1 sm:pt-0 overflow-visible">
+      <div className="hidden lg:block w-px bg-[#E5DDD0] my-3 shrink-0" />
+      <div className="flex flex-col justify-center flex-1 min-w-0 px-5 py-2.5 border-t lg:border-t-0 border-[#E5DDD0]">
+        {isHero && (
+          <span className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[#B3ACA0]">
+            Location
+          </span>
+        )}
         <LocationAutocomplete value={location} onChange={setLocation} />
       </div>
 
-      <div className="hidden sm:block w-px bg-[#E5DDD0] self-stretch my-1 shrink-0" />
-      <div className="flex-1 flex items-center min-w-0 border-t sm:border-t-0 border-[#E5DDD0] pt-1 sm:pt-0 overflow-visible">
+      <div className="hidden lg:block w-px bg-[#E5DDD0] my-3 shrink-0" />
+      <div className="flex flex-col justify-center flex-1 min-w-0 px-5 py-2.5 border-t lg:border-t-0 border-[#E5DDD0]">
+        {isHero && (
+          <span className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[#B3ACA0]">
+            Date &amp; time
+          </span>
+        )}
         <DateTimePicker value={dateTime} onChange={setDateTime} />
       </div>
 
-      <div className="flex items-center shrink-0 border-t sm:border-t-0 border-[#E5DDD0] mt-1 pt-2 sm:mt-0 sm:pt-0 sm:ml-2">
-        <Button
+      <div className="p-2 lg:p-2 border-t lg:border-t-0 border-[#E5DDD0]">
+        <button
           type="submit"
-          variant={isHero ? "gradient" : "primary"}
-          className={`shrink-0 ${isHero ? "rounded-full w-full sm:w-auto mt-0" : "rounded-lg w-full sm:w-auto"}`}
+          className="flex h-full w-full items-center justify-center gap-2 rounded-xl bg-[#1F1E1D] px-8 py-3.5 text-sm font-semibold text-white transition-colors hover:bg-[#795831]"
         >
+          <Search className="h-4 w-4" />
           Search
-        </Button>
+        </button>
       </div>
     </form>
   );

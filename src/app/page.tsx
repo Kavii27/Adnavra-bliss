@@ -1,11 +1,11 @@
 import { Dot } from "lucide-react";
+import Image from "next/image";
 import { Suspense } from "react";
 import { HomeHeader } from "@/components/customer/home/home-header";
 import { SiteFooter } from "@/components/marketing/site-footer";
 import { VenueRail } from "@/components/customer/home/venue-rail";
 import { SearchBar } from "@/components/customer/search/search-bar";
-import { BrowseByCity } from "@/components/customer/home/browse-by-city";
-import { BrowseByCategory } from "@/components/customer/home/browse-by-category";
+import { LocationsTeaser } from "@/components/customer/home/locations-teaser";
 import { HowItWorks } from "@/components/customer/home/how-it-works";
 import { TrustStatsBar } from "@/components/customer/home/trust-stats-bar";
 import { OwnerCtaBanner } from "@/components/customer/home/owner-cta-banner";
@@ -89,23 +89,6 @@ async function fetchVenues(order: "asc" | "desc", take: number, skip = 0): Promi
   }
 }
 
-async function fetchCategoryCounts(): Promise<Record<string, number>> {
-  try {
-    const rows = await db.service.groupBy({
-      by: ["category"],
-      where: { isActive: true, category: { not: null } },
-      _count: { _all: true },
-    });
-    const map: Record<string, number> = {};
-    for (const r of rows) {
-      if (r.category) map[r.category] = r._count._all;
-    }
-    return map;
-  } catch {
-    return {};
-  }
-}
-
 export default async function MarketplaceHome() {
   const [recommended, newest, nearYou] = await Promise.all([
     fetchVenues("asc", 8, 0),
@@ -118,54 +101,79 @@ export default async function MarketplaceHome() {
   // Fallback for nearYou when there are not enough rows to offset
   const nearYouDisplay = nearYou.length > 0 ? nearYou : newest.slice(0, 8);
 
-  const [businessCount, categoryCounts] = await Promise.all([
-    db.business.count().catch(() => 0),
-    fetchCategoryCounts(),
-  ]);
+  const businessCount = await db.business.count().catch(() => 0);
 
   return (
-    <main className="min-h-screen bg-[#FDF9F3]">
-      <HomeHeader />
+    <main className="relative min-h-screen bg-[#FDF9F3]">
+      {/* Background texture — placed at the very top of the page so it runs
+          continuously from behind the navbar into the hero, instead of
+          starting partway down the section. */}
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-155 lg:h-175 overflow-hidden">
+        <div className="absolute inset-0 brand-gradient-bg opacity-[0.06]" />
+        <div className="hero-grid absolute inset-0" />
+      </div>
 
-      {/* Hero — centered badge, headline + serif-italic accent line, search bar, trust stats */}
-      <section className="relative overflow-visible border-b border-[#E5DDD0]">
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute inset-0 brand-gradient-bg opacity-[0.06]" />
-          <div className="hero-grid absolute inset-0" />
-        </div>
-        <div className="relative overflow-visible px-6 lg:px-12 pt-16 lg:pt-20 pb-10 max-w-[820px] mx-auto text-center">
-          <span className="reveal-up inline-flex items-center gap-2 rounded-full border border-[#E5DDD0] bg-white px-4 py-1.5 text-[11px] font-semibold uppercase tracking-[0.15em] text-[#795831] in-view">
-            <Dot className="h-3 w-3 -ml-1 text-[#795831]" />
-            Sri Lanka&apos;s curated salon &amp; spa directory
-          </span>
+      <div className="relative">
+        <HomeHeader />
 
-          <h1 className="mt-5 text-4xl lg:text-[46px] font-semibold tracking-[-1.25px] leading-[1.08] text-[#1F1E1D]">
-            Book your next appointment.
-            <br />
-            <span className="font-serif italic font-normal text-[#795831]">
-              Discover Sri Lanka&apos;s finest salons &amp; spas.
-            </span>
-          </h1>
-          <p className="mt-4 text-[15px] leading-relaxed text-[#4A4640] max-w-2xl mx-auto">
-            Instantly explore and reserve verified hairstylists, skin clinics, luxury wellness
-            spas, and beauty suites across the island.
-          </p>
+        {/* Hero — headline + search on the left, photo on the right, tops aligned */}
+        <section className="relative border-b border-[#E5DDD0]">
+          <div className="relative px-6 lg:px-12 pt-12 lg:pt-16 pb-10 max-w-[1200px] mx-auto">
+            <div className="grid items-start gap-10 lg:grid-cols-[1.05fr_0.95fr]">
+              {/* Left: message */}
+              <div className="text-center lg:text-left">
+                <span className="reveal-up inline-flex items-center gap-2 rounded-full border border-[#E5DDD0] bg-white px-4 py-1.5 text-[11px] font-semibold uppercase tracking-[0.15em] text-[#795831] in-view">
+                  <Dot className="h-3 w-3 -ml-1 text-[#795831]" />
+                  Sri Lanka&apos;s curated salon &amp; spa directory
+                </span>
 
-          <div id="search" className="mt-8 relative z-10 overflow-visible scroll-mt-24">
-            <Suspense fallback={<div className="h-[56px] rounded-full bg-white border border-[#E5DDD0] animate-pulse" />}>
-              <SearchBar variant="hero" />
-            </Suspense>
+                <h1 className="mt-5 text-4xl lg:text-[46px] font-semibold tracking-[-1.25px] leading-[1.08] text-[#1F1E1D]">
+                  Book your next appointment.
+                  <br />
+                  <span className="font-serif italic font-normal text-[#795831]">
+                    Discover Sri Lanka&apos;s finest salons &amp; spas.
+                  </span>
+                </h1>
+                <p className="mt-4 text-[15px] leading-relaxed text-[#4A4640] max-w-md mx-auto lg:mx-0">
+                  Instantly explore and reserve verified hairstylists, skin clinics, luxury
+                  wellness spas, and beauty suites across the island.
+                </p>
+              </div>
+
+              {/* Right: hero photo — top-aligned with the badge on the left */}
+              <div className="relative mx-auto hidden aspect-[16/11] w-full max-w-[460px] overflow-hidden rounded-3xl border border-[#E5DDD0] shadow-[0_20px_50px_rgba(31,30,29,0.12)] lg:block">
+                <Image
+                  src="/hero-salon.png"
+                  alt="A stylist at work inside a premium Sri Lankan salon"
+                  fill
+                  priority
+                  className="object-cover"
+                />
+                <div className="absolute inset-x-4 bottom-4 flex items-center gap-2 rounded-xl bg-white/90 backdrop-blur px-4 py-3 shadow-sm">
+                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#795831] text-xs font-semibold text-white">
+                    4.9
+                  </span>
+                  <span className="text-xs font-medium text-[#4A4640]">
+                    Rated by customers across Sri Lanka
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Search bar — full width, sits under both columns so it stays
+                balanced instead of trailing off under only the left column. */}
+            <div id="search" className="mt-10 relative z-10 scroll-mt-24">
+              <Suspense fallback={<div className="h-[76px] rounded-2xl bg-white border border-[#E5DDD0] animate-pulse" />}>
+                <SearchBar variant="hero" />
+              </Suspense>
+            </div>
           </div>
-        </div>
 
-        {/* Trust stats — the one and only trust row, inside the hero */}
-        <div className="relative border-t border-[#E5DDD0]/70">
-          <TrustStatsBar businessCount={businessCount} />
-        </div>
-      </section>
-
-      {/* Browse by category — numbered 01–08 card grid */}
-      <BrowseByCategory counts={categoryCounts} />
+          {/* Trust stats — the one and only trust row, inside the hero */}
+          <div className="relative border-t border-[#E5DDD0]/70">
+            <TrustStatsBar businessCount={businessCount} />
+          </div>
+        </section>
 
       {/* Recommended salons & spas — featured grid, tabs kept as rails below for New/Near you */}
       <div id="salons" className="scroll-mt-28 max-w-[1200px] mx-auto">
@@ -193,13 +201,14 @@ export default async function MarketplaceHome() {
       {/* How does it work — 3-step "Book in three easy steps" */}
       <HowItWorks />
 
-      {/* Browse by city — popular-city chips + search + collapsible full district list */}
-      <BrowseByCity locations={SRI_LANKA_LOCATIONS} />
+      {/* Browse by city — short teaser, full interactive directory lives at /locations */}
+      <LocationsTeaser locations={SRI_LANKA_LOCATIONS} />
 
       {/* For salon owners — dark CTA banner with metrics */}
       <OwnerCtaBanner />
 
       <SiteFooter />
+      </div>
     </main>
   );
 }

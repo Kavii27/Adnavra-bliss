@@ -8,6 +8,7 @@ const COLUMNS = [
     links: [
       { href: "/about", label: "About ADNAVRA" },
       { href: "/contact", label: "Contact us" },
+      { href: "/contact", label: "Help and support" },
     ],
   },
   {
@@ -16,13 +17,6 @@ const COLUMNS = [
       { href: "/for-business", label: "For salons" },
       { href: "/about#features", label: "Features" },
       { href: "/signup", label: "Get started" },
-    ],
-  },
-  {
-    title: "Support",
-    links: [
-      { href: "/contact", label: "Help and support" },
-      { href: "/about#faq", label: "FAQ" },
     ],
   },
   {
@@ -37,11 +31,14 @@ const COLUMNS = [
 export function SiteFooter() {
   return (
     <footer className="bg-[#f7f3ed] text-[#4a4640] px-6 lg:px-12 py-16 mt-16">
-      <div className="max-w-[1200px] mx-auto grid gap-10 md:grid-cols-[1.3fr_1fr_1fr_1fr_1fr]">
+      <div className="max-w-[1200px] mx-auto grid gap-10 md:grid-cols-[1.4fr_1fr_1fr_1fr]">
         <div>
           <Link href="/" className="flex items-center gap-2">
-            <Image src="/logo.png" alt="ADNAVRA" width={32} height={32} className="h-8 w-8 object-contain" />
-            <span className="text-[#050504] font-semibold text-lg tracking-tight">ADNAVRA</span>
+            <Image src="/logo.png" alt="ADNAVRA BLISS logo" width={32} height={32} className="h-8 w-8 object-contain" />
+            <span className="flex items-baseline gap-1.5 whitespace-nowrap leading-none">
+              <span className="text-[15px] font-semibold tracking-[0.14em] text-[#050504]">ADNAVRA</span>
+              <span className="text-[11px] font-medium tracking-[0.22em] text-[#4a4640]/70">BLISS</span>
+            </span>
           </Link>
           <p className="text-sm mt-3 max-w-xs leading-relaxed">
             Booking infrastructure and a digital presence for Sri Lankan salons and beauty businesses.

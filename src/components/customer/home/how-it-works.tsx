@@ -48,10 +48,10 @@ export function HowItWorks() {
             className="group card-lift rounded-xl border border-[#E5DDD0] bg-white p-6 hover:border-[#795831]"
           >
             <div className="flex items-center justify-between">
-              <span className="inline-flex items-center rounded-full bg-[#F7F3ED] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-[#795831]">
-                Step {s.n}
+              <span className="flex h-11 w-11 items-center justify-center rounded-full bg-[#F7F3ED] text-[#795831] transition-colors group-hover:bg-[#795831] group-hover:text-white">
+                <s.icon className="h-5 w-5" />
               </span>
-              <span className="num-ghost text-2xl font-semibold text-[#E5DDD0]">{s.n}</span>
+              <span className="num-ghost text-3xl font-semibold text-[#E5DDD0]">{s.n}</span>
             </div>
             <h3 className="mt-4 text-base font-semibold text-[#1F1E1D]">{s.title}</h3>
             <p className="mt-1 text-sm leading-relaxed text-[#4A4640]">{s.desc}</p>
