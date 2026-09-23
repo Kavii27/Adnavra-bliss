@@ -20,7 +20,10 @@ enum Role {
   ADMIN
 }
 
-enum SubscriptionPlan {
+// Renamed from SubscriptionPlan (Task: salon boosting/advertising system) —
+// the new SubscriptionPlan is now a proper admin-editable table below.
+// This enum is kept only for the legacy Subscription model / billing page.
+enum LegacyPlanTier {
   STARTER
   PROFESSIONAL
   PREMIUM
@@ -30,6 +33,16 @@ enum SubscriptionStatus {
   ACTIVE
   SUSPENDED
   CANCELLED
+}
+
+enum BoostSource {
+  AUTO
+  MANUAL
+}
+
+enum AdEventType {
+  IMPRESSION
+  CLICK
 }
 
 enum BookingStatus {
@@ -119,6 +132,10 @@ model Business {
   customers    Customer[]
   bookings     Booking[]
   subscription Subscription?
+
+  // New subscription/boosting system (additive — see comments above).
+  businessSubscription BusinessSubscription?
+  salonBoosts          SalonBoost[]
 
   // Priority 2 — catalog, sales, team, client-relationship records.
   // Every model below carries businessId + @@index([businessId]) per AGENTS.md.
@@ -370,7 +387,7 @@ model Subscription {
   businessId String   @unique
   business   Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
 
-  plan   SubscriptionPlan   @default(STARTER)
+  plan   LegacyPlanTier     @default(STARTER)
   status SubscriptionStatus @default(ACTIVE)
 
   currentPeriodStart DateTime  @default(now())
@@ -382,6 +399,153 @@ model Subscription {
   @@index([businessId])
   @@index([status])
   @@map("subscriptions")
+}
+
+// ── SubscriptionPlan — admin-editable plan definitions (Silver/Gold/Platinum) ──
+// Replaces hardcoding tiers in code: admin creates/edits rows here, and every
+// limit the ranking/boosting engine reads (boost frequency, search weight,
+// gallery size) comes from this table, not from application constants.
+
+model SubscriptionPlan {
+  id          String  @id @default(cuid())
+  key         String  @unique // stable machine key, e.g. "silver" | "gold" | "platinum"
+  name        String // display name, e.g. "Gold"
+  description String? @db.Text
+
+  rank     Int     @default(0) // ordering (higher = higher tier)
+  isActive Boolean @default(true)
+
+  priceMonthly Int? // minor units — nullable until billing/payments exists
+
+  // Configurable limits — the whole point is admins change these without a deploy.
+  boostsPerWeek      Int     @default(0)
+  maxBoostHours      Int     @default(24)
+  galleryLimit       Int?
+  serviceLimit       Int?
+  searchWeight       Float   @default(1) // multiplier the ranking algorithm applies
+  isFeaturedEligible Boolean @default(false)
+  isPriorityEligible Boolean @default(false)
+  features           Json?   @db.JsonB // free-form extra perks/flags, avoids future migrations
+
+  businessSubscriptions BusinessSubscription[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("subscription_plans")
+}
+
+// ── BusinessSubscription — a salon's actual plan assignment ───────────────
+// This is the new, proper replacement for the flat Subscription model above.
+// Kept side-by-side with it for now so existing billing/admin pages keep
+// working; wiring the app over to this one is a later step.
+
+model BusinessSubscription {
+  id         String   @id @default(cuid())
+  businessId String   @unique
+  business   Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+
+  planId String
+  plan   SubscriptionPlan @relation(fields: [planId], references: [id], onDelete: Restrict)
+
+  status    SubscriptionStatus @default(ACTIVE)
+  startDate DateTime           @default(now())
+  endDate   DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([businessId])
+  @@index([planId])
+  @@index([status])
+  @@map("business_subscriptions")
+}
+
+// ── SalonBoost — one row per boost event (not a "featured=true" flag) ─────
+
+model SalonBoost {
+  id         String   @id @default(cuid())
+  businessId String
+  business   Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+
+  source      BoostSource @default(AUTO)
+  startAt     DateTime
+  endAt       DateTime
+  cancelledAt DateTime?
+
+  // Set when an admin manually created or cancelled this boost (audit trail).
+  createdByUserId String?
+
+  createdAt DateTime @default(now())
+
+  @@index([businessId])
+  @@index([startAt, endAt])
+  @@map("salon_boosts")
+}
+
+// ── Advertisement system ───────────────────────────────────────────────────
+// Placement = an admin-defined slot ("homepage_top", "search_results", ...).
+// Advertisement = one banner targeting a placement, with its own schedule
+// and priority so multiple ads in the same slot rotate instead of one
+// permanently winning.
+
+model AdvertisementPlacement {
+  id           String  @id @default(cuid())
+  key          String  @unique // e.g. "homepage_top", "search_results", "city_page"
+  name         String
+  description  String? @db.Text
+  maxActiveAds Int     @default(1) // how many ads can rotate concurrently in this slot
+  isActive     Boolean @default(true)
+
+  advertisements Advertisement[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("advertisement_placements")
+}
+
+model Advertisement {
+  id          String                 @id @default(cuid())
+  placementId String
+  placement   AdvertisementPlacement @relation(fields: [placementId], references: [id], onDelete: Cascade)
+
+  title          String
+  description    String? @db.Text
+  imageUrl       String
+  destinationUrl String
+
+  startAt  DateTime
+  endAt    DateTime
+  priority Int      @default(0)
+  isActive Boolean  @default(true)
+
+  events AdvertisementEvent[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([placementId])
+  @@index([startAt, endAt])
+  @@index([isActive])
+  @@map("advertisements")
+}
+
+// Append-only impression/click log (same pattern as AuditLog) — simpler and
+// more accurate than a pre-aggregated campaign/stats table, and covers the
+// PDF's "AdvertisementCampaign/analytics if required" requirement.
+
+model AdvertisementEvent {
+  id              String        @id @default(cuid())
+  advertisementId String
+  advertisement   Advertisement @relation(fields: [advertisementId], references: [id], onDelete: Cascade)
+
+  type      AdEventType
+  createdAt DateTime    @default(now())
+
+  @@index([advertisementId, type])
+  @@index([createdAt])
+  @@map("advertisement_events")
 }
 
 // ── Priority 2 models ────────────────────────────────────────────
@@ -795,6 +959,22 @@ model BusinessImage {
 
   @@index([businessId])
   @@map("business_images")
+}
+
+// ── PlatformSetting (platform-wide, key-value config) ─────────────
+// Global admin-editable knobs that aren't tied to one business — e.g.
+// search ranking weights. Same key-value shape as BusinessSetting below,
+// just scoped to the platform instead of a single salon.
+
+model PlatformSetting {
+  id    String @id @default(cuid())
+  key   String @unique
+  value Json   @db.JsonB
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("platform_settings")
 }
 
 // ── BusinessSetting (key-value per settings section) ─────────────
