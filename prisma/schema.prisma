@@ -1,0 +1,818 @@
+// ADNAVRA — Core database schema (Task 3.1)
+// Every tenant-scoped model carries businessId + @@index([businessId]) per AGENTS.md.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+// ── Enums ──────────────────────────────────────────────────────────
+
+enum Role {
+  CUSTOMER
+  OWNER
+  STAFF
+  ADMIN
+}
+
+enum SubscriptionPlan {
+  STARTER
+  PROFESSIONAL
+  PREMIUM
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  SUSPENDED
+  CANCELLED
+}
+
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+  COMPLETED
+  NO_SHOW
+}
+
+enum LocationType {
+  PHYSICAL
+  MOBILE
+  VIRTUAL
+}
+
+enum StockOrderStatus {
+  PENDING
+  ORDERED
+  RECEIVED
+  CANCELLED
+}
+
+enum StocktakeStatus {
+  OPEN
+  COMPLETED
+}
+
+enum GiftCardStatus {
+  ACTIVE
+  REDEEMED
+  EXPIRED
+  CANCELLED
+}
+
+enum MembershipSaleStatus {
+  ACTIVE
+  EXPIRED
+  CANCELLED
+}
+
+enum SaleCategory {
+  SERVICE
+  PRODUCT
+  PACKAGE
+  MEMBERSHIP
+  GIFT_CARD
+  OTHER
+}
+
+// ── Business (tenant root) ─────────────────────────────────────────
+
+model Business {
+  id           String  @id @default(cuid())
+  name         String
+  slug         String  @unique // public URL: /{businessSlug}
+  description  String? @db.Text
+  logoUrl      String?
+  phone        String?
+  email        String?
+  address      String? @db.Text
+  // Opening hours stored as JSON: { monday: { open:"09:00", close:"18:00", closed:false }, ... }
+  openingHours Json?   @db.JsonB
+
+  // Onboarding wizard fields (all optional, additive)
+  website      String?
+  categories   String[]      @default([])
+  salonTypes   String[]      @default([]) // Unisex/Gents/Ladies/etc — independent of categories (Task 1 fix)
+  teamSize     String?
+  locationType LocationType?
+  district     String?
+  city         String?
+  county       String?
+  state        String?
+  postcode     String?
+  directions   String?       @db.Text
+  latitude     Float?
+  longitude    Float?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  users        User[]
+  services     Service[]
+  staffMembers StaffMember[]
+  customers    Customer[]
+  bookings     Booking[]
+  subscription Subscription?
+
+  // Priority 2 — catalog, sales, team, client-relationship records.
+  // Every model below carries businessId + @@index([businessId]) per AGENTS.md.
+  products         Product[]
+  packages         Package[]
+  packageSales     PackageSale[]
+  promotions       Promotion[]
+  suppliers        Supplier[]
+  stockOrders      StockOrder[]
+  stocktakes       Stocktake[]
+  giftCards        GiftCard[]
+  memberships      Membership[]
+  membershipSales  MembershipSale[]
+  saleRecords      SaleRecord[]
+  shifts           Shift[]
+  timesheetEntries TimesheetEntry[]
+  reviews          Review[]
+  loyaltyAccounts  LoyaltyAccount[]
+  settings         BusinessSetting[]
+  images           BusinessImage[]
+
+  // Marketplace priority placement (PREMIUM campaigns feature).
+  marketplacePriority Boolean @default(false)
+
+  @@map("businesses")
+}
+
+// ── User (Auth.js) ─────────────────────────────────────────────────
+
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  password      String // bcrypt hash, cost 12 — via lib/password.ts only
+  name          String?
+  role          Role      @default(CUSTOMER)
+  // Tenant link — nullable for ADMIN / platform users; required for OWNER/STAFF enforced at app layer.
+  // Keeps businessId index per AGENTS.md for all tenant-scoped queries.
+  businessId    String?
+  business      Business? @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  emailVerified DateTime?
+  image         String?
+
+  // Staff link — if this user is a staff member
+  staffProfile StaffMember?
+
+  passwordResetTokens PasswordResetToken[]
+
+  customerProfiles Customer[] @relation("CustomerAccountLink")
+
+  phone         String?
+  deactivatedAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([businessId])
+  @@map("users")
+}
+
+// ── PasswordResetToken — single-use, time-limited (Task 4.1) ─────────
+
+model PasswordResetToken {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  // Store raw random token hash (SHA-256) — never log plaintext token beyond initial generation.
+  // Token itself is crypto-random 32 bytes hex; we store hash for lookup.
+  tokenHash String   @unique
+  expiresAt DateTime
+  used      Boolean  @default(false)
+
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([expiresAt])
+  @@map("password_reset_tokens")
+}
+
+// ── Service ────────────────────────────────────────────────────────
+
+model Service {
+  id         String   @id @default(cuid())
+  businessId String
+  business   Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+
+  name        String
+  description String? @db.Text
+  price       Int // stored in minor units (cents/LKR cents) — avoids float errors
+  duration    Int // minutes (e.g. 30, 60, 90)
+  isActive    Boolean @default(true)
+  category    String? // one of the CATEGORY_SLUGS values in src/lib/categories.ts, nullable for legacy rows
+
+  bookings Booking[]
+
+  packageItems PackageItem[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([businessId])
+  @@map("services")
+}
+
+// ── StaffMember ────────────────────────────────────────────────────
+
+model StaffMember {
+  id         String   @id @default(cuid())
+  businessId String
+  business   Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+
+  // Optional link to a User account (login-capable staff)
+  userId String? @unique
+  user   User?   @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  name     String
+  email    String?
+  phone    String?
+  isActive Boolean @default(true)
+
+  bookings Booking[]
+
+  shifts           Shift[]
+  timesheetEntries TimesheetEntry[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([businessId])
+  @@index([userId])
+  @@map("staff_members")
+}
+
+// ── Customer ───────────────────────────────────────────────────────
+
+model Customer {
+  id         String   @id @default(cuid())
+  businessId String
+  business   Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+
+  // Optional link to the logged-in customer account that made this booking.
+  // Null for guest/phone bookings taken by staff. Never required.
+  userId String?
+  user   User?   @relation("CustomerAccountLink", fields: [userId], references: [id], onDelete: SetNull)
+
+  name  String
+  email String?
+  phone String?
+  notes String? @db.Text
+
+  bookings Booking[]
+
+  packageSales    PackageSale[]
+  membershipSales MembershipSale[]
+  saleRecords     SaleRecord[]
+  reviews         Review[]
+  loyaltyAccount  LoyaltyAccount?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([businessId])
+  @@index([email])
+  @@index([userId])
+  @@map("customers")
+}
+
+// ── Booking ────────────────────────────────────────────────────────
+// Double-booking is prevented at TWO layers:
+//   1. App layer: availability.ts + transaction with overlap check before insert (Task 5.2)
+//   2. DB layer:  PostgreSQL EXCLUDE constraints via btree_gist (see migrations):
+//      a) bookings_no_overlap_per_staff: EXCLUDE USING gist (staffMemberId WITH =, tstzrange(startTime, endTime) WITH &&)
+//         WHERE (staffMemberId IS NOT NULL AND status != 'CANCELLED')
+//      b) bookings_no_overlap_unassigned: EXCLUDE USING gist (businessId WITH =, tstzrange(startTime, endTime) WITH &&)
+//         WHERE (staffMemberId IS NULL AND status != 'CANCELLED')
+//      — makes the race condition impossible even if two requests hit the same millisecond.
+//        Prisma schema alone cannot express EXCLUDE, so constraints are added in raw SQL inside migrations.
+
+model Booking {
+  id         String   @id @default(cuid())
+  businessId String
+  business   Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+
+  serviceId String
+  service   Service @relation(fields: [serviceId], references: [id], onDelete: Restrict)
+
+  // Nullable — walk-in or unassigned bookings
+  staffMemberId String?
+  staffMember   StaffMember? @relation(fields: [staffMemberId], references: [id], onDelete: SetNull)
+
+  customerId String
+  customer   Customer @relation(fields: [customerId], references: [id], onDelete: Restrict)
+
+  startTime DateTime @db.Timestamptz(6)
+  endTime   DateTime @db.Timestamptz(6)
+
+  status    BookingStatus @default(PENDING)
+  // Human-friendly reference shown to customer (e.g. ADN-8K2F9Q)
+  reference String        @unique @default(cuid())
+
+  notes String? @db.Text
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([businessId])
+  @@index([serviceId])
+  @@index([staffMemberId])
+  @@index([customerId])
+  @@index([startTime])
+  @@index([status])
+  // Overlap protection is enforced by the EXCLUDE constraint in migration.sql,
+  // not by a Prisma @@unique — see class-level comment above.
+  @@map("bookings")
+}
+
+// ── AuditLog — who did what, when (Section 6) ──────────────────────
+// Never log passwords, tokens, or full card numbers — only action + actor + target.
+// Append-only: no updates, no deletes from application code.
+
+model AuditLog {
+  id         String  @id @default(cuid())
+  // Actor — nullable for system/public actions (e.g. public booking by guest)
+  userId     String?
+  userEmail  String?
+  role       String?
+  // What happened
+  action     String // e.g. "auth.login", "booking.create", "booking.cancel", "business.suspend"
+  targetType String? // e.g. "Booking", "Business", "User"
+  targetId   String?
+  businessId String?
+  // Extra context (sanitized, never secrets)
+  metadata   Json?   @db.JsonB
+  ip         String?
+
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([businessId])
+  @@index([action])
+  @@index([createdAt])
+  @@index([targetType, targetId])
+  @@map("audit_logs")
+}
+
+// ── Subscription ───────────────────────────────────────────────────
+
+model Subscription {
+  id         String   @id @default(cuid())
+  businessId String   @unique
+  business   Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+
+  plan   SubscriptionPlan   @default(STARTER)
+  status SubscriptionStatus @default(ACTIVE)
+
+  currentPeriodStart DateTime  @default(now())
+  currentPeriodEnd   DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([businessId])
+  @@index([status])
+  @@map("subscriptions")
+}
+
+// ── Priority 2 models ────────────────────────────────────────────
+// Every model is tenant-scoped via businessId (AGENTS.md, no exceptions).
+
+// ── Product (retail catalog, separate from Service) ──────────────
+
+model Product {
+  id         String   @id @default(cuid())
+  businessId String
+  business   Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+
+  name        String
+  description String? @db.Text
+  price       Int // minor units — same convention as Service.price
+  stockQty    Int     @default(0)
+  sku         String?
+  isActive    Boolean @default(true)
+
+  stockOrderItems StockOrderItem[]
+  stocktakeItems  StocktakeItem[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([businessId])
+  @@map("products")
+}
+
+// ── Package (bundle of N services at a fixed price) ──────────────
+
+model Package {
+  id         String   @id @default(cuid())
+  businessId String
+  business   Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+
+  name        String
+  description String? @db.Text
+  price       Int // fixed bundle price, minor units
+  isActive    Boolean @default(true)
+
+  items PackageItem[]
+  sales PackageSale[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([businessId])
+  @@map("packages")
+}
+
+model PackageItem {
+  id        String  @id @default(cuid())
+  packageId String
+  pkg       Package @relation(fields: [packageId], references: [id], onDelete: Cascade)
+
+  serviceId String
+  service   Service @relation(fields: [serviceId], references: [id], onDelete: Restrict)
+  quantity  Int     @default(1)
+
+  @@index([packageId])
+  @@map("package_items")
+}
+
+// ── PackageSale (a customer buying a package) ────────────────────
+
+model PackageSale {
+  id         String   @id @default(cuid())
+  businessId String
+  business   Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+
+  packageId   String?
+  pkg         Package? @relation(fields: [packageId], references: [id], onDelete: SetNull)
+  packageName String // snapshot — survives package renames/deletes
+
+  customerId String?
+  customer   Customer? @relation(fields: [customerId], references: [id], onDelete: SetNull)
+
+  pricePaid Int // minor units
+  status    String   @default("ACTIVE") // ACTIVE | REDEEMED | EXPIRED | CANCELLED
+  soldAt    DateTime @default(now())
+
+  createdAt DateTime @default(now())
+
+  @@index([businessId])
+  @@index([customerId])
+  @@map("package_sales")
+}
+
+// ── Promotion / campaign (marketing) ─────────────────────────────
+
+model Promotion {
+  id         String   @id @default(cuid())
+  businessId String
+  business   Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+
+  code        String
+  title       String
+  description String?   @db.Text
+  percentOff  Int? // 1-90
+  amountOff   Int? // minor units (alternative to percentOff)
+  startsAt    DateTime?
+  endsAt      DateTime?
+  isActive    Boolean   @default(true)
+  // PREMIUM additions on the same row: scheduled/recurring campaigns
+  isCampaign  Boolean   @default(false)
+  repeatRule  String? // e.g. "weekly" | "monthly" | null (one-off)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([businessId, code])
+  @@index([businessId])
+  @@map("promotions")
+}
+
+// ── Supplier → StockOrder → Stocktake (inventory chain) ──────────
+
+model Supplier {
+  id         String   @id @default(cuid())
+  businessId String
+  business   Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+
+  name        String
+  contactName String?
+  email       String?
+  phone       String?
+  address     String? @db.Text
+  notes       String? @db.Text
+  isActive    Boolean @default(true)
+
+  stockOrders StockOrder[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([businessId])
+  @@map("suppliers")
+}
+
+model StockOrder {
+  id         String   @id @default(cuid())
+  businessId String
+  business   Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+
+  supplierId String
+  supplier   Supplier @relation(fields: [supplierId], references: [id], onDelete: Restrict)
+
+  status     StockOrderStatus @default(PENDING)
+  orderedAt  DateTime?
+  receivedAt DateTime?
+  notes      String?          @db.Text
+
+  items StockOrderItem[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([businessId])
+  @@index([supplierId])
+  @@map("stock_orders")
+}
+
+model StockOrderItem {
+  id           String     @id @default(cuid())
+  stockOrderId String
+  stockOrder   StockOrder @relation(fields: [stockOrderId], references: [id], onDelete: Cascade)
+
+  productId   String?
+  product     Product? @relation(fields: [productId], references: [id], onDelete: SetNull)
+  productName String // snapshot — survives product renames/deletes
+  quantity    Int
+  unitCost    Int // minor units per unit
+
+  @@index([stockOrderId])
+  @@map("stock_order_items")
+}
+
+model Stocktake {
+  id         String   @id @default(cuid())
+  businessId String
+  business   Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+
+  title       String?
+  status      StocktakeStatus @default(OPEN)
+  notes       String?         @db.Text
+  completedAt DateTime?
+
+  items StocktakeItem[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([businessId])
+  @@map("stocktakes")
+}
+
+model StocktakeItem {
+  id          String    @id @default(cuid())
+  stocktakeId String
+  stocktake   Stocktake @relation(fields: [stocktakeId], references: [id], onDelete: Cascade)
+
+  productId   String?
+  product     Product? @relation(fields: [productId], references: [id], onDelete: SetNull)
+  productName String // snapshot
+  expectedQty Int
+  countedQty  Int
+
+  @@index([stocktakeId])
+  @@map("stocktake_items")
+}
+
+// ── GiftCard / Membership (+ sales) ──────────────────────────────
+
+model GiftCard {
+  id         String   @id @default(cuid())
+  businessId String
+  business   Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+
+  code           String
+  amount         Int // face value, minor units
+  balance        Int // remaining, minor units
+  recipientName  String?
+  recipientEmail String?
+  status         GiftCardStatus @default(ACTIVE)
+  expiresAt      DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([businessId, code])
+  @@index([businessId])
+  @@map("gift_cards")
+}
+
+model Membership {
+  id         String   @id @default(cuid())
+  businessId String
+  business   Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+
+  name         String
+  description  String? @db.Text
+  price        Int // minor units
+  durationDays Int // validity length
+  isActive     Boolean @default(true)
+
+  sales MembershipSale[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([businessId])
+  @@map("memberships")
+}
+
+model MembershipSale {
+  id         String   @id @default(cuid())
+  businessId String
+  business   Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+
+  membershipId   String?
+  membership     Membership? @relation(fields: [membershipId], references: [id], onDelete: SetNull)
+  membershipName String // snapshot
+
+  customerId String?
+  customer   Customer? @relation(fields: [customerId], references: [id], onDelete: SetNull)
+
+  pricePaid Int
+  startsAt  DateTime             @default(now())
+  endsAt    DateTime?
+  status    MembershipSaleStatus @default(ACTIVE)
+
+  createdAt DateTime @default(now())
+
+  @@index([businessId])
+  @@index([customerId])
+  @@map("membership_sales")
+}
+
+// ── SaleRecord (detailed sales ledger) ───────────────────────────
+
+model SaleRecord {
+  id         String   @id @default(cuid())
+  businessId String
+  business   Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+
+  category SaleCategory @default(SERVICE)
+  label    String // human-readable line, e.g. "Haircut — Ayesha"
+  amount   Int // minor units, always >= 0
+  status   String       @default("COMPLETED") // COMPLETED | REFUNDED | VOIDED
+
+  customerId String?
+  customer   Customer? @relation(fields: [customerId], references: [id], onDelete: SetNull)
+  bookingId  String?
+
+  occurredAt DateTime @default(now())
+  notes      String?  @db.Text
+
+  createdAt DateTime @default(now())
+
+  @@index([businessId])
+  @@index([customerId])
+  @@index([occurredAt])
+  @@map("sale_records")
+}
+
+// ── Shift / TimesheetEntry (team scheduling) ─────────────────────
+
+model Shift {
+  id         String   @id @default(cuid())
+  businessId String
+  business   Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+
+  staffMemberId String
+  staffMember   StaffMember @relation(fields: [staffMemberId], references: [id], onDelete: Cascade)
+
+  start DateTime @db.Timestamptz(6)
+  end   DateTime @db.Timestamptz(6)
+  notes String?  @db.Text
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([businessId])
+  @@index([staffMemberId])
+  @@index([start])
+  @@map("shifts")
+}
+
+model TimesheetEntry {
+  id         String   @id @default(cuid())
+  businessId String
+  business   Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+
+  staffMemberId String
+  staffMember   StaffMember @relation(fields: [staffMemberId], references: [id], onDelete: Cascade)
+
+  date     DateTime  @db.Timestamptz(6)
+  clockIn  DateTime? @db.Timestamptz(6)
+  clockOut DateTime? @db.Timestamptz(6)
+  hours    Float // manual or derived hours, always >= 0
+  note     String?   @db.Text
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([businessId])
+  @@index([staffMemberId])
+  @@index([date])
+  @@map("timesheet_entries")
+}
+
+// ── Review (online reputation — single reviews system) ───────────
+
+model Review {
+  id         String   @id @default(cuid())
+  businessId String
+  business   Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+
+  customerId String?
+  customer   Customer? @relation(fields: [customerId], references: [id], onDelete: SetNull)
+
+  rating  Int // 1-5
+  comment String? @db.Text
+  source  String  @default("walk-in") // walk-in | marketplace | staff-logged
+
+  createdAt DateTime @default(now())
+
+  @@index([businessId])
+  @@index([rating])
+  @@map("reviews")
+}
+
+// ── LoyaltyAccount (N visits = 1 reward) ─────────────────────────
+
+model LoyaltyAccount {
+  id         String   @id @default(cuid())
+  businessId String
+  business   Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+
+  customerId String   @unique
+  customer   Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+
+  points          Int @default(0)
+  visits          Int @default(0)
+  rewardsRedeemed Int @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([businessId, customerId])
+  @@index([businessId])
+  @@map("loyalty_accounts")
+}
+
+// ── BusinessImage (Priority 3 — logo/cover/gallery quality control) ──
+// Logo is stored on Business.logoUrl; cover + gallery photos live here so a
+// salon can have N photos (public page gallery strip). Every row is
+// tenant-scoped via businessId (AGENTS.md, no exceptions).
+
+model BusinessImage {
+  id         String   @id @default(cuid())
+  businessId String
+  business   Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+
+  url      String
+  kind     String // "cover" | "gallery"
+  position Int    @default(0)
+
+  createdAt DateTime @default(now())
+
+  @@index([businessId])
+  @@map("business_images")
+}
+
+// ── BusinessSetting (key-value per settings section) ─────────────
+// Keys: "clients" | "payments" | "sales" | "forms" | "marketing" |
+//       "scheduling" (calendar labels) | "loyalty" (visitsPerReward).
+
+model BusinessSetting {
+  id         String   @id @default(cuid())
+  businessId String
+  business   Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+
+  key   String
+  value Json   @db.JsonB
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([businessId, key])
+  @@index([businessId])
+  @@map("business_settings")
+}

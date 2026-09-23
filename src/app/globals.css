@@ -1,0 +1,209 @@
+@import "tailwindcss";
+@import "leaflet/dist/leaflet.css";
+
+/* ADNAVRA DESIGN TOKENS — warm beige brand palette (see DESIGN.md) */
+@theme inline {
+  --color-primary: #8a6d4f;
+  --color-primary-active: #5f4630;
+  --color-primary-soft: #f0e6d6;
+  --color-accent: #c9a26d;
+  --color-accent-active: #b08a52;
+  --color-accent-soft: #f5ead9;
+  --color-ink: #3a2f22;
+  --color-body: #6b5d4d;
+  --color-muted: #a89880;
+  --color-muted-soft: #c9bda9;
+  --color-canvas: #faf6ef;
+  --color-surface-soft: #f3ebdd;
+  --color-surface-card: #f6efe3;
+  --color-surface-dark: #2b2318;
+  --color-surface-dark-elevated: #362c1e;
+  --color-sidebar-active: #a67c52;
+  --color-hairline: #e6dcc8;
+  --font-sans: Inter, ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Cal Sans", Inter, sans-serif;
+  /* Nexus tokens — used on marketing dark surfaces */
+  --color-nexus-primary: #c9a26d;
+  --color-nexus-tertiary: #8a6d4f;
+  --color-nexus-bg: #000000;
+  --color-nexus-surface: #f5f0e6;
+  --color-nexus-text: #f5f0e6;
+  --color-nexus-text-secondary: #221b12;
+  --color-nexus-border: #ffffff;
+  --font-geist: Geist, Inter, ui-sans-serif, system-ui, sans-serif;
+}
+
+:root {
+  --background: #faf6ef;
+  --foreground: #3a2f22;
+  --brand-gradient: linear-gradient(135deg, #4a3620 0%, #8a6d4f 50%, #c9a26d 100%);
+  --nexus-gradient: linear-gradient(180deg, rgba(201,162,109,0.16), rgba(138,109,79,0.10));
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+}
+
+.brand-gradient-bg {
+  background: var(--brand-gradient);
+}
+
+.brand-gradient-text {
+  background: var(--brand-gradient);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* === NEXUS — Intelligence That Scales: marketing-only utilities === */
+.nexus-shell {
+  /* Gradient border shell — per DESIGN.md Techniques */
+  padding: 1px;
+  border-radius: 16px;
+  background:
+    radial-gradient(circle at 72% 42%, rgba(220,245,255,0.08), rgba(0,0,0,0) 22%),
+    linear-gradient(90deg, rgba(0,0,0,0.98) 0%, rgba(0,0,0,0.92) 30%, rgba(0,0,0,0.48) 58%, rgba(0,0,0,0.18) 100%);
+  box-shadow: rgba(201,162,109,0.10) 0px 0px 0px 1px inset, rgba(138,109,79,0.18) 0px 0px 32px 0px;
+}
+.nexus-shell-inner {
+  border-radius: 15px;
+  background: rgba(241,245,249,0.98);
+  border: 1px solid rgba(255,255,255,0.55);
+  box-shadow: rgba(201,162,109,0.10) 0px 0px 0px 1px inset;
+}
+.nexus-card {
+  background: rgba(255,255,255,0.96);
+  border: 1px solid rgba(255,255,255,0.65);
+  border-radius: 12px;
+  box-shadow: rgba(201,162,109,0.10) 0px 0px 0px 1px inset, rgba(138,109,79,0.18) 0px 0px 32px 0px, 0 8px 32px rgba(0,0,0,0.22);
+}
+.nexus-card-dark {
+  background: rgba(14,18,31,0.72);
+  border: 1px solid rgba(255,255,255,0.10);
+  border-radius: 12px;
+  box-shadow: rgba(201,162,109,0.10) 0px 0px 0px 1px inset, rgba(138,109,79,0.16) 0px 0px 32px 0px;
+  backdrop-filter: blur(12px);
+}
+.nexus-pill {
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 9999px;
+}
+
+/* motion: moderate 300/500ms ease + cubic-bezier */
+@media (prefers-reduced-motion: no-preference) {
+  .nexus-reveal {
+    opacity: 0;
+    transform: translateY(18px) scale(0.98);
+    transition: opacity 600ms cubic-bezier(0.4,0,0.2,1), transform 600ms cubic-bezier(0.4,0,0.2,1);
+  }
+  .nexus-reveal.is-visible {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  .nexus-hover {
+    transition: color 300ms ease, background-color 300ms ease, border-color 300ms ease, opacity 300ms ease, transform 300ms ease, box-shadow 300ms ease;
+  }
+  .nexus-hover:hover {
+    transform: translateY(-4px) scale(1.015);
+    box-shadow: rgba(201,162,109,0.14) 0px 0px 0px 1px inset, rgba(0,0,0,0.35) 0px 16px 40px 0px;
+  }
+  .nexus-icon {
+    transition: transform 400ms cubic-bezier(0.34,1.56,0.64,1), background-color 300ms ease, color 300ms ease;
+  }
+  .nexus-hover:hover .nexus-icon {
+    transform: scale(1.12) rotate(-6deg);
+  }
+  .nexus-btn {
+    transition: transform 300ms cubic-bezier(0.34,1.56,0.64,1), box-shadow 300ms ease, background-color 300ms ease, color 300ms ease;
+  }
+  .nexus-btn:hover {
+    transform: translateY(-2px) scale(1.03);
+  }
+  .nexus-btn:active {
+    transform: translateY(0) scale(0.98);
+  }
+
+  @keyframes nexus-float {
+    0%, 100% { transform: translate3d(0, 0, 0); }
+    50% { transform: translate3d(0, -22px, 0); }
+  }
+  .nexus-float {
+    animation: nexus-float 9s ease-in-out infinite;
+  }
+  .nexus-float-slow {
+    animation: nexus-float 14s ease-in-out infinite;
+    animation-delay: -4s;
+  }
+
+  @keyframes nexus-pulse-dot {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(201,162,109,0.55); }
+    50% { box-shadow: 0 0 0 6px rgba(201,162,109,0); }
+  }
+  .nexus-pulse-dot {
+    animation: nexus-pulse-dot 2.2s ease-in-out infinite;
+  }
+
+  @keyframes nexus-gradient-pan {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+  .nexus-gradient-text {
+    background-size: 200% auto;
+    animation: nexus-gradient-pan 6s ease-in-out infinite;
+  }
+
+  @keyframes nexus-shell-glow {
+    0%, 100% { box-shadow: rgba(201,162,109,0.10) 0px 0px 0px 1px inset, rgba(138,109,79,0.18) 0px 0px 32px 0px; }
+    50% { box-shadow: rgba(201,162,109,0.20) 0px 0px 0px 1px inset, rgba(138,109,79,0.32) 0px 0px 48px 4px; }
+  }
+  .nexus-shell {
+    animation: nexus-shell-glow 5s ease-in-out infinite;
+  }
+
+  .nexus-chip {
+    transition: transform 300ms cubic-bezier(0.34,1.56,0.64,1), background-color 300ms ease, border-color 300ms ease;
+  }
+  .nexus-chip:hover {
+    transform: translateY(-2px);
+    border-color: rgba(255,255,255,0.3);
+  }
+
+  .nexus-bar {
+    animation: nexus-bar-grow 900ms cubic-bezier(0.4,0,0.2,1) both;
+    transform-origin: bottom;
+  }
+  @keyframes nexus-bar-grow {
+    from { transform: scaleY(0); opacity: 0; }
+    to { transform: scaleY(1); opacity: 1; }
+  }
+}
+
+/* animated underline for footer/text links */
+.nexus-link {
+  position: relative;
+}
+.nexus-link::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -2px;
+  width: 0%;
+  height: 1px;
+  background: currentColor;
+  transition: width 300ms ease;
+}
+.nexus-link:hover::after {
+  width: 100%;
+}
+
+/* Decorative blurred gradient blobs used behind marketing sections */
+.nexus-blob {
+  position: absolute;
+  border-radius: 9999px;
+  filter: blur(80px);
+  pointer-events: none;
+}
