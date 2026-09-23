@@ -6,11 +6,10 @@ import Link from "next/link";
 import { Menu, X, Search } from "lucide-react";
 
 const NAV_LINKS = [
-  { href: "#categories", label: "Categories" },
-  { href: "#salons", label: "Salons" },
-  { href: "#how-it-works", label: "How it works" },
-  { href: "#locations", label: "Locations" },
-  { href: "/for-business", label: "For salons" },
+  { href: "/about", label: "About" },
+  { href: "/categories", label: "Categories" },
+  { href: "/locations", label: "Locations" },
+  { href: "/contact", label: "Contact" },
 ] as const;
 
 /**
@@ -46,9 +45,9 @@ export function HomeHeader() {
             height={28}
             className="h-7 w-7 rounded-md object-contain"
           />
-          <span className="leading-tight">
-            <span className="block text-[13px] font-semibold tracking-[0.18em] text-white">ADNAVRA</span>
-            <span className="block text-[9px] font-medium tracking-[0.3em] text-white/50">BLISS</span>
+          <span className="flex items-baseline gap-1.5 whitespace-nowrap leading-none">
+            <span className="text-[15px] font-semibold tracking-[0.14em] text-white">ADNAVRA</span>
+            <span className="text-[11px] font-medium tracking-[0.22em] text-white/50">BLISS</span>
           </span>
         </Link>
 
