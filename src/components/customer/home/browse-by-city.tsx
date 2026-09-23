@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Search, MapPin, Building2, X } from "lucide-react";
 import type { SriLankaLocation } from "@/lib/sri-lanka-locations";
 import { DISTRICT_TO_PROVINCE, PROVINCE_ORDER } from "@/lib/district-province";
+import { Reveal } from "./reveal";
 
 // Town -> live business count, e.g. { Colombo: 42, Kandy: 11 }. Pass {} if not available yet.
 type CityCounts = Record<string, number>;
@@ -59,11 +60,16 @@ export function BrowseByCity({
   }, []);
 
   return (
-    <section className="px-6 lg:px-12 py-10 max-w-[1200px] mx-auto">
+    <section id="locations" className="px-6 lg:px-12 py-10 max-w-[1200px] mx-auto scroll-mt-20">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <h2 className="text-lg font-semibold tracking-tight text-[#1F1E1D]">Browse by city</h2>
-          <p className="mt-1 text-sm text-[#8A8377]">Pick a region, or search any town directly.</p>
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#795831]">All locations</p>
+          <h2 className="mt-1 text-2xl font-semibold tracking-tight text-[#1F1E1D]">
+            Explore salons across Sri Lanka
+          </h2>
+          <p className="mt-1 text-sm text-[#8A8377]">
+            Find trusted salons and spas across your favorite towns and neighborhoods.
+          </p>
         </div>
 
         {/* Search overlay trigger */}
@@ -145,14 +151,14 @@ export function BrowseByCity({
       </div>
 
       {/* City card grid for the active province */}
-      <div className="mt-6 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+      <Reveal className="mt-6 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 reveal-stagger">
         {activeTowns.map((t) => {
           const count = counts[t.name];
           return (
             <Link
               key={t.name}
               href={cityHref(t)}
-              className="group rounded-xl border border-[#E5DDD0] bg-white p-4 hover:border-[#795831] hover:shadow-sm transition"
+              className="group card-lift rounded-xl border border-[#E5DDD0] bg-white p-4 hover:border-[#795831]"
             >
               <div className="flex items-start justify-between">
                 <span className="flex h-9 w-9 items-center justify-center rounded-full bg-[#F7F3ED] text-[#795831] group-hover:bg-[#795831] group-hover:text-white transition">
@@ -167,7 +173,7 @@ export function BrowseByCity({
             </Link>
           );
         })}
-      </div>
+      </Reveal>
     </section>
   );
 }

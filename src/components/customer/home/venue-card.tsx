@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Heart, MapPin } from "lucide-react";
+import { Heart, MapPin, BadgeCheck, ArrowUpRight } from "lucide-react";
 import { getCategoryLabel } from "@/lib/categories";
 
 type VenueCardProps = {
@@ -15,9 +15,29 @@ type VenueCardProps = {
   categories?: string[] | null;
   salonTypes?: string[] | null;
   featured?: boolean | null;
+  fromPriceMinor?: number | null;
 };
 
-export function VenueCard({ name, slug, logoUrl, address, city, category, categories, salonTypes, featured }: VenueCardProps) {
+function formatFromPrice(minor: number): string {
+  return (minor / 100).toLocaleString("en-LK", {
+    style: "currency",
+    currency: "LKR",
+    maximumFractionDigits: 0,
+  });
+}
+
+export function VenueCard({
+  name,
+  slug,
+  logoUrl,
+  address,
+  city,
+  category,
+  categories,
+  salonTypes,
+  featured,
+  fromPriceMinor,
+}: VenueCardProps) {
   const locationText = [address, city].filter(Boolean).join(" · ") || city || "Sri Lanka";
   // Prefer the full tag list; fall back to the legacy single category.
   // Salon-type tags (own column) come first so they survive the 2-tag slice.
@@ -25,11 +45,12 @@ export function VenueCard({ name, slug, logoUrl, address, city, category, catego
     (c): c is string => typeof c === "string" && c.length > 0,
   );
   const displayTags = (tags.length > 0 ? tags : category ? [category] : []).slice(0, 2);
+  const badgeLabel = displayTags[0] ? getCategoryLabel(displayTags[0]) : null;
 
   return (
     <Link
       href={`/${slug}`}
-      className="group relative flex w-[260px] shrink-0 flex-col overflow-hidden rounded-xl border border-[#E5DDD0] bg-white transition hover:border-[#CCC6BD] hover:shadow-[0_4px_16px_rgba(16,24,40,0.08)]"
+      className="group card-lift relative flex w-[260px] shrink-0 flex-col overflow-hidden rounded-xl border border-[#E5DDD0] bg-white hover:border-[#CCC6BD]"
     >
       {/* Image / placeholder */}
       <div className="relative h-[156px] w-full overflow-hidden bg-[#F7F3ED]">
@@ -38,7 +59,7 @@ export function VenueCard({ name, slug, logoUrl, address, city, category, catego
           <img
             src={logoUrl}
             alt={name}
-            className="h-full w-full object-cover transition group-hover:scale-[1.02]"
+            className="h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-[1.06]"
             loading="lazy"
           />
         ) : (
@@ -47,6 +68,13 @@ export function VenueCard({ name, slug, logoUrl, address, city, category, catego
               {name.slice(0, 2).toUpperCase()}
             </span>
           </div>
+        )}
+
+        {/* Category badge, top-left */}
+        {badgeLabel && (
+          <span className="absolute left-3 top-3 inline-flex items-center rounded-full bg-white/90 backdrop-blur px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-[#1F1E1D] shadow-sm">
+            {badgeLabel}
+          </span>
         )}
 
         {/* Save heart — inert visual only, Task 3.2 */}
@@ -65,10 +93,13 @@ export function VenueCard({ name, slug, logoUrl, address, city, category, catego
 
       <div className="flex flex-1 flex-col gap-1.5 p-4">
         {featured === true && (
-          <span className="inline-flex w-fit items-center rounded-full bg-[#795831] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-white">
-            Featured
+          <span className="inline-flex w-fit items-center gap-1 rounded-full bg-[#795831] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-white">
+            <BadgeCheck className="h-3 w-3" /> Featured
           </span>
         )}
+        <p className="line-clamp-1 flex items-center gap-1 text-[11px] font-medium text-[#795831]">
+          <BadgeCheck className="h-3 w-3" /> Verified Partner &middot; {city ?? "Sri Lanka"}
+        </p>
         <p className="line-clamp-1 text-[14px] font-semibold leading-tight text-[#1F1E1D]">{name}</p>
         <p className="line-clamp-1 flex items-center gap-1 text-xs leading-relaxed text-[#8A8377]">
           <MapPin className="h-3 w-3 shrink-0" />
@@ -83,6 +114,22 @@ export function VenueCard({ name, slug, logoUrl, address, city, category, catego
             ))}
           </span>
         )}
+
+        <div className="mt-auto flex items-center justify-between gap-2 pt-3">
+          <div>
+            {fromPriceMinor != null ? (
+              <>
+                <p className="text-[10px] uppercase tracking-wide text-[#8A8377]">From</p>
+                <p className="text-sm font-semibold text-[#1F1E1D]">{formatFromPrice(fromPriceMinor)}</p>
+              </>
+            ) : (
+              <span />
+            )}
+          </div>
+          <span className="icon-pop inline-flex items-center gap-1 rounded-lg bg-[#1F1E1D] px-3 py-2 text-[11px] font-semibold text-white group-hover:bg-[#795831]">
+            Book <ArrowUpRight className="h-3.5 w-3.5" />
+          </span>
+        </div>
       </div>
     </Link>
   );
