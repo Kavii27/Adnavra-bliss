@@ -43,7 +43,13 @@ export async function rankBusinessIds(
 
   const [subscriptions, activeBoosts, weights] = await Promise.all([
     db.businessSubscription.findMany({
-      where: { businessId: { in: businessIds }, status: "ACTIVE" },
+      // status alone isn't enough — an expired endDate must also stop
+      // counting as active, even if nobody flipped the status manually.
+      where: {
+        businessId: { in: businessIds },
+        status: "ACTIVE",
+        OR: [{ endDate: null }, { endDate: { gt: now } }],
+      },
       include: { plan: true },
     }),
     db.salonBoost.findMany({

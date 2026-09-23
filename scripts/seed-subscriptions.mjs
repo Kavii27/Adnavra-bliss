@@ -143,20 +143,22 @@ async function main() {
   const demoAds = [
     {
       title: "Spring Haircare Sale",
-      imageUrl: "https://placehold.co/1200x300?text=Spring+Haircare+Sale",
+      imageUrl: "/grow.jpeg",
       destinationUrl: "https://example.com/promo/spring-haircare",
       priority: 10,
     },
     {
       title: "New Salons in Kandy",
-      imageUrl: "https://placehold.co/1200x300?text=New+Salons+in+Kandy",
+      imageUrl: "/serve.jpeg",
       destinationUrl: "https://example.com/promo/kandy-salons",
       priority: 5,
     },
   ];
   for (const ad of demoAds) {
     const found = await db.advertisement.findFirst({ where: { title: ad.title } });
-    if (!found) {
+    if (found) {
+      await db.advertisement.update({ where: { id: found.id }, data: { imageUrl: ad.imageUrl } });
+    } else {
       await db.advertisement.create({
         data: {
           ...ad,

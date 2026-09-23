@@ -1,7 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { notFound } from "next/navigation";
-import { AlertCircle, ArrowRight, Crown, Layers, Sparkles, Store } from "lucide-react";
+import { AlertCircle, ArrowRight, Crown, Layers, Megaphone, Sparkles, Store, Zap } from "lucide-react";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 
@@ -38,6 +38,24 @@ export default async function AdminHomePage() {
       description: "Create and edit Silver/Gold/Platinum — boost frequency, search weight, gallery limits — no code changes.",
     },
     {
+      href: "/admin/salon-subscriptions",
+      icon: Crown,
+      title: "Salon Subscriptions",
+      description: "View every salon's plan, assign/change it, set start-end dates, and enable or disable it.",
+    },
+    {
+      href: "/admin/boosts",
+      icon: Zap,
+      title: "Salon Boosting",
+      description: "Manually boost a salon, cancel an active boost, and review the full boost history log.",
+    },
+    {
+      href: "/admin/advertisements",
+      icon: Megaphone,
+      title: "Advertisements",
+      description: "Create banner ads with image upload, schedule them, and track impressions/clicks.",
+    },
+    {
       href: "/admin/businesses",
       icon: Store,
       title: "Businesses",
@@ -46,8 +64,8 @@ export default async function AdminHomePage() {
     {
       href: "/admin/subscriptions",
       icon: Crown,
-      title: "Subscriptions",
-      description: "Assign Starter, Professional, or Premium to each business. Premium unlocks the Featured badge.",
+      title: "Subscriptions (legacy)",
+      description: "The old Starter/Professional/Premium system — being replaced by Salon Subscriptions above.",
     },
   ];
 

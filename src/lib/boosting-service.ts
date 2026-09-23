@@ -65,7 +65,8 @@ export async function createBoost(params: {
     where: { businessId: params.businessId },
     include: { plan: true },
   });
-  if (!subscription || subscription.status !== "ACTIVE") {
+  const expired = subscription?.endDate ? subscription.endDate.getTime() <= now.getTime() : false;
+  if (!subscription || subscription.status !== "ACTIVE" || expired) {
     throw new Error("Business has no active subscription");
   }
 
@@ -106,7 +107,11 @@ export async function cancelBoost(boostId: string, now: Date = new Date()) {
  */
 export async function runAutoBoostCycle(maxNewBoosts: number, now: Date = new Date()) {
   const subscriptions = await db.businessSubscription.findMany({
-    where: { status: "ACTIVE", plan: { boostsPerWeek: { gt: 0 } } },
+    where: {
+      status: "ACTIVE",
+      OR: [{ endDate: null }, { endDate: { gt: now } }],
+      plan: { boostsPerWeek: { gt: 0 } },
+    },
     include: { plan: true },
   });
 
