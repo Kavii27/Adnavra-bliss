@@ -29,7 +29,7 @@ import {
   BadgeCheck,
   MousePointerClick,
 } from "lucide-react";
-import { SiteHeader } from "@/components/marketing/site-header";
+import { HomeHeader } from "@/components/customer/home/home-header";
 import { SiteFooter } from "@/components/marketing/site-footer";
 
 const playfair = Playfair_Display({
@@ -207,13 +207,13 @@ export default function AboutPage() {
       className={`${playfair.variable} ${jakarta.variable} bg-[${c.surface}] text-[${c.onSurface}]`}
       style={{ fontFamily: "var(--font-jakarta), ui-sans-serif, sans-serif" }}
     >
-      <SiteHeader />
+      <HomeHeader />
 
       <main className="w-full bg-[#fdf9f3]">
         {/* ============================================================ */}
         {/* SECTION 1: HERO — organic image curve like the LUXE reference */}
         {/* This section starts at the very top of the page, same as         */}
-        {/* <SiteHeader />. Because the header has NO background of its own  */}
+        {/* <HomeHeader />. Because the header has NO background of its own  */}
         {/* on the right side, the clip-path below is what shows through    */}
         {/* behind the nav — that's what makes the nav + hero read as one   */}
         {/* single continuous curve, instead of two separate shapes.        */}

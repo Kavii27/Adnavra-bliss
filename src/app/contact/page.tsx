@@ -1,10 +1,10 @@
-import { SiteHeader } from "@/components/marketing/site-header";
+import { HomeHeader } from "@/components/customer/home/home-header";
 import { SiteFooter } from "@/components/marketing/site-footer";
 
 export default function ContactPage() {
   return (
     <main className="min-h-screen bg-[#FDF9F3]">
-      <SiteHeader />
+      <HomeHeader />
       <section className="max-w-[800px] mx-auto px-6 py-20">
         <h1 className="text-4xl font-semibold tracking-tight text-[#1F1E1D]">Contact us</h1>
         <p className="mt-4 text-[#4A4640] leading-relaxed">

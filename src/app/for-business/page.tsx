@@ -14,7 +14,7 @@ import {
   CheckCircle2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { SiteHeader } from "@/components/marketing/site-header";
+import { HomeHeader } from "@/components/customer/home/home-header";
 import { SiteFooter } from "@/components/marketing/site-footer";
 
 const FEATURES = [
@@ -63,7 +63,7 @@ const FEATURES = [
 export default function ForBusinessPage() {
   return (
     <main className="min-h-screen bg-[#fdf9f3]">
-      <SiteHeader />
+      <HomeHeader />
 
       {/* Hero - angled toward salon owners */}
       <section className="relative overflow-hidden">
