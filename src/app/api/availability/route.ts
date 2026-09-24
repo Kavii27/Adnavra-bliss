@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { db } from "@/lib/db";
-import { getAvailableSlots, dayBoundsUtc, openingForDate, normalizeOpeningHours } from "@/lib/availability";
+import { getAllSlotsWithStatus, dayBoundsUtc, openingForDate, normalizeOpeningHours } from "@/lib/availability";
 import { rateLimit, rateLimitHeaders } from "@/lib/rate-limit";
 
 const querySchema = z.object({
@@ -80,7 +80,9 @@ export async function GET(request: NextRequest) {
     return { open: "09:00", close: "18:00", closed: false };
   })();
 
-  const slots = getAvailableSlots({
+  // Includes reserved (already-booked) slots tagged `reserved: true` so the UI can
+  // show them as unavailable instead of just silently omitting them.
+  const slots = getAllSlotsWithStatus({
     date,
     serviceDurationMin: service.duration,
     openingHours: effectiveOpening,
@@ -89,7 +91,7 @@ export async function GET(request: NextRequest) {
 
   return NextResponse.json({
     data: {
-      slots: slots.map((s) => ({ start: s.start.toISOString(), end: s.end.toISOString() })),
+      slots: slots.map((s) => ({ start: s.start.toISOString(), end: s.end.toISOString(), reserved: s.reserved })),
       openingHours: effectiveOpening,
       service: { id: service.id, name: service.name, duration: service.duration, price: service.price },
     },

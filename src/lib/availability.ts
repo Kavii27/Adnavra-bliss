@@ -121,6 +121,52 @@ export function getAvailableSlots(input: AvailabilityInput): TimeSlot[] {
   return result;
 }
 
+export type TimeSlotWithStatus = TimeSlot & { reserved: boolean };
+
+/**
+ * Same candidate-generation rules as getAvailableSlots, but keeps slots that
+ * overlap an existing booking in the result (tagged `reserved: true`) instead
+ * of dropping them — lets the UI show a taken slot as "Reserved" rather than
+ * silently omitting it. Slots outside the staff schedule are still excluded
+ * entirely, since those were never bookable in the first place.
+ */
+export function getAllSlotsWithStatus(input: AvailabilityInput): TimeSlotWithStatus[] {
+  const { date, serviceDurationMin, openingHours, existingBookings, staffSchedule } = input;
+
+  if (!openingHours || openingHours.closed) return [];
+  if (!serviceDurationMin || serviceDurationMin <= 0) return [];
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return [];
+
+  const openDate = buildDate(date, openingHours.open);
+  const closeDate = buildDate(date, openingHours.close);
+  if (!openDate || !closeDate) return [];
+  if (openDate.getTime() >= closeDate.getTime()) return [];
+
+  const intervalMin =
+    input.slotIntervalMin ?? (serviceDurationMin % 30 === 0 ? 30 : 15);
+
+  const durationMs = serviceDurationMin * 60 * 1000;
+  const stepMs = intervalMin * 60 * 1000;
+
+  const result: TimeSlotWithStatus[] = [];
+
+  for (let t = openDate.getTime(); t + durationMs <= closeDate.getTime(); t += stepMs) {
+    const candidate: TimeSlot = {
+      start: new Date(t),
+      end: new Date(t + durationMs),
+    };
+
+    if (staffSchedule && staffSchedule.length > 0) {
+      if (!isFullyContained(candidate, staffSchedule)) continue;
+    }
+
+    const reserved = existingBookings.some((b) => overlaps(candidate, b));
+    result.push({ ...candidate, reserved });
+  }
+
+  return result;
+}
+
 /**
  * Helper: day bounds in UTC for DB query filtering.
  * Returns [startOfDay, endOfDay) for a YYYY-MM-DD.

@@ -3,10 +3,53 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
-import { ArrowLeft, X, Loader2, AlertCircle, Check, Clock, MapPin, User, Calendar, ChevronLeft, ChevronRight, Scissors } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Loader2, AlertCircle, Check, Clock, MapPin, User, Calendar, ChevronLeft, ChevronRight, Scissors, Info } from "lucide-react";
 import { SERVICE_CATEGORIES } from "@/lib/categories";
 import { ServiceImage } from "@/components/business/service-image";
+
+function PrimaryCta({
+  onClick,
+  disabled,
+  children,
+  className = "",
+}: {
+  onClick?: () => void;
+  disabled?: boolean;
+  children: React.ReactNode;
+  className?: string;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      disabled={disabled}
+      className={`inline-flex h-12 min-w-[150px] items-center justify-center gap-2 rounded-full bg-[#1F1B17] px-7 text-[12px] font-bold uppercase tracking-[0.14em] text-white shadow-[0_4px_14px_rgba(30,28,26,0.25)] transition-all hover:scale-[1.02] hover:bg-[#795831] disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:scale-100 disabled:hover:bg-[#1F1B17] ${className}`}
+    >
+      {children}
+    </button>
+  );
+}
+
+function SecondaryCta({
+  onClick,
+  disabled,
+  children,
+}: {
+  onClick?: () => void;
+  disabled?: boolean;
+  children: React.ReactNode;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      disabled={disabled}
+      className="inline-flex h-12 items-center justify-center rounded-full border border-[#E5DDD0] bg-white px-7 text-[12px] font-bold uppercase tracking-[0.14em] text-[#1F1E1D] transition-colors hover:bg-[#F7F3ED] disabled:cursor-not-allowed disabled:opacity-40"
+    >
+      {children}
+    </button>
+  );
+}
 
 type Step = "services" | "professional" | "time" | "confirm";
 
@@ -29,6 +72,7 @@ type Service = {
   duration: number; // minutes
   category: string | null;
   isActive: boolean;
+  imageUrl?: string | null;
 };
 
 type StaffLite = { id: string; name: string };
@@ -43,7 +87,7 @@ type BusinessLite = {
   description: string | null;
 };
 
-type Slot = { start: string; end: string };
+type Slot = { start: string; end: string; reserved?: boolean };
 
 function formatPrice(minor: number): string {
   return (minor / 100).toLocaleString("en-LK", { style: "currency", currency: "LKR", maximumFractionDigits: 0 });
@@ -63,6 +107,25 @@ function formatDateLabel(iso: string): string {
   } catch {
     return iso;
   }
+}
+
+function slotPeriod(iso: string): "Morning" | "Afternoon" | "Evening" {
+  const hour = new Date(iso).getHours();
+  if (hour < 12) return "Morning";
+  if (hour < 17) return "Afternoon";
+  return "Evening";
+}
+
+function groupSlotsByPeriod(slots: Slot[]): { label: string; slots: Slot[] }[] {
+  const order: ("Morning" | "Afternoon" | "Evening")[] = ["Morning", "Afternoon", "Evening"];
+  const byPeriod = new Map<string, Slot[]>();
+  for (const s of slots) {
+    const p = slotPeriod(s.start);
+    const arr = byPeriod.get(p) ?? [];
+    arr.push(s);
+    byPeriod.set(p, arr);
+  }
+  return order.filter((p) => byPeriod.has(p)).map((p) => ({ label: p, slots: byPeriod.get(p)! }));
 }
 
 function groupServices(services: Service[]): { key: string; label: string; services: Service[] }[] {
@@ -160,6 +223,8 @@ export function BookingWizard({
   const [selectedSlot, setSelectedSlot] = useState<Slot | null>(null);
   const [pendingSlotStart, setPendingSlotStart] = useState<string | null>(initialSlotStart ?? null);
   const [notes, setNotes] = useState("");
+  const [logoFailed, setLogoFailed] = useState(false);
+  const [activeCategory, setActiveCategory] = useState<string | null>(null);
 
   // UI state
   const [bizLoading, setBizLoading] = useState(true);
@@ -191,14 +256,16 @@ export function BookingWizard({
     return `/${businessSlug}/book${qs ? `?${qs}` : ""}`;
   }, [businessSlug, selectedServiceId, selectedStaffId, selectedDate, selectedSlot]);
 
-  // Restore a deep-linked slot (from callbackUrl) once slots load.
+  // Restore a deep-linked slot (from callbackUrl) once slots load. Never auto-select a
+  // slot someone else has since booked — just clear the pending marker so the customer
+  // sees it greyed out as "Reserved" instead of silently landing on a taken time.
   useEffect(() => {
     if (!pendingSlotStart || selectedSlot || slots.length === 0) return;
     const match = slots.find((s) => s.start === pendingSlotStart);
-    if (match) {
+    if (match && !match.reserved) {
       setSelectedSlot(match);
-      setPendingSlotStart(null);
     }
+    setPendingSlotStart(null);
   }, [pendingSlotStart, selectedSlot, slots]);
 
   // Load business + services + staff
@@ -364,29 +431,48 @@ export function BookingWizard({
     }
   }
 
+  const SERIF = "font-[family-name:var(--font-display)]";
+  const GOLD = "#D9BE8C";
+
   // Success state — replaces wizard content per Task 7.7
   if (success) {
     return (
-      <div className="max-w-3xl mx-auto">
-        <div className="rounded-xl border border-[#E5DDD0] bg-white p-8 shadow-[0_2px_8px_rgba(16,24,40,0.06)] text-center">
-          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-[#DCF5E7] border border-[#B5D0BF]">
-            <Check className="h-6 w-6 text-[#15803D]" />
-          </div>
-          <h2 className="mt-4 text-xl font-semibold tracking-tight text-[#1F1E1D]">Appointment confirmed</h2>
-          <p className="mt-2 text-sm text-[#4A4640]">Your appointment at {business?.name ?? businessSlug} is confirmed.</p>
-          {success.reference && (
-            <p className="mt-4 inline-flex rounded-md bg-[#FDF9F3] border border-[#E5DDD0] px-4 py-2 font-mono text-sm font-bold tracking-widest text-[#1F1E1D]">
-              {success.reference}
+      <div className="mx-auto max-w-2xl px-1">
+        <div className="overflow-hidden rounded-2xl border border-[#E9E1D3] bg-white shadow-[0_8px_32px_rgba(30,28,26,0.08)]">
+          <div className="bg-gradient-to-br from-[#1F1B17] via-[#2A211A] to-[#1F1B17] px-6 py-10 text-center sm:px-10 sm:py-12">
+            <div
+              className="mx-auto flex h-16 w-16 items-center justify-center rounded-full shadow-[0_8px_24px_rgba(217,190,140,0.4)]"
+              style={{ background: `linear-gradient(135deg, ${GOLD}, #C9A467)` }}
+            >
+              <Check className="h-7 w-7 text-[#1B1714]" strokeWidth={3} />
+            </div>
+            <h2 className={`${SERIF} mt-5 text-3xl font-medium text-white sm:text-4xl`}>Appointment confirmed</h2>
+            <p className="mx-auto mt-2 max-w-sm text-sm text-white/70">
+              Your appointment at {business?.name ?? businessSlug} is booked. We look forward to seeing you.
             </p>
-          )}
-          <p className="mt-3 text-xs text-[#8A8377]">Show this reference at the venue. You can also take a screenshot of this page.</p>
-          <div className="mt-6 flex flex-col sm:flex-row items-center justify-center gap-3">
-            <Link href="/customer/account/activity" className="inline-flex h-10 items-center rounded-md bg-[#795831] px-5 text-sm font-semibold text-white hover:bg-[#5F4426] transition-colors">
-              View in your activity
-            </Link>
-            <Link href={`/${businessSlug}`} className="inline-flex h-10 items-center rounded-md border border-[#E5DDD0] bg-white px-5 text-sm font-semibold text-[#1F1E1D] hover:bg-[#F7F3ED] transition-colors">
-              Back to venue
-            </Link>
+          </div>
+          <div className="px-6 py-8 text-center sm:px-10">
+            {success.reference && (
+              <div className="mx-auto inline-flex flex-col items-center gap-1 rounded-xl border border-dashed border-[#D9BE8C] bg-[#FBF7EF] px-6 py-3">
+                <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#9A7B4F]">Booking reference</span>
+                <span className="font-mono text-lg font-bold tracking-[0.15em] text-[#1F1E1D]">{success.reference}</span>
+              </div>
+            )}
+            <p className="mt-4 text-xs text-[#8A8377]">Show this reference at the venue. You can also take a screenshot of this page.</p>
+            <div className="mt-7 flex flex-col items-center justify-center gap-3 sm:flex-row">
+              <Link
+                href="/customer/account/activity"
+                className="inline-flex h-11 w-full items-center justify-center rounded-full bg-[#1F1B17] px-6 text-[12px] font-bold uppercase tracking-[0.12em] text-white transition-colors hover:bg-[#795831] sm:w-auto"
+              >
+                View in your activity
+              </Link>
+              <Link
+                href={`/${businessSlug}`}
+                className="inline-flex h-11 w-full items-center justify-center rounded-full border border-[#E5DDD0] bg-white px-6 text-[12px] font-bold uppercase tracking-[0.12em] text-[#1F1E1D] transition-colors hover:bg-[#F7F3ED] sm:w-auto"
+              >
+                Back to venue
+              </Link>
+            </div>
           </div>
         </div>
       </div>
@@ -397,74 +483,65 @@ export function BookingWizard({
   const visibleDates = getDateStrip(new Date(), dateOffset);
 
   return (
-    <div className="max-w-6xl mx-auto">
-      {/* Top bar: close X, back arrow, breadcrumbs */}
-      <div className="flex items-center gap-3 mb-6">
-        <Link
-          href={`/${businessSlug}`}
-          aria-label="Close"
-          className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-[#E5DDD0] bg-white text-[#4A4640] hover:bg-[#F7F3ED] transition-colors"
-        >
-          <X className="h-4 w-4" />
-        </Link>
-        {currentIndex > 0 ? (
-          <button
-            onClick={goBack}
-            className="inline-flex items-center gap-1.5 text-sm font-medium text-[#4A4640] hover:text-[#1F1E1D]"
-          >
-            <ArrowLeft className="h-4 w-4" /> Back
-          </button>
-        ) : (
-          <span className="text-sm text-[#8A8377]">Book an appointment</span>
-        )}
-        <div className="ml-auto hidden sm:flex items-center gap-1 text-sm">
-          {STEP_ORDER.map((s, idx) => {
-            const isActive = s === step;
-            const isCompleted = idx < currentIndex;
-            const label = STEP_LABELS[s];
-            return (
-              <span key={s} className="inline-flex items-center gap-1">
-                {idx > 0 && <span className="text-[#C9C1B4] mx-1">·</span>}
-                {isCompleted ? (
+    <div className="w-full">
+      {/* Stepper — truly `fixed` to the viewport (not `sticky`), so it is 100% immune to scroll
+          position, content height, or any pixel-matching between separate elements. Pinned at
+          top-52 (208px = nav 64px + hero 144px, both also `fixed` in book/page.tsx). Height is
+          forced to a fixed h-28 (112px) so the spacer directly below it can reserve the exact
+          same space in normal flow — no measuring, no guessing, no drift. */}
+      <div className="fixed inset-x-0 top-52 z-20 flex h-28 items-center bg-[#FAF7F2] px-4 sm:px-6 lg:px-12">
+        <div className="w-full overflow-x-auto rounded-2xl border border-[#E9E1D3] bg-white px-4 py-5 shadow-[0_2px_16px_rgba(30,28,26,0.04)] sm:px-8">
+          <div className="flex min-w-[480px] items-center sm:min-w-0">
+            {STEP_ORDER.map((s, idx) => {
+              const isActive = s === step;
+              const isCompleted = idx < currentIndex;
+              const isClickable = isCompleted;
+              return (
+                <div key={s} className="flex flex-1 items-center last:flex-none">
                   <button
-                    onClick={() => setStep(s)}
-                    className="font-medium text-[#795831] hover:underline underline-offset-4"
+                    onClick={() => isClickable && setStep(s)}
+                    disabled={!isClickable}
+                    className="flex shrink-0 flex-col items-center gap-2 disabled:cursor-default"
                   >
-                    {label}
+                    <span
+                      className={`flex h-10 w-10 items-center justify-center rounded-full text-[13px] font-bold transition-all ${
+                        isActive
+                          ? "scale-110 text-[#1B1714] shadow-[0_6px_18px_rgba(217,190,140,0.5)]"
+                          : isCompleted
+                            ? "bg-[#1F1B17] text-white"
+                            : "border border-[#E5DDD0] bg-white text-[#8A8377]"
+                      }`}
+                      style={isActive ? { background: `linear-gradient(135deg, ${GOLD}, #C9A467)` } : undefined}
+                    >
+                      {isCompleted ? <Check className="h-4 w-4" /> : idx + 1}
+                    </span>
+                    <span
+                      className={`whitespace-nowrap text-[10px] font-semibold uppercase tracking-[0.14em] ${
+                        isActive || isCompleted ? "text-[#1F1E1D]" : "text-[#B4AC9E]"
+                      }`}
+                    >
+                      {STEP_LABELS[s]}
+                    </span>
                   </button>
-                ) : (
-                  <span className={isActive ? "font-semibold text-[#1F1E1D]" : "text-[#8A8377]"}>{label}</span>
-                )}
-              </span>
-            );
-          })}
+                  {idx < STEP_ORDER.length - 1 && (
+                    <span className={`mx-3 h-px flex-1 transition-colors ${isCompleted ? "bg-[#1F1B17]" : "bg-[#E5DDD0]"}`} />
+                  )}
+                </div>
+              );
+            })}
+          </div>
         </div>
       </div>
+      {/* Spacer: reserves the exact h-28 the fixed stepper above occupies, so the grid below
+          doesn't render underneath it. Plus a little breathing room (pb-8-equivalent via mb). */}
+      <div className="h-28 mb-8" aria-hidden="true" />
 
-      {/* Mobile breadcrumbs row */}
-      <div className="sm:hidden flex items-center gap-1 text-xs mb-4 overflow-x-auto">
-        {STEP_ORDER.map((s, idx) => {
-          const isActive = s === step;
-          const isCompleted = idx < currentIndex;
-          return (
-            <span key={s} className="inline-flex items-center gap-1 shrink-0">
-              {idx > 0 && <span className="text-[#C9C1B4] mx-1">›</span>}
-              {isCompleted ? (
-                <button onClick={() => setStep(s)} className="font-medium text-[#795831]">
-                  {STEP_LABELS[s]}
-                </button>
-              ) : (
-                <span className={isActive ? "font-semibold text-[#1F1E1D]" : "text-[#8A8377]"}>{STEP_LABELS[s]}</span>
-              )}
-            </span>
-          );
-        })}
-      </div>
-
-      {/* Main grid: left wizard + right summary (mirror screenshots 8–10 right column) */}
-      <div className="grid lg:grid-cols-[1fr_340px] gap-6">
+      {/* Left wizard + right summary. The summary is `fixed` (see below), which removes it from
+          normal flow entirely, so we can't rely on CSS grid to reserve its column — instead the
+          left card gets an explicit right margin at lg+ matching the fixed sidebar's width + gap. */}
+      <div className="flex flex-col gap-6 lg:block">
         {/* Left: step content */}
-        <div className="rounded-xl border border-[#E5DDD0] bg-white shadow-[0_2px_8px_rgba(16,24,40,0.06)] overflow-hidden min-h-[480px] flex flex-col">
+        <div className="flex min-h-[560px] flex-col overflow-hidden rounded-2xl border border-[#E9E1D3] bg-white shadow-[0_8px_32px_rgba(30,28,26,0.08)] lg:mr-[432px] xl:mr-[452px]">
           {/* Loading state */}
           {bizLoading ? (
             <div className="flex-1 flex items-center justify-center gap-2 text-sm text-[#8A8377] py-12">
@@ -475,9 +552,34 @@ export function BookingWizard({
               {/* Step 1: Services */}
               {step === "services" && (
                 <div className="flex-1 flex flex-col">
-                  <div className="px-6 pt-6 pb-3 border-b border-[#F1EDE7]">
-                    <h2 className="text-lg font-semibold tracking-tight text-[#1F1E1D]">Select a service</h2>
+                  <div className="border-b border-[#F1EDE7] px-6 pt-7 pb-5 sm:px-9">
+                    <h2 className={`${SERIF} text-3xl font-medium tracking-tight text-[#1F1E1D]`}>Select a service</h2>
                     <p className="mt-1 text-sm text-[#8A8377]">Choose one service for this appointment.</p>
+                    {groups.length > 1 && (
+                      <div className="mt-5 -mb-1 flex gap-2 overflow-x-auto pb-1">
+                        <button
+                          type="button"
+                          onClick={() => setActiveCategory(null)}
+                          className={`shrink-0 rounded-full border px-4 py-1.5 text-xs font-semibold uppercase tracking-wide transition-colors ${
+                            activeCategory === null ? "border-[#1F1B17] bg-[#1F1B17] text-white" : "border-[#E5DDD0] bg-white text-[#4A4640] hover:border-[#CCC6BD]"
+                          }`}
+                        >
+                          All
+                        </button>
+                        {groups.map((g) => (
+                          <button
+                            key={g.key}
+                            type="button"
+                            onClick={() => setActiveCategory(g.key)}
+                            className={`shrink-0 rounded-full border px-4 py-1.5 text-xs font-semibold uppercase tracking-wide transition-colors ${
+                              activeCategory === g.key ? "border-[#1F1B17] bg-[#1F1B17] text-white" : "border-[#E5DDD0] bg-white text-[#4A4640] hover:border-[#CCC6BD]"
+                            }`}
+                          >
+                            {g.label}
+                          </button>
+                        ))}
+                      </div>
+                    )}
                   </div>
                   <div className="flex-1 overflow-y-auto">
                     {servicesLoading ? (
@@ -490,50 +592,66 @@ export function BookingWizard({
                         <p className="mt-1 text-sm text-[#8A8377]">This venue has not published its service menu yet.</p>
                       </div>
                     ) : (
-                      <div className="divide-y divide-[#F1EDE7]">
-                        {groups.map((g) => (
-                          <div key={g.key} className="px-6 py-4">
-                            <h3 className="text-xs font-semibold uppercase tracking-wide text-[#8A8377]">{g.label}</h3>
-                            <ul className="mt-3 space-y-2">
-                              {g.services.map((s) => {
-                                const isSelected = selectedServiceId === s.id;
-                                return (
-                                  <li
-                                    key={s.id}
-                                    className={`flex items-center justify-between gap-4 rounded-lg border p-4 transition-colors ${isSelected ? "border-[#795831] bg-[#F7F3ED]" : "border-[#E5DDD0] bg-white hover:border-[#CCC6BD]"}`}
-                                  >
-                                    <ServiceImage name={s.name} category={s.category} className="h-16 w-16 rounded-lg" />
-                                    <div className="min-w-0 flex-1">
-                                      <p className="text-sm font-semibold leading-tight text-[#1F1E1D]">{s.name}</p>
-                                      {s.description && <p className="mt-1 text-xs leading-relaxed text-[#4A4640] line-clamp-2">{s.description}</p>}
-                                      <p className="mt-1.5 flex items-center gap-2 text-xs text-[#8A8377]">
-                                        <Clock className="h-3.5 w-3.5" /> {s.duration} min
-                                      </p>
-                                    </div>
-                                    <div className="shrink-0 flex flex-col items-end gap-2">
-                                      <span className="text-sm font-semibold text-[#1F1E1D]">{formatPrice(s.price)}</span>
-                                      <button
-                                        onClick={() => setSelectedServiceId(s.id)}
-                                        aria-pressed={isSelected}
-                                        className={`inline-flex h-8 w-8 items-center justify-center rounded-full border text-sm font-semibold transition-colors ${isSelected ? "bg-[#795831] border-[#795831] text-white" : "bg-white border-[#E5DDD0] text-[#795831] hover:bg-[#F7F3ED]"}`}
-                                        aria-label={isSelected ? "Selected" : `Select ${s.name}`}
-                                      >
-                                        {isSelected ? <Check className="h-4 w-4" /> : "+"}
-                                      </button>
-                                    </div>
-                                  </li>
-                                );
-                              })}
-                            </ul>
-                          </div>
-                        ))}
+                      <div className="space-y-8 px-6 py-6 sm:px-9">
+                        {groups
+                          .filter((g) => activeCategory === null || activeCategory === g.key)
+                          .map((g) => (
+                            <div key={g.key}>
+                              <h3 className="text-xs font-semibold uppercase tracking-[0.16em] text-[#9A7B4F]">{g.label}</h3>
+                              <div className="mt-3 grid gap-4 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
+                                {g.services.map((s) => {
+                                  const isSelected = selectedServiceId === s.id;
+                                  return (
+                                    <button
+                                      key={s.id}
+                                      type="button"
+                                      onClick={() => setSelectedServiceId(s.id)}
+                                      aria-pressed={isSelected}
+                                      className={`group relative overflow-hidden rounded-2xl border text-left transition-all ${
+                                        isSelected
+                                          ? "border-[#1F1B17] shadow-[0_10px_28px_rgba(30,28,26,0.16)]"
+                                          : "border-[#E9E1D3] bg-white hover:-translate-y-0.5 hover:shadow-[0_10px_24px_rgba(30,28,26,0.1)]"
+                                      }`}
+                                    >
+                                      <div className="relative aspect-[16/10] w-full overflow-hidden">
+                                        <ServiceImage
+                                          name={s.name}
+                                          category={s.category}
+                                          imageUrl={s.imageUrl}
+                                          className="h-full w-full transition-transform duration-500 group-hover:scale-105"
+                                        />
+                                        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/55 via-black/0 to-black/0" />
+                                        <span
+                                          className={`absolute right-3 top-3 flex h-8 w-8 items-center justify-center rounded-full border text-sm font-semibold shadow transition-colors ${
+                                            isSelected ? "border-[#D9BE8C] bg-[#1F1B17] text-[#D9BE8C]" : "border-white/70 bg-white/90 text-[#795831] backdrop-blur"
+                                          }`}
+                                        >
+                                          {isSelected ? <Check className="h-4 w-4" /> : "+"}
+                                        </span>
+                                        <span className="absolute bottom-3 left-3 rounded-full bg-black/55 px-2.5 py-1 text-[11px] font-semibold text-white backdrop-blur">
+                                          {formatPrice(s.price)}
+                                        </span>
+                                      </div>
+                                      <div className="p-4">
+                                        <p className={`${SERIF} text-lg font-semibold leading-tight text-[#1F1E1D]`}>{s.name}</p>
+                                        {s.description && <p className="mt-1 text-xs leading-relaxed text-[#4A4640] line-clamp-2">{s.description}</p>}
+                                        <p className="mt-2 flex items-center gap-1.5 text-xs text-[#8A8377]">
+                                          <Clock className="h-3.5 w-3.5" /> {s.duration} min
+                                        </p>
+                                      </div>
+                                    </button>
+                                  );
+                                })}
+                              </div>
+                            </div>
+                          ))}
                       </div>
                     )}
                   </div>
-                  <div className="px-6 py-4 border-t border-[#F1EDE7] flex justify-end">
-                    <Button onClick={goNext} disabled={!selectedServiceId} className="min-w-[140px]">
+                  <div className="border-t border-[#F1EDE7] px-6 py-5 flex justify-end sm:px-9">
+                    <PrimaryCta onClick={goNext} disabled={!selectedServiceId}>
                       Continue
-                    </Button>
+                    </PrimaryCta>
                   </div>
                 </div>
               )}
@@ -541,54 +659,84 @@ export function BookingWizard({
               {/* Step 2: Professional */}
               {step === "professional" && (
                 <div className="flex-1 flex flex-col">
-                  <div className="px-6 pt-6 pb-3 border-b border-[#F1EDE7]">
-                    <h2 className="text-lg font-semibold tracking-tight text-[#1F1E1D]">Choose a professional</h2>
+                  <div className="border-b border-[#F1EDE7] px-6 pt-7 pb-4 sm:px-9">
+                    <h2 className={`${SERIF} text-3xl font-medium tracking-tight text-[#1F1E1D]`}>Choose a professional</h2>
                     <p className="mt-1 text-sm text-[#8A8377]">Pick who you&apos;d like to book with, or choose any professional.</p>
                   </div>
-                  <div className="flex-1 p-6 space-y-4">
+                  <div className="flex-1 p-6 sm:p-9">
                     {staffLoading ? (
                       <div className="flex items-center gap-2 text-sm text-[#8A8377]">
                         <Loader2 className="h-4 w-4 animate-spin" /> Loading team...
                       </div>
                     ) : (
                       <>
-                        <label className="text-sm font-medium text-[#1F1E1D] flex items-center gap-2">
-                          <User className="h-4 w-4 text-[#795831]" /> Professional
+                        <label className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.16em] text-[#9A7B4F]">
+                          <User className="h-3.5 w-3.5" /> Available professionals
                         </label>
-                        <select
-                          value={selectedStaffId ?? ""}
-                          onChange={(e) => setSelectedStaffId(e.target.value || null)}
-                          className="flex h-10 w-full rounded-md border border-[#E5DDD0] bg-[#FDF9F3] px-3 text-sm text-[#1F1E1D] focus:outline-none focus:border-[#1F1E1D]"
-                        >
-                          <option value="">Any professional</option>
-                          {staff.map((m) => (
-                            <option key={m.id} value={m.id}>
-                              {m.name}
-                            </option>
-                          ))}
-                        </select>
-                        {staff.length === 0 && (
-                          <p className="text-sm text-[#8A8377]">This venue has not listed individual professionals. &quot;Any professional&quot; will be used.</p>
+                        {staff.length === 0 ? (
+                          <p className="mt-3 text-sm text-[#8A8377]">This venue has not listed individual professionals. &quot;Any professional&quot; will be used.</p>
+                        ) : (
+                          <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+                            <button
+                              type="button"
+                              onClick={() => setSelectedStaffId(null)}
+                              className={`group flex items-center gap-4 rounded-2xl border p-4 text-left transition-all ${
+                                !selectedStaffId
+                                  ? "border-[#1F1B17] bg-[#FBF7EF] shadow-[0_8px_20px_rgba(30,28,26,0.1)]"
+                                  : "border-[#E9E1D3] bg-white hover:-translate-y-0.5 hover:border-[#CCC6BD] hover:shadow-[0_6px_16px_rgba(30,28,26,0.08)]"
+                              }`}
+                            >
+                              <span
+                                className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full border-2"
+                                style={{ borderColor: !selectedStaffId ? GOLD : "#E5DDD0", background: !selectedStaffId ? `linear-gradient(135deg, ${GOLD}, #C9A467)` : "#F7F3ED" }}
+                              >
+                                <User className={`h-5 w-5 ${!selectedStaffId ? "text-[#1B1714]" : "text-[#795831]"}`} />
+                              </span>
+                              <span className="min-w-0">
+                                <span className={`${SERIF} block text-lg font-semibold leading-tight text-[#1F1E1D]`}>Any professional</span>
+                                <span className="block text-xs text-[#8A8377]">We&apos;ll assign someone available</span>
+                              </span>
+                              {!selectedStaffId && <Check className="ml-auto h-4 w-4 shrink-0 text-[#1F1B17]" />}
+                            </button>
+                            {staff.map((m) => {
+                              const isSelected = selectedStaffId === m.id;
+                              return (
+                                <button
+                                  key={m.id}
+                                  type="button"
+                                  onClick={() => setSelectedStaffId(m.id)}
+                                  className={`group flex items-center gap-4 rounded-2xl border p-4 text-left transition-all ${
+                                    isSelected
+                                      ? "border-[#1F1B17] bg-[#FBF7EF] shadow-[0_8px_20px_rgba(30,28,26,0.1)]"
+                                      : "border-[#E9E1D3] bg-white hover:-translate-y-0.5 hover:border-[#CCC6BD] hover:shadow-[0_6px_16px_rgba(30,28,26,0.08)]"
+                                  }`}
+                                >
+                                  <span
+                                    className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-full text-lg font-semibold ${SERIF}`}
+                                    style={
+                                      isSelected
+                                        ? { background: `linear-gradient(135deg, ${GOLD}, #C9A467)`, color: "#1B1714" }
+                                        : { border: "2px solid #E5DDD0", background: "#F7F3ED", color: "#795831" }
+                                    }
+                                  >
+                                    {m.name.slice(0, 2).toUpperCase()}
+                                  </span>
+                                  <span className="min-w-0">
+                                    <span className={`${SERIF} block truncate text-lg font-semibold leading-tight text-[#1F1E1D]`}>{m.name}</span>
+                                    <span className="block text-xs text-[#8A8377]">Specialist</span>
+                                  </span>
+                                  {isSelected && <Check className="ml-auto h-4 w-4 shrink-0 text-[#1F1B17]" />}
+                                </button>
+                              );
+                            })}
+                          </div>
                         )}
-                        <div className="rounded-lg bg-[#FDF9F3] border border-[#F1EDE7] p-4 flex items-start gap-3">
-                          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#F7F3ED] border border-[#E5DDD0] text-sm font-semibold text-[#795831] shrink-0">
-                            {selectedStaffId ? (staff.find((s) => s.id === selectedStaffId)?.name?.slice(0, 2).toUpperCase() ?? "—") : "AP"}
-                          </div>
-                          <div className="min-w-0">
-                            <p className="text-sm font-semibold text-[#1F1E1D]">{selectedStaffName}</p>
-                            <p className="text-xs text-[#8A8377]">{selectedStaffId ? "Selected professional" : "We will assign an available professional"}</p>
-                          </div>
-                        </div>
                       </>
                     )}
                   </div>
-                  <div className="px-6 py-4 border-t border-[#F1EDE7] flex justify-between gap-3">
-                    <Button variant="secondary" onClick={goBack}>
-                      Back
-                    </Button>
-                    <Button onClick={goNext} className="min-w-[140px]">
-                      Continue
-                    </Button>
+                  <div className="flex justify-between gap-3 border-t border-[#F1EDE7] px-6 py-5 sm:px-9">
+                    <SecondaryCta onClick={goBack}>Back</SecondaryCta>
+                    <PrimaryCta onClick={goNext}>Continue</PrimaryCta>
                   </div>
                 </div>
               )}
@@ -596,15 +744,15 @@ export function BookingWizard({
               {/* Step 3: Time */}
               {step === "time" && (
                 <div className="flex-1 flex flex-col">
-                  <div className="px-6 pt-6 pb-3 border-b border-[#F1EDE7]">
-                    <h2 className="text-lg font-semibold tracking-tight text-[#1F1E1D]">Select a time</h2>
+                  <div className="border-b border-[#F1EDE7] px-6 pt-7 pb-4 sm:px-9">
+                    <h2 className={`${SERIF} text-3xl font-medium tracking-tight text-[#1F1E1D]`}>Select a time</h2>
                     <p className="mt-1 text-sm text-[#8A8377]">
                       {selectedService ? `${selectedService.name} · ${selectedService.duration} min` : "Pick a date and time"}
                       {selectedStaffId ? ` · ${selectedStaffName}` : ""}
                     </p>
                   </div>
 
-                  <div className="p-6 space-y-4 flex-1 flex flex-col min-h-0">
+                  <div className="flex min-h-0 flex-1 flex-col p-6 sm:p-9">
                     {!selectedServiceId ? (
                       <div className="rounded-lg border border-[#FDECEC] bg-[#FDECEC] p-4 flex gap-2 text-sm text-[#B91C1C]">
                         <AlertCircle className="h-4 w-4 shrink-0 mt-0.5" /> Please go back and select a service first.
@@ -612,16 +760,19 @@ export function BookingWizard({
                     ) : (
                       <>
                         {/* Date strip: 7 visible days, arrows to page */}
-                        <div className="flex items-center gap-2">
+                        <label className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.16em] text-[#9A7B4F]">
+                          <Calendar className="h-3.5 w-3.5" /> Choose a date
+                        </label>
+                        <div className="mt-3 flex items-center gap-1.5 sm:gap-2">
                           <button
                             onClick={() => setDateOffset((v) => Math.max(0, v - 7))}
                             disabled={dateOffset === 0}
-                            className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-[#E5DDD0] bg-white text-[#4A4640] hover:bg-[#F7F3ED] disabled:opacity-40 shrink-0"
+                            className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-[#E5DDD0] bg-white text-[#4A4640] transition-colors hover:bg-[#F7F3ED] disabled:opacity-40"
                             aria-label="Previous week"
                           >
                             <ChevronLeft className="h-4 w-4" />
                           </button>
-                          <div className="flex-1 grid grid-cols-7 gap-1.5 min-w-0">
+                          <div className="grid min-w-0 flex-1 grid-cols-7 gap-1.5 sm:gap-2">
                             {visibleDates.map((d) => {
                               const { dow, dayNum, isToday, isTomorrow } = dayLabel(d);
                               const isSelected = d === selectedDate;
@@ -629,31 +780,32 @@ export function BookingWizard({
                                 <button
                                   key={d}
                                   onClick={() => setSelectedDate(d)}
-                                  className={`flex flex-col items-center rounded-lg border px-1 py-2.5 text-xs transition-colors ${isSelected ? "bg-[#795831] border-[#795831] text-white" : "bg-white border-[#E5DDD0] text-[#1F1E1D] hover:bg-[#F7F3ED]"}`}
+                                  className={`flex flex-col items-center rounded-xl border py-2.5 text-xs transition-all sm:py-3 ${
+                                    isSelected
+                                      ? "border-transparent text-[#1B1714] shadow-[0_6px_16px_rgba(217,190,140,0.45)]"
+                                      : "border-[#E9E1D3] bg-white text-[#1F1E1D] hover:border-[#CCC6BD] hover:bg-[#F7F3ED]"
+                                  }`}
+                                  style={isSelected ? { background: `linear-gradient(135deg, ${GOLD}, #C9A467)` } : undefined}
                                 >
-                                  <span className={`text-[11px] ${isSelected ? "text-white/80" : "text-[#8A8377]"}`}>
-                                    {isToday ? "Today" : isTomorrow ? "Tomorrow" : dow}
+                                  <span className={`text-[9px] sm:text-[11px] ${isSelected ? "text-[#1B1714]/70" : "text-[#8A8377]"}`}>
+                                    {isToday ? "Today" : isTomorrow ? "Tmrw" : dow}
                                   </span>
-                                  <span className="mt-1 text-sm font-semibold">{dayNum}</span>
+                                  <span className={`${SERIF} mt-1 text-base font-semibold sm:text-lg`}>{dayNum}</span>
                                 </button>
                               );
                             })}
                           </div>
                           <button
                             onClick={() => setDateOffset((v) => v + 7)}
-                            className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-[#E5DDD0] bg-white text-[#4A4640] hover:bg-[#F7F3ED] shrink-0"
+                            className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-[#E5DDD0] bg-white text-[#4A4640] transition-colors hover:bg-[#F7F3ED]"
                             aria-label="Next week"
                           >
                             <ChevronRight className="h-4 w-4" />
                           </button>
                         </div>
 
-                        <div className="flex items-center gap-1.5 text-xs text-[#8A8377]">
-                          <Calendar className="h-3.5 w-3.5" /> {selectedDate}
-                        </div>
-
-                        {/* Slots */}
-                        <div className="flex-1 min-h-[180px]">
+                        {/* Slots — grouped by time of day */}
+                        <div className="mt-6 min-h-[180px] flex-1">
                           {slotsLoading ? (
                             <div className="flex items-center gap-2 text-sm text-[#8A8377] py-6">
                               <Loader2 className="h-4 w-4 animate-spin" /> Loading times...
@@ -663,39 +815,62 @@ export function BookingWizard({
                               <AlertCircle className="h-4 w-4" /> {slotError}
                             </p>
                           ) : slots.length > 0 ? (
-                            <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
-                              {slots.map((s) => {
-                                const isSelected = selectedSlot?.start === s.start;
-                                return (
-                                  <button
-                                    key={s.start}
-                                    onClick={() => setSelectedSlot(s)}
-                                    className={`rounded-md border px-3 py-2.5 text-sm font-medium transition-colors ${isSelected ? "bg-[#795831] text-white border-[#795831]" : "bg-white border-[#E5DDD0] text-[#1F1E1D] hover:bg-[#F7F3ED]"}`}
-                                  >
-                                    {formatTimeLabel(s.start)}
-                                  </button>
-                                );
-                              })}
+                            <div className="space-y-5">
+                              {groupSlotsByPeriod(slots).map((group) => (
+                                <div key={group.label}>
+                                  <h4 className="text-xs font-semibold uppercase tracking-[0.14em] text-[#9A7B4F]">{group.label}</h4>
+                                  <div className="mt-2.5 grid grid-cols-3 gap-2 sm:grid-cols-4 xl:grid-cols-6">
+                                    {group.slots.map((s) => {
+                                      const isSelected = selectedSlot?.start === s.start;
+                                      if (s.reserved) {
+                                        return (
+                                          <span
+                                            key={s.start}
+                                            aria-disabled="true"
+                                            title="This time is already reserved"
+                                            className="flex cursor-not-allowed flex-col items-center rounded-full border border-dashed border-[#E5DDD0] bg-[#F7F3ED] px-3 py-2 text-[#B4AC9E]"
+                                          >
+                                            <span className="text-sm font-medium line-through decoration-[#CCC6BD]">{formatTimeLabel(s.start)}</span>
+                                            <span className="text-[9px] font-semibold uppercase tracking-wide">Reserved</span>
+                                          </span>
+                                        );
+                                      }
+                                      return (
+                                        <button
+                                          key={s.start}
+                                          onClick={() => setSelectedSlot(s)}
+                                          className={`rounded-full border px-3 py-2.5 text-sm font-medium transition-all ${
+                                            isSelected
+                                              ? "border-[#1F1B17] bg-[#1F1B17] text-white shadow-[0_4px_14px_rgba(30,28,26,0.25)]"
+                                              : "border-[#E9E1D3] bg-white text-[#1F1E1D] hover:border-[#CCC6BD] hover:bg-[#F7F3ED]"
+                                          }`}
+                                        >
+                                          {formatTimeLabel(s.start)}
+                                        </button>
+                                      );
+                                    })}
+                                  </div>
+                                </div>
+                              ))}
                             </div>
                           ) : null}
                         </div>
 
                         {selectedSlot && (
-                          <p className="text-xs text-[#4A4640] bg-[#FDF9F3] border border-[#F1EDE7] rounded-md px-3 py-2">
-                            Selected: {formatDateLabel(selectedSlot.start)} – {formatTimeLabel(selectedSlot.end)}
+                          <p className="mt-4 flex items-center gap-2 rounded-xl border border-[#E9E1D3] bg-[#FBF7EF] px-4 py-3 text-sm font-medium text-[#1F1E1D]">
+                            <Clock className="h-4 w-4 shrink-0 text-[#9A7B4F]" />
+                            {formatDateLabel(selectedSlot.start)} – {formatTimeLabel(selectedSlot.end)}
                           </p>
                         )}
                       </>
                     )}
                   </div>
 
-                  <div className="px-6 py-4 border-t border-[#F1EDE7] flex justify-between gap-3">
-                    <Button variant="secondary" onClick={goBack}>
-                      Back
-                    </Button>
-                    <Button onClick={goNext} disabled={!selectedSlot} className="min-w-[140px]">
+                  <div className="flex justify-between gap-3 border-t border-[#F1EDE7] px-6 py-5 sm:px-9">
+                    <SecondaryCta onClick={goBack}>Back</SecondaryCta>
+                    <PrimaryCta onClick={goNext} disabled={!selectedSlot}>
                       Continue
-                    </Button>
+                    </PrimaryCta>
                   </div>
                 </div>
               )}
@@ -703,19 +878,22 @@ export function BookingWizard({
               {/* Step 4: Confirm */}
               {step === "confirm" && (
                 <div className="flex-1 flex flex-col">
-                  <div className="px-6 pt-6 pb-3 border-b border-[#F1EDE7]">
-                    <h2 className="text-lg font-semibold tracking-tight text-[#1F1E1D]">Confirm your appointment</h2>
+                  <div className="border-b border-[#F1EDE7] px-6 pt-7 pb-4 sm:px-9">
+                    <h2 className={`${SERIF} text-3xl font-medium tracking-tight text-[#1F1E1D]`}>Confirm your appointment</h2>
                     <p className="mt-1 text-sm text-[#8A8377]">Review your details and add any notes.</p>
                   </div>
-                  <div className="flex-1 p-6 space-y-5 overflow-y-auto">
+                  <div className="flex-1 space-y-5 overflow-y-auto p-6 sm:p-9">
                     {/* Summary inline for mobile before aside */}
                     {selectedService && selectedSlot && (
-                      <div className="lg:hidden rounded-lg border border-[#E5DDD0] bg-[#FDF9F3] p-4 space-y-2">
-                        <p className="text-sm font-semibold text-[#1F1E1D]">{selectedService.name}</p>
-                        <p className="text-xs text-[#4A4640]">
-                          {formatDateLabel(selectedSlot.start)} · {selectedStaffName}
-                        </p>
-                        <p className="text-sm font-semibold text-[#1F1E1D]">Total {formatPrice(selectedService.price)}</p>
+                      <div className="flex items-center gap-3 rounded-xl border border-[#E9E1D3] bg-[#FBF7EF] p-4 lg:hidden">
+                        <ServiceImage name={selectedService.name} category={selectedService.category} imageUrl={selectedService.imageUrl} className="h-12 w-12 shrink-0 rounded-lg" />
+                        <div className="min-w-0">
+                          <p className={`${SERIF} truncate text-lg font-semibold text-[#1F1E1D]`}>{selectedService.name}</p>
+                          <p className="text-xs text-[#4A4640]">
+                            {formatDateLabel(selectedSlot.start)} · {selectedStaffName}
+                          </p>
+                          <p className="text-sm font-semibold text-[#1F1E1D]">Total {formatPrice(selectedService.price)}</p>
+                        </div>
                       </div>
                     )}
 
@@ -725,28 +903,38 @@ export function BookingWizard({
                       </div>
                     ) : (
                       <>
-                        <div className="rounded-lg border border-[#E5DDD0] bg-white p-4 space-y-3">
-                          <div className="flex items-start justify-between gap-4">
-                            <div>
-                              <p className="text-sm font-semibold text-[#1F1E1D]">{selectedService!.name}</p>
-                              <p className="mt-1 text-xs text-[#8A8377]">
-                                {selectedService!.duration} min · {selectedStaffName}
-                              </p>
-                              <p className="mt-1 text-xs text-[#4A4640]">{formatDateLabel(selectedSlot!.start)}</p>
-                            </div>
-                            <span className="text-sm font-semibold text-[#1F1E1D]">{formatPrice(selectedService!.price)}</span>
+                        <div className="flex items-center gap-4 rounded-2xl border border-[#E9E1D3] bg-white p-4">
+                          <ServiceImage
+                            name={selectedService!.name}
+                            category={selectedService!.category}
+                            imageUrl={selectedService!.imageUrl}
+                            className="h-16 w-16 shrink-0 rounded-xl sm:h-20 sm:w-20"
+                          />
+                          <div className="min-w-0 flex-1">
+                            <p className={`${SERIF} text-lg font-semibold leading-tight text-[#1F1E1D] sm:text-xl`}>{selectedService!.name}</p>
+                            <p className="mt-1 text-xs text-[#8A8377]">
+                              {selectedService!.duration} min · {selectedStaffName}
+                            </p>
+                            <p className="mt-1 text-xs text-[#4A4640]">{formatDateLabel(selectedSlot!.start)}</p>
+                          </div>
+                          <span className={`${SERIF} shrink-0 text-lg font-semibold text-[#1F1E1D]`}>{formatPrice(selectedService!.price)}</span>
+                        </div>
+
+                        <div className="flex gap-3 rounded-xl border border-[#E9E1D3] bg-[#FBF7EF] p-4">
+                          <Clock className="mt-0.5 h-4 w-4 shrink-0 text-[#9A7B4F]" />
+                          <div>
+                            <h3 className="text-sm font-semibold text-[#1F1E1D]">Cancellation policy</h3>
+                            <p className="mt-1 text-sm leading-relaxed text-[#4A4640]">{CANCELLATION_POLICY}</p>
                           </div>
                         </div>
 
-                        <div className="rounded-lg border border-[#E5DDD0] bg-[#FDF9F3] p-4">
-                          <h3 className="text-sm font-semibold text-[#1F1E1D]">Cancellation policy</h3>
-                          <p className="mt-1 text-sm leading-relaxed text-[#4A4640]">{CANCELLATION_POLICY}</p>
-                        </div>
-
                         {business?.description && (
-                          <div className="rounded-lg border border-[#E5DDD0] bg-white p-4">
-                            <h3 className="text-sm font-semibold text-[#1F1E1D]">Important information</h3>
-                            <p className="mt-1 text-sm leading-relaxed text-[#4A4640] whitespace-pre-wrap">{business.description}</p>
+                          <div className="flex gap-3 rounded-xl border border-[#E9E1D3] bg-white p-4">
+                            <Info className="mt-0.5 h-4 w-4 shrink-0 text-[#9A7B4F]" />
+                            <div>
+                              <h3 className="text-sm font-semibold text-[#1F1E1D]">Important information</h3>
+                              <p className="mt-1 text-sm leading-relaxed text-[#4A4640] whitespace-pre-wrap">{business.description}</p>
+                            </div>
                           </div>
                         )}
 
@@ -761,7 +949,7 @@ export function BookingWizard({
                             rows={3}
                             maxLength={1000}
                             placeholder="Anything the salon should know?"
-                            className="mt-2 flex w-full rounded-md border border-[#E5DDD0] bg-[#FDF9F3] px-3 py-2 text-sm text-[#1F1E1D] placeholder:text-[#8A8377] focus:outline-none focus:border-[#1F1E1D] focus:ring-1 focus:ring-[#1F1E1D]"
+                            className="mt-2 flex w-full rounded-lg border border-[#E5DDD0] bg-[#FDF9F3] px-3 py-2 text-sm text-[#1F1E1D] placeholder:text-[#8A8377] focus:outline-none focus:border-[#1F1E1D] focus:ring-1 focus:ring-[#1F1E1D]"
                           />
                           <p className="mt-1 text-xs text-[#8A8377] text-right">{notes.length}/1000</p>
                         </div>
@@ -775,19 +963,19 @@ export function BookingWizard({
                         {/* Step 4: sign-in gate — render before the confirm button,
                             never a dead-end error after clicking it. */}
                         {sessionStatus !== "loading" && !isCustomer && (
-                          <div className="rounded-xl border border-[#E5DDD0] bg-[#F7F3ED] p-4 text-center">
+                          <div className="rounded-xl border border-[#E9E1D3] bg-[#FBF7EF] p-4 text-center">
                             <p className="text-sm font-medium text-[#1F1E1D]">Sign in to confirm your booking</p>
                             <p className="mt-1 text-xs text-[#8A8377]">Your selection is saved — you&apos;ll come right back here.</p>
-                            <div className="mt-3 flex justify-center gap-2">
+                            <div className="mt-3 flex flex-wrap justify-center gap-2">
                               <Link
                                 href={`/customer/login?callbackUrl=${encodeURIComponent(currentUrlWithSelection)}`}
-                                className="rounded-lg bg-[#795831] px-4 py-2 text-sm font-medium text-white hover:bg-[#5C4326] transition-colors"
+                                className="rounded-full bg-[#1F1B17] px-4 py-2 text-sm font-medium text-white hover:bg-[#795831] transition-colors"
                               >
                                 Log in
                               </Link>
                               <Link
                                 href={`/customer/signup?callbackUrl=${encodeURIComponent(currentUrlWithSelection)}`}
-                                className="rounded-lg border border-[#E5DDD0] bg-white px-4 py-2 text-sm font-medium text-[#1F1E1D] hover:bg-[#FDF9F3] transition-colors"
+                                className="rounded-full border border-[#E5DDD0] bg-white px-4 py-2 text-sm font-medium text-[#1F1E1D] hover:bg-[#FDF9F3] transition-colors"
                               >
                                 Sign up
                               </Link>
@@ -797,31 +985,31 @@ export function BookingWizard({
                       </>
                     )}
                   </div>
-                  <div className="px-6 py-4 border-t border-[#F1EDE7] flex justify-between gap-3">
-                    <Button variant="secondary" onClick={goBack} disabled={submitting}>
+                  <div className="flex flex-wrap justify-between gap-3 border-t border-[#F1EDE7] px-6 py-5 sm:px-9">
+                    <SecondaryCta onClick={goBack} disabled={submitting}>
                       Back
-                    </Button>
+                    </SecondaryCta>
                     {sessionStatus === "loading" ? (
-                      <Button disabled className="min-w-[160px]">
-                        <Loader2 className="h-4 w-4 animate-spin mr-2" /> Checking session...
-                      </Button>
+                      <PrimaryCta disabled className="min-w-[160px]">
+                        <Loader2 className="h-4 w-4 animate-spin" /> Checking session...
+                      </PrimaryCta>
                     ) : !isCustomer ? (
                       <Link
                         href={`/customer/login?callbackUrl=${encodeURIComponent(currentUrlWithSelection)}`}
-                        className="inline-flex h-10 min-w-[160px] items-center justify-center rounded-md bg-[#795831] px-4 text-sm font-medium text-white hover:bg-[#5C4326] transition-colors"
+                        className="inline-flex h-12 min-w-[160px] items-center justify-center rounded-full bg-[#1F1B17] px-7 text-[12px] font-bold uppercase tracking-[0.14em] text-white shadow-[0_4px_14px_rgba(30,28,26,0.25)] transition-all hover:scale-[1.02] hover:bg-[#795831]"
                       >
                         Sign in to confirm
                       </Link>
                     ) : (
-                      <Button onClick={handleConfirm} disabled={submitting || !selectedSlot || !selectedService} className="min-w-[160px]">
+                      <PrimaryCta onClick={handleConfirm} disabled={submitting || !selectedSlot || !selectedService} className="min-w-[160px]">
                         {submitting ? (
                           <>
-                            <Loader2 className="h-4 w-4 animate-spin mr-2" /> Confirming...
+                            <Loader2 className="h-4 w-4 animate-spin" /> Confirming...
                           </>
                         ) : (
                           "Confirm booking"
                         )}
-                      </Button>
+                      </PrimaryCta>
                     )}
                   </div>
                 </div>
@@ -830,70 +1018,86 @@ export function BookingWizard({
           )}
         </div>
 
-        {/* Right: summary panel (live) — screenshots 8–10 right column */}
-        <aside className="rounded-xl border border-[#E5DDD0] bg-white shadow-[0_2px_8px_rgba(16,24,40,0.06)] p-6 h-fit lg:sticky lg:top-6">
+        {/* Right: summary panel (live) — truly `fixed` at lg+ so it is always fully visible while
+            scrolling, never clipped or cut off. top-96 (384px) clears the fixed header stack
+            (nav 64 + hero 144 + stepper 112 = 320px). bottom-6 + overflow-y-auto is a safety net
+            so very short viewports scroll the card's own content instead of hiding it. Width and
+            right offset match the margin reserved on the left card above. On mobile (below lg) it
+            stays a normal in-flow block, unaffected. */}
+        <aside className="h-fit overflow-hidden rounded-2xl border border-[#E9E1D3] bg-white shadow-[0_8px_32px_rgba(30,28,26,0.1)] lg:fixed lg:top-96 lg:bottom-6 lg:right-12 lg:w-[400px] lg:overflow-y-auto xl:w-[420px]">
           {bizLoading ? (
-            <div className="flex items-center gap-2 text-sm text-[#8A8377]">
+            <div className="flex items-center gap-2 p-6 text-sm text-[#8A8377]">
               <Loader2 className="h-4 w-4 animate-spin" /> Loading venue...
             </div>
           ) : business ? (
-            <div className="space-y-4">
-              <div className="flex gap-3">
-                {business.logoUrl ? (
+            <div>
+              <div className="flex items-center gap-3 bg-gradient-to-br from-[#241D18] to-[#1F1B17] p-6">
+                {business.logoUrl && !logoFailed ? (
                   // eslint-disable-next-line @next/next/no-img-element
-                  <img src={business.logoUrl} alt={business.name} className="h-12 w-12 rounded-full object-cover border border-[#E5DDD0] shrink-0" />
+                  <img
+                    src={business.logoUrl}
+                    alt={business.name}
+                    onError={() => setLogoFailed(true)}
+                    className="h-14 w-14 shrink-0 rounded-full border-2 object-cover"
+                    style={{ borderColor: GOLD }}
+                  />
                 ) : (
-                  <div className="h-12 w-12 rounded-full bg-[#F7F3ED] border border-[#E5DDD0] flex items-center justify-center shrink-0">
-                    <Scissors className="h-5 w-5 text-[#795831]" />
+                  <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full border-2 bg-white/10" style={{ borderColor: GOLD }}>
+                    <Scissors className="h-6 w-6" style={{ color: GOLD }} />
                   </div>
                 )}
                 <div className="min-w-0">
-                  <p className="text-sm font-semibold leading-tight text-[#1F1E1D]">{business.name}</p>
+                  <p className="text-[9px] font-semibold uppercase tracking-[0.2em]" style={{ color: GOLD }}>
+                    Your booking
+                  </p>
+                  <p className={`${SERIF} truncate text-xl font-medium leading-tight text-white`}>{business.name}</p>
                   {(business.address || business.city || business.district) && (
-                    <p className="mt-1 text-xs leading-relaxed text-[#8A8377] flex gap-1">
-                      <MapPin className="h-3.5 w-3.5 shrink-0 mt-0.5 text-[#8A8377]" />
-                      <span className="min-w-0">{[business.address, business.city, business.district].filter(Boolean).join(", ") || business.address}</span>
+                    <p className="mt-1 flex gap-1 text-xs leading-relaxed text-white/60">
+                      <MapPin className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+                      <span className="min-w-0 truncate">{[business.address, business.city, business.district].filter(Boolean).join(", ") || business.address}</span>
                     </p>
                   )}
                 </div>
               </div>
 
-              <div className="pt-4 border-t border-[#F1EDE7] space-y-3">
-                <h3 className="text-xs font-semibold uppercase tracking-wide text-[#8A8377]">Your selection</h3>
-                <div className="space-y-2 text-sm">
-                  <div className="flex justify-between gap-4">
-                    <span className="text-[#4A4640]">Service</span>
-                    <span className="font-medium text-[#1F1E1D] text-right">{selectedService ? selectedService.name : "—"}</span>
+              <div className="space-y-4 p-5">
+                <div className="space-y-3">
+                  <h3 className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#9A7B4F]">Your selection</h3>
+                  <div className="space-y-2.5 text-sm">
+                    <div className="flex justify-between gap-4">
+                      <span className="text-[#8A8377]">Service</span>
+                      <span className="text-right font-medium text-[#1F1E1D]">{selectedService ? selectedService.name : "—"}</span>
+                    </div>
+                    <div className="flex justify-between gap-4">
+                      <span className="text-[#8A8377]">Professional</span>
+                      <span className="text-right font-medium text-[#1F1E1D]">{selectedStaffName}</span>
+                    </div>
+                    <div className="flex justify-between gap-4">
+                      <span className="text-[#8A8377]">Date & time</span>
+                      <span className="text-right font-medium text-[#1F1E1D]">{selectedSlot ? formatDateLabel(selectedSlot.start) : "—"}</span>
+                    </div>
                   </div>
-                  <div className="flex justify-between gap-4">
-                    <span className="text-[#4A4640]">Professional</span>
-                    <span className="font-medium text-[#1F1E1D] text-right">{selectedStaffName}</span>
-                  </div>
-                  <div className="flex justify-between gap-4">
-                    <span className="text-[#4A4640]">Date & time</span>
-                    <span className="font-medium text-[#1F1E1D] text-right">{selectedSlot ? formatDateLabel(selectedSlot.start) : "—"}</span>
-                  </div>
+                  {notes.trim() && (
+                    <div className="rounded-lg border border-[#F1EDE7] bg-[#FBF7EF] p-3">
+                      <p className="text-xs font-medium text-[#8A8377]">Note</p>
+                      <p className="mt-1 whitespace-pre-wrap text-sm text-[#4A4640]">{notes}</p>
+                    </div>
+                  )}
                 </div>
-                {notes.trim() && (
-                  <div className="rounded-md bg-[#FDF9F3] border border-[#F1EDE7] p-3">
-                    <p className="text-xs font-medium text-[#8A8377]">Note</p>
-                    <p className="mt-1 text-sm text-[#4A4640] whitespace-pre-wrap">{notes}</p>
-                  </div>
-                )}
-              </div>
 
-              <div className="pt-4 border-t border-[#F1EDE7] flex items-center justify-between">
-                <span className="text-sm font-semibold text-[#1F1E1D]">Total</span>
-                <span className="text-sm font-bold text-[#1F1E1D]">{selectedService ? formatPrice(selectedService.price) : "—"}</span>
+                <div className="flex items-center justify-between rounded-xl bg-[#FBF7EF] px-4 py-3">
+                  <span className="text-sm font-semibold text-[#1F1E1D]">Total</span>
+                  <span className={`${SERIF} text-xl font-semibold text-[#1F1E1D]`}>{selectedService ? formatPrice(selectedService.price) : "—"}</span>
+                </div>
+                <p className="text-xs leading-relaxed text-[#8A8377]">
+                  {isCustomer
+                    ? "You are booking as a logged-in customer. Your name and contact will be taken from your account."
+                    : "Sign-in is required to confirm — your selection is kept when you return."}
+                </p>
               </div>
-              <p className="text-xs text-[#8A8377]">
-                {isCustomer
-                  ? "You are booking as a logged-in customer. Your name and contact will be taken from your account."
-                  : "Sign-in is required to confirm — your selection is kept when you return."}
-              </p>
             </div>
           ) : (
-            <p className="text-sm text-[#8A8377]">Venue not found.</p>
+            <p className="p-6 text-sm text-[#8A8377]">Venue not found.</p>
           )}
         </aside>
       </div>
