@@ -186,7 +186,7 @@ function SearchInner() {
                 onClick={() => setDateParam(pill.value)}
                 className={`shrink-0 snap-start rounded-full border px-4 py-2 text-sm font-medium transition ${
                   isActive
-                    ? "bg-[#1F1E1D] text-white border-[#1F1E1D] shadow-sm"
+                    ? "bg-[#795831] text-white border-[#795831] shadow-sm"
                     : "bg-white text-[#1F1E1D] border-[#E5DDD0] hover:bg-[#FDF9F3] hover:border-[#CCC6BD]"
                 }`}
                 aria-pressed={isActive}
@@ -217,7 +217,7 @@ function SearchInner() {
                 type="button"
                 onClick={() => setActiveTab("venues")}
                 className={`rounded-full px-5 py-1.5 text-sm font-semibold transition ${
-                  activeTab === "venues" ? "bg-[#1F1E1D] text-white shadow-sm" : "text-[#4A4640] hover:text-[#1F1E1D]"
+                  activeTab === "venues" ? "bg-[#795831] text-white shadow-sm" : "text-[#4A4640] hover:text-[#1F1E1D]"
                 }`}
                 aria-pressed={activeTab === "venues"}
               >

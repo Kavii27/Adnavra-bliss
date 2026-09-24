@@ -116,7 +116,7 @@ export function TreatmentsDropdown({ value, onChange, query, onQueryChange }: Tr
                 onClick={() => setActiveTab(t.id)}
                 className={`rounded-full px-3.5 py-1.5 text-xs font-medium transition ${
                   activeTab === t.id
-                    ? "bg-[#1F1E1D] text-white"
+                    ? "bg-[#795831] text-white"
                     : "bg-transparent text-[#4A4640] hover:bg-[#F7F3ED]"
                 }`}
               >

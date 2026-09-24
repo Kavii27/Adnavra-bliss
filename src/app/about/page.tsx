@@ -49,8 +49,8 @@ const jakarta = Plus_Jakarta_Sans({
 /* Design tokens (from the ADNAVRA Bliss reference design)             */
 /* ------------------------------------------------------------------ */
 const c = {
-  primary: "#050504",
-  primaryContainer: "#1f1e1d",
+  primary: "#2A1D12",
+  primaryContainer: "#2A1D12",
   onPrimary: "#ffffff",
   secondary: "#795831",
   secondaryContainer: "#fdcf9e",
@@ -281,7 +281,7 @@ export default function AboutPage() {
                 <div className="flex flex-wrap items-center gap-4 pt-1">
                   <Link
                     href="/signup"
-                    className="group inline-flex items-center gap-5 pl-6 pr-2 py-2 rounded-full bg-[#795831] text-white text-[15px] font-semibold hover:bg-[#5f4426] transition-all shadow-[0_14px_32px_rgba(121,88,49,0.16)]"
+                    className="group inline-flex items-center gap-5 pl-6 pr-2 py-2 rounded-full bg-[#2A1D12] text-white text-[15px] font-semibold hover:bg-[#17100A] transition-all shadow-[0_14px_32px_rgba(42,29,18,0.16)]"
                   >
                     Start Free
                     <span className="w-10 h-10 rounded-full bg-white text-[#795831] flex items-center justify-center group-hover:translate-x-0.5 transition-transform">
@@ -325,12 +325,12 @@ export default function AboutPage() {
                 </div>
                 <div className="grid grid-cols-3 gap-2 mt-5">
                   {['10:30 AM','11:15 AM','02:00 PM'].map((time, i) => (
-                    <button key={time} onClick={() => setSlot(i)} className={`py-2.5 rounded-xl text-[11px] font-semibold transition-colors ${slot === i ? 'bg-[#795831] text-white' : 'bg-[#f3eee9] text-[#4a4640] hover:bg-[#ebe4de]'}`}>
+                    <button key={time} onClick={() => setSlot(i)} className={`py-2.5 rounded-xl text-[11px] font-semibold transition-colors ${slot === i ? 'bg-[#2A1D12] text-white' : 'bg-[#f3eee9] text-[#4a4640] hover:bg-[#ebe4de]'}`}>
                       {time}
                     </button>
                   ))}
                 </div>
-                <Link href="/signup" className="mt-4 w-full py-3 rounded-xl bg-[#1f1e1d] text-white text-[13px] font-semibold flex items-center justify-center gap-2 hover:bg-[#4a4640] transition-colors">
+                <Link href="/signup" className="mt-4 w-full py-3 rounded-xl bg-[#2A1D12] text-white text-[13px] font-semibold flex items-center justify-center gap-2 hover:bg-[#17100A] transition-colors">
                   Choose Date &amp; Time <ArrowRight className="h-4 w-4" />
                 </Link>
               </div>
@@ -347,7 +347,7 @@ export default function AboutPage() {
         <section className="relative w-full overflow-hidden bg-white border-y border-[#ccc6bd]/30 py-24 flex flex-col justify-center items-center">
           <div
             aria-hidden
-            className="absolute inset-0 flex items-center justify-center select-none pointer-events-none overflow-hidden whitespace-nowrap opacity-[0.05] text-[90px] sm:text-[140px] md:text-[180px] lg:text-[220px] font-extrabold uppercase tracking-widest text-[#050504] leading-none -z-0"
+            className="absolute inset-0 flex items-center justify-center select-none pointer-events-none overflow-hidden whitespace-nowrap opacity-[0.05] text-[90px] sm:text-[140px] md:text-[180px] lg:text-[220px] font-extrabold uppercase tracking-widest text-[#2A1D12] leading-none -z-0"
           >
             EFFORTLESS PRESTIGE
           </div>
@@ -355,7 +355,7 @@ export default function AboutPage() {
           <div className="relative z-10 max-w-6xl mx-auto px-5 md:px-8 lg:px-14 text-center space-y-4">
             <Eyebrow>The Aesthetic Operating System</Eyebrow>
 
-            <h2 className="font-[family-name:var(--font-playfair)] text-[36px] sm:text-[54px] md:text-[68px] lg:text-[80px] leading-[1.04] text-[#050504] font-bold tracking-tight uppercase">
+            <h2 className="font-[family-name:var(--font-playfair)] text-[36px] sm:text-[54px] md:text-[68px] lg:text-[80px] leading-[1.04] text-[#2A1D12] font-bold tracking-tight uppercase">
               EFFORTLESS PRESTIGE. <br className="hidden sm:inline" />
               <span className="italic font-normal text-[#795831]">
                 ZERO CHAOS.
@@ -416,11 +416,11 @@ export default function AboutPage() {
         {/* ============================================================ */}
         {/* SECTION: 4 SALON PILLARS (hover reveal)                         */}
         {/* ============================================================ */}
-        <section className="relative w-full bg-[#050504] border-y border-[#ccc6bd]/30 overflow-hidden" id="rituals">
+        <section className="relative w-full bg-[#2A1D12] border-y border-[#ccc6bd]/30 overflow-hidden" id="rituals">
           <div className="w-full bg-[#f7f3ed] border-b border-[#ccc6bd]/20 py-6 px-5 md:px-8 lg:px-14 flex flex-col md:flex-row md:items-end justify-between gap-4">
             <div className="space-y-1 max-w-2xl">
               <Eyebrow>The Salon, Orchestrated</Eyebrow>
-              <h2 className="font-[family-name:var(--font-playfair)] text-[26px] sm:text-[30px] text-[#050504] font-semibold tracking-tight">
+              <h2 className="font-[family-name:var(--font-playfair)] text-[26px] sm:text-[30px] text-[#2A1D12] font-semibold tracking-tight">
                 THE SALON, ORCHESTRATED.{" "}
                 <span className="italic font-normal text-[#795831] block sm:inline">
                   Four systems. One beautiful operating flow.
@@ -441,7 +441,7 @@ export default function AboutPage() {
                   key={p.n}
                   onMouseEnter={() => setHoveredPillar(i)}
                   onMouseLeave={() => setHoveredPillar(null)}
-                  className="group relative h-[520px] lg:h-full overflow-hidden cursor-pointer select-none bg-[#050504]"
+                  className="group relative h-[520px] lg:h-full overflow-hidden cursor-pointer select-none bg-[#2A1D12]"
                 >
                   <img
                     alt={p.title}
@@ -474,7 +474,7 @@ export default function AboutPage() {
 
                   {/* Hover reveal panel */}
                   <div
-                    className={`absolute inset-0 z-20 bg-[#1f1e1d]/90 backdrop-blur-xl text-white p-8 flex flex-col justify-between transform transition-transform duration-500 ease-in-out border-b-4 border-[#795831] shadow-2xl ${
+                    className={`absolute inset-0 z-20 bg-[#2A1D12]/90 backdrop-blur-xl text-white p-8 flex flex-col justify-between transform transition-transform duration-500 ease-in-out border-b-4 border-[#795831] shadow-2xl ${
                       hovered ? "translate-y-0" : "-translate-y-full"
                     }`}
                   >
@@ -519,7 +519,7 @@ export default function AboutPage() {
                       </div>
                       <Link
                         href="#dual-engine"
-                        className="w-full py-3 rounded-lg bg-[#795831] text-white text-[15px] font-semibold hover:bg-[#795831]/90 transition-colors flex items-center justify-center gap-2 shadow-lg"
+                        className="w-full py-3 rounded-lg bg-[#2A1D12] text-white text-[15px] font-semibold hover:bg-[#17100A] transition-colors flex items-center justify-center gap-2 shadow-lg"
                       >
                         <span>Explore Feature</span>
                         <ArrowRight className="h-[18px] w-[18px]" />
@@ -538,7 +538,7 @@ export default function AboutPage() {
         <section className="w-full max-w-7xl mx-auto px-5 md:px-8 lg:px-14 py-24 space-y-10">
           <div className="text-center max-w-2xl mx-auto space-y-2">
             <Eyebrow>Hospitality Evolution</Eyebrow>
-            <h2 className="font-[family-name:var(--font-playfair)] text-[28px] sm:text-[38px] text-[#050504] font-semibold leading-tight">
+            <h2 className="font-[family-name:var(--font-playfair)] text-[28px] sm:text-[38px] text-[#2A1D12] font-semibold leading-tight">
               The Old Manual Grind vs. The ADNAVRA Bliss Standard
             </h2>
             <p className="text-[16px] text-[#4a4640]">
@@ -584,7 +584,7 @@ export default function AboutPage() {
                   <span className="text-[11px] uppercase tracking-wider text-[#795831] font-semibold">
                     The Modern Atelier
                   </span>
-                  <h3 className="font-[family-name:var(--font-playfair)] text-[22px] text-[#050504] font-semibold">
+                  <h3 className="font-[family-name:var(--font-playfair)] text-[22px] text-[#2A1D12] font-semibold">
                     The ADNAVRA Bliss Standard
                   </h3>
                 </div>
@@ -619,7 +619,7 @@ export default function AboutPage() {
             <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
               <div className="space-y-2 max-w-xl">
                 <Eyebrow>Dual Engine Architecture</Eyebrow>
-                <h2 className="font-[family-name:var(--font-playfair)] text-[28px] sm:text-[38px] text-[#050504] font-semibold">
+                <h2 className="font-[family-name:var(--font-playfair)] text-[28px] sm:text-[38px] text-[#2A1D12] font-semibold">
                   Designed for clients. Built for owners.
                 </h2>
                 <p className="text-[15px] text-[#4a4640]">
@@ -633,7 +633,7 @@ export default function AboutPage() {
                 <button
                   onClick={() => setEngine("client")}
                   className={`px-5 py-2 rounded-full text-[13px] font-semibold transition-all ${
-                    engine === "client" ? "bg-[#050504] text-white shadow-sm" : "text-[#4a4640]"
+                    engine === "client" ? "bg-[#2A1D12] text-white shadow-sm" : "text-[#4a4640]"
                   }`}
                 >
                   Client Experience
@@ -641,7 +641,7 @@ export default function AboutPage() {
                 <button
                   onClick={() => setEngine("owner")}
                   className={`px-5 py-2 rounded-full text-[13px] font-semibold transition-all ${
-                    engine === "owner" ? "bg-[#050504] text-white shadow-sm" : "text-[#4a4640]"
+                    engine === "owner" ? "bg-[#2A1D12] text-white shadow-sm" : "text-[#4a4640]"
                   }`}
                 >
                   Salon Command
@@ -662,12 +662,12 @@ export default function AboutPage() {
                       <span className="text-[11px] uppercase tracking-wider text-[#795831] font-semibold">
                         Aura Luxury Salon • Colombo 07
                       </span>
-                      <h3 className="font-[family-name:var(--font-playfair)] text-[20px] text-[#050504]">
+                      <h3 className="font-[family-name:var(--font-playfair)] text-[20px] text-[#2A1D12]">
                         Hydrating Keratin Hair Spa
                       </h3>
                     </div>
                     <div className="text-right">
-                      <span className="font-[family-name:var(--font-playfair)] text-[20px] text-[#050504] font-bold">
+                      <span className="font-[family-name:var(--font-playfair)] text-[20px] text-[#2A1D12] font-bold">
                         LKR 4,500
                       </span>
                       <span className="block text-[11px] text-[#7b766f]">
@@ -681,7 +681,7 @@ export default function AboutPage() {
                       NL
                     </div>
                     <div className="flex-1">
-                      <div className="text-[15px] font-semibold text-[#050504]">
+                      <div className="text-[15px] font-semibold text-[#2A1D12]">
                         Senior Stylist Nimali
                       </div>
                       <div className="text-[12px] text-[#4a4640]">
@@ -704,7 +704,7 @@ export default function AboutPage() {
                           onClick={() => setSlot(i)}
                           className={`py-2.5 rounded-lg text-[13px] font-semibold transition-all ${
                             slot === i
-                              ? "bg-[#050504] text-white shadow-sm"
+                              ? "bg-[#2A1D12] text-white shadow-sm"
                               : "bg-[#f1ede7] text-[#1c1c18] hover:bg-[#ebe8e2]"
                           }`}
                         >
@@ -716,7 +716,7 @@ export default function AboutPage() {
                 </div>
 
                 <div className="pt-2">
-                  <button className="w-full py-3.5 rounded-lg bg-[#050504] text-white text-[15px] font-semibold hover:bg-[#4a4640] transition-colors shadow-md flex items-center justify-center gap-2">
+                  <button className="w-full py-3.5 rounded-lg bg-[#2A1D12] text-white text-[15px] font-semibold hover:bg-[#4a4640] transition-colors shadow-md flex items-center justify-center gap-2">
                     <Lock className="h-[18px] w-[18px]" />
                     <span>Instant Confirm Reservation</span>
                   </button>
@@ -738,7 +738,7 @@ export default function AboutPage() {
                       <span className="text-[11px] uppercase tracking-wider text-[#795831] font-semibold">
                         Executive Cockpit
                       </span>
-                      <h3 className="font-[family-name:var(--font-playfair)] text-[20px] text-[#050504]">
+                      <h3 className="font-[family-name:var(--font-playfair)] text-[20px] text-[#2A1D12]">
                         Today&apos;s Salon Velocity
                       </h3>
                     </div>
@@ -753,7 +753,7 @@ export default function AboutPage() {
                       <span className="text-[12px] text-[#4a4640]">
                         Scheduled Appointments
                       </span>
-                      <div className="font-[family-name:var(--font-playfair)] text-[24px] text-[#050504] font-bold">
+                      <div className="font-[family-name:var(--font-playfair)] text-[24px] text-[#2A1D12] font-bold">
                         18 Slots
                       </div>
                       <span className="text-[11px] text-[#795831] font-medium">
@@ -764,7 +764,7 @@ export default function AboutPage() {
                       <span className="text-[12px] text-[#4a4640]">
                         Projected Revenue
                       </span>
-                      <div className="font-[family-name:var(--font-playfair)] text-[24px] text-[#050504] font-bold">
+                      <div className="font-[family-name:var(--font-playfair)] text-[24px] text-[#2A1D12] font-bold">
                         LKR 148,500
                       </div>
                       <span className="text-[11px] text-[#795831] font-medium">
@@ -793,7 +793,7 @@ export default function AboutPage() {
                                 active ? "bg-[#795831]" : "bg-[#ccc6bd]"
                               }`}
                             />
-                            <span className="font-medium text-[#050504]">{name}</span>
+                            <span className="font-medium text-[#2A1D12]">{name}</span>
                           </div>
                           <span className={active ? "text-[#4a4640]" : "text-[#795831] font-medium"}>
                             {status}
@@ -810,7 +810,7 @@ export default function AboutPage() {
                   </span>
                   <Link
                     href="/dashboard"
-                    className="text-[#050504] font-semibold flex items-center gap-1 hover:underline"
+                    className="text-[#2A1D12] font-semibold flex items-center gap-1 hover:underline"
                   >
                     Open Master Agenda <ArrowRight className="h-4 w-4" />
                   </Link>
@@ -826,7 +826,7 @@ export default function AboutPage() {
         <section className="w-full max-w-7xl mx-auto px-5 md:px-8 lg:px-14 py-24 space-y-12">
           <div className="text-center max-w-2xl mx-auto space-y-2">
             <Eyebrow>The Unbroken Experience</Eyebrow>
-            <h2 className="font-[family-name:var(--font-playfair)] text-[28px] sm:text-[38px] text-[#050504] font-semibold">
+            <h2 className="font-[family-name:var(--font-playfair)] text-[28px] sm:text-[38px] text-[#2A1D12] font-semibold">
               5 Serene Moments from Discovery to Rebooking
             </h2>
             <p className="text-[16px] text-[#4a4640]">
@@ -844,7 +844,7 @@ export default function AboutPage() {
                 <span className="text-[11px] text-[#795831] font-semibold">
                   {s.n} • {s.tag}
                 </span>
-                <h4 className="text-[16px] text-[#050504] font-semibold">
+                <h4 className="text-[16px] text-[#2A1D12] font-semibold">
                   {s.title}
                 </h4>
                 <p className="text-[13px] text-[#4a4640]">{s.desc}</p>
@@ -866,7 +866,7 @@ export default function AboutPage() {
                     Physical Meets Digital Concierge
                   </span>
                 </div>
-                <h2 className="font-[family-name:var(--font-playfair)] text-[28px] sm:text-[38px] text-[#050504] font-semibold leading-tight">
+                <h2 className="font-[family-name:var(--font-playfair)] text-[28px] sm:text-[38px] text-[#2A1D12] font-semibold leading-tight">
                   Turn every physical touchpoint into a perpetual rebooking
                   engine.
                 </h2>
@@ -901,7 +901,7 @@ export default function AboutPage() {
                 <div className="pt-2">
                   <Link
                     href="/signup"
-                    className="inline-flex items-center gap-2 px-6 py-3 rounded-lg bg-[#1f1e1d] text-white text-[15px] font-semibold hover:bg-[#4a4640] transition-all shadow-md"
+                    className="inline-flex items-center gap-2 px-6 py-3 rounded-lg bg-[#2A1D12] text-white text-[15px] font-semibold hover:bg-[#17100A] transition-all shadow-md"
                   >
                     <span>Generate Salon QR Kit</span>
                     <ArrowRight className="h-[18px] w-[18px]" />
@@ -920,7 +920,7 @@ export default function AboutPage() {
                     <div className="flex items-center gap-3">
                       <Nfc className="h-6 w-6 text-[#795831]" />
                       <div>
-                        <div className="text-[15px] text-[#050504] font-semibold">
+                        <div className="text-[15px] text-[#2A1D12] font-semibold">
                           Château Élégante QR
                         </div>
                         <div className="text-[12px] text-[#4a4640]">
@@ -944,7 +944,7 @@ export default function AboutPage() {
         <section id="features" className="w-full max-w-7xl mx-auto px-5 md:px-8 lg:px-14 py-24 space-y-12 scroll-mt-24">
           <div className="text-center max-w-2xl mx-auto space-y-2">
             <Eyebrow>Complete Salon Architecture</Eyebrow>
-            <h2 className="font-[family-name:var(--font-playfair)] text-[28px] sm:text-[38px] text-[#050504] font-semibold">
+            <h2 className="font-[family-name:var(--font-playfair)] text-[28px] sm:text-[38px] text-[#2A1D12] font-semibold">
               Everything your salon needs to run beautifully.
             </h2>
             <p className="text-[16px] text-[#4a4640]">
@@ -960,15 +960,15 @@ export default function AboutPage() {
                 className="p-8 rounded-2xl bg-[#f1ede7] space-y-4 hover:bg-[#ebe8e2] transition-colors flex flex-col justify-between"
               >
                 <div className="space-y-3">
-                  <div className="w-12 h-12 rounded-xl bg-white flex items-center justify-center text-[#795831] shadow-sm">
+                  <div className="w-12 h-12 rounded-xl bg-white flex items-center justify-center text-[#2A1D12] shadow-sm">
                     <f.icon className="h-6 w-6" />
                   </div>
-                  <h3 className="text-[17px] text-[#050504] font-semibold">
+                  <h3 className="text-[17px] text-[#2A1D12] font-semibold">
                     {f.title}
                   </h3>
                   <p className="text-[13px] text-[#4a4640]">{f.desc}</p>
                 </div>
-                <div className="pt-1 text-[11px] uppercase tracking-wider text-[#795831] font-bold">
+                <div className="pt-1 text-[11px] uppercase tracking-wider text-[#2A1D12] font-bold">
                   {f.tag}
                 </div>
               </div>
@@ -985,7 +985,7 @@ export default function AboutPage() {
             className="absolute inset-0 w-full h-full object-cover object-center"
             src={bannerImg}
           />
-          <div className="absolute inset-0 bg-[#050504]/70 backdrop-blur-[2px]" />
+          <div className="absolute inset-0 bg-[#2A1D12]/70 backdrop-blur-[2px]" />
           <div className="relative z-10 max-w-4xl mx-auto px-5 md:px-8 lg:px-14 text-center space-y-4 text-white">
             <span className="text-[11px] uppercase tracking-widest text-[#ffddba] font-semibold">
               Atmospheric Reverence
@@ -1001,7 +1001,7 @@ export default function AboutPage() {
             <div className="pt-2">
               <Link
                 href="/signup"
-                className="inline-flex items-center px-7 py-3.5 rounded-lg bg-white text-[#050504] text-[15px] font-semibold hover:bg-[#ffddba] transition-colors shadow-lg"
+                className="inline-flex items-center px-7 py-3.5 rounded-lg bg-white text-[#2A1D12] text-[15px] font-semibold hover:bg-[#f1ede7] transition-colors shadow-lg"
               >
                 Claim Your Salon Storefront
               </Link>
@@ -1017,7 +1017,7 @@ export default function AboutPage() {
             {/* <div className="lg:col-span-5 space-y-6">
               <div className="space-y-1">
                 <Eyebrow>Live Salon Pulse</Eyebrow>
-                <h2 className="font-[family-name:var(--font-playfair)] text-[24px] text-[#050504] font-semibold pt-1">
+                <h2 className="font-[family-name:var(--font-playfair)] text-[24px] text-[#2A1D12] font-semibold pt-1">
                   Salon Activity Stream
                 </h2>
                 <p className="text-[14px] text-[#4a4640]">
@@ -1037,7 +1037,7 @@ export default function AboutPage() {
                     </span>
                     <div className="flex-1 space-y-0.5">
                       <div className="flex items-center justify-between">
-                        <span className="text-[15px] font-semibold text-[#050504]">
+                        <span className="text-[15px] font-semibold text-[#2A1D12]">
                           {a.title}
                         </span>
                         <span className="text-[11px] text-[#7b766f]">
@@ -1054,7 +1054,7 @@ export default function AboutPage() {
             <div className="lg:col-span-8 lg:col-start-3 space-y-4">
               <div className="space-y-1 text-center">
                 <Eyebrow>Clarity &amp; Assurance</Eyebrow>
-                <h2 className="font-[family-name:var(--font-playfair)] text-[24px] text-[#050504] font-semibold pt-1">
+                <h2 className="font-[family-name:var(--font-playfair)] text-[24px] text-[#2A1D12] font-semibold pt-1">
                   Frequently Asked Questions
                 </h2>
               </div>
@@ -1067,7 +1067,7 @@ export default function AboutPage() {
                     className="rounded-xl bg-[#f1ede7] p-5 space-y-2 cursor-pointer"
                   >
                     <div className="flex items-center justify-between gap-4">
-                      <h3 className="text-[15px] text-[#050504] font-semibold">
+                      <h3 className="text-[15px] text-[#2A1D12] font-semibold">
                         {f.q}
                       </h3>
                       <ChevronDown
@@ -1097,7 +1097,7 @@ export default function AboutPage() {
               <span className="text-[11px] uppercase tracking-widest text-[#795831] font-semibold">
                 Elevate Your Standard
               </span>
-              <h2 className="font-[family-name:var(--font-playfair)] text-[28px] sm:text-[42px] text-[#050504] font-semibold leading-tight">
+              <h2 className="font-[family-name:var(--font-playfair)] text-[28px] sm:text-[42px] text-[#2A1D12] font-semibold leading-tight">
                 Your salon deserves to be effortlessly booked.
               </h2>
               <p className="text-[16px] text-[#4a4640]">
@@ -1109,7 +1109,7 @@ export default function AboutPage() {
             <div className="flex flex-wrap items-center justify-center gap-4 pt-1">
               <Link
                 href="/signup"
-                className="inline-flex items-center justify-center px-7 py-3.5 rounded-lg bg-[#050504] text-white text-[15px] font-semibold hover:bg-[#4a4640] transition-all shadow-[0_12px_28px_rgba(31,30,29,0.14)]"
+                className="inline-flex items-center justify-center px-7 py-3.5 rounded-lg bg-[#2A1D12] text-white text-[15px] font-semibold hover:bg-[#4a4640] transition-all shadow-[0_12px_28px_rgba(31,30,29,0.14)]"
               >
                 Get Started Free
               </Link>
@@ -1132,3 +1132,4 @@ export default function AboutPage() {
     </div>
   );
 }
+

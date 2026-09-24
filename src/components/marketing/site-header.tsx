@@ -84,7 +84,7 @@ export function SiteHeader() {
           </Link>
           <Link
             href="/signup"
-            className="inline-flex h-10 items-center rounded-full bg-[#1f1e1d] px-5 text-[13px] font-semibold text-white shadow-[0_10px_24px_rgba(0,0,0,0.18)] transition-colors hover:bg-[#4a4640]"
+            className="inline-flex h-10 items-center rounded-full bg-[#2A1D12] px-5 text-[13px] font-semibold text-white shadow-[0_10px_24px_rgba(0,0,0,0.18)] transition-colors hover:bg-[#17100A]"
           >
             Sign up
           </Link>

@@ -84,7 +84,7 @@ export function AdvancedSearch() {
             <div className="flex items-center gap-2 sm:col-span-2">
               <button
                 type="submit"
-                className="rounded-lg bg-[#1F1E1D] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[#4A4640]"
+                className="rounded-lg bg-[#2A1D12] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[#17100A]"
               >
                 Search
               </button>

@@ -126,7 +126,7 @@ export function VenueCard({
               <span />
             )}
           </div>
-          <span className="icon-pop inline-flex items-center gap-1 rounded-lg bg-[#1F1E1D] px-3 py-2 text-[11px] font-semibold text-white group-hover:bg-[#795831]">
+          <span className="icon-pop inline-flex items-center gap-1 rounded-lg bg-[#2A1D12] px-3 py-2 text-[11px] font-semibold text-white group-hover:bg-[#17100A]">
             Book <ArrowUpRight className="h-3.5 w-3.5" />
           </span>
         </div>

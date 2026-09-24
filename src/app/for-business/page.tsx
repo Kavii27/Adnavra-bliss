@@ -70,10 +70,10 @@ export default function ForBusinessPage() {
         <div className="absolute inset-0 brand-gradient-bg opacity-[0.06]" />
         <div className="relative px-6 lg:px-12 py-20 max-w-[1200px] mx-auto">
           <div className="max-w-3xl">
-            <p className="inline-flex rounded-full bg-[#fdcf9e]/60 px-3 py-1 text-xs font-medium text-[#795831]">
+            <p className="inline-flex rounded-full bg-[#fdcf9e]/60 px-3 py-1 text-xs font-medium text-[#2A1D12]">
               For salons and beauty businesses in Sri Lanka
             </p>
-            <h1 className="mt-4 text-5xl font-semibold leading-[1.05] tracking-[-1.5px] text-[#050504]">
+            <h1 className="mt-4 text-5xl font-semibold leading-[1.05] tracking-[-1.5px] text-[#2A1D12]">
               Run your salon, not your inbox.
             </h1>
             <p className="mt-4 text-base leading-relaxed text-[#4a4640] max-w-prose">
@@ -83,14 +83,14 @@ export default function ForBusinessPage() {
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
               <Link href="/signup">
-                <Button className="bg-[#050504] hover:bg-[#4a4640] text-white shadow-sm">
+                <Button className="bg-[#2A1D12] hover:bg-[#4a4640] text-white shadow-sm">
                   Get started <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
               </Link>
             </div>
             <p className="mt-3 text-sm text-[#4a4640]">
               Already have an account?{" "}
-              <Link href="/login" className="font-medium text-[#795831] hover:underline">
+                <Link href="/login" className="font-medium text-[#2A1D12] hover:underline">
                 Log in
               </Link>
             </p>
@@ -100,7 +100,7 @@ export default function ForBusinessPage() {
 
       {/* What you get - reuses FEATURES from home */}
       <section className="px-6 lg:px-12 py-16 max-w-[1200px] mx-auto">
-        <h2 className="text-3xl font-semibold tracking-tight text-[#050504] text-center">
+        <h2 className="text-3xl font-semibold tracking-tight text-[#2A1D12] text-center">
           Everything you need to take bookings online
         </h2>
         <p className="mt-2 text-center text-[#4a4640] max-w-2xl mx-auto">
@@ -109,8 +109,8 @@ export default function ForBusinessPage() {
         <div className="mt-10 grid md:grid-cols-3 gap-6">
           {FEATURES.map((f) => (
             <div key={f.title} className="rounded-lg bg-white border border-[#ccc6bd]/40 p-8">
-              <f.icon className="h-5 w-5 text-[#795831]" />
-              <h3 className="mt-3 text-lg font-semibold text-[#050504]">{f.title}</h3>
+              <f.icon className="h-5 w-5 text-[#2A1D12]" />
+              <h3 className="mt-3 text-lg font-semibold text-[#2A1D12]">{f.title}</h3>
               <p className="mt-2 text-sm leading-relaxed text-[#4a4640]">{f.desc}</p>
             </div>
           ))}
@@ -119,7 +119,7 @@ export default function ForBusinessPage() {
 
       {/* Why it matters for owners */}
       <section className="px-6 lg:px-12 py-16 max-w-[1200px] mx-auto">
-        <div className="rounded-2xl bg-[#050504] text-[#fdf9f3] p-10 lg:p-14 grid lg:grid-cols-2 gap-10">
+        <div className="rounded-2xl bg-[#2A1D12] text-[#fdf9f3] p-10 lg:p-14 grid lg:grid-cols-2 gap-10">
           <div>
             <h2 className="text-2xl font-semibold">Less time on the phone, more time with clients</h2>
             <p className="mt-3 text-sm text-[#ccc6bd] leading-relaxed">
@@ -128,7 +128,7 @@ export default function ForBusinessPage() {
               your team can focus on the work that actually earns revenue.
             </p>
             <Link href="/signup" className="inline-flex mt-6">
-              <Button className="bg-[#050504] hover:bg-[#4a4640] text-white shadow-sm">Create your booking page</Button>
+              <Button className="bg-white text-[#2A1D12] hover:bg-[#fdf9f3] shadow-sm">Create your booking page</Button>
             </Link>
             <p className="mt-4 text-sm text-[#ccc6bd]">
               Already have an account?{" "}
@@ -145,7 +145,7 @@ export default function ForBusinessPage() {
               "Your salon is discoverable to new customers nearby.",
             ].map((t) => (
               <li key={t} className="flex gap-2">
-                <CheckCircle2 className="h-4 w-4 text-[#795831] shrink-0 mt-0.5" />
+                <CheckCircle2 className="h-4 w-4 text-[#2A1D12] shrink-0 mt-0.5" />
                 <span>{t}</span>
               </li>
             ))}
@@ -156,7 +156,7 @@ export default function ForBusinessPage() {
       {/* QR + benefits */}
       <section className="px-6 lg:px-12 py-16 max-w-[1200px] mx-auto grid lg:grid-cols-2 gap-12 items-center">
         <div>
-          <h2 className="text-3xl font-semibold tracking-tight text-[#050504]">
+          <h2 className="text-3xl font-semibold tracking-tight text-[#2A1D12]">
             A QR code for every surface in your salon
           </h2>
           <p className="mt-3 text-[#4a4640] leading-relaxed">
@@ -171,21 +171,21 @@ export default function ForBusinessPage() {
               "Instagram, Facebook, and WhatsApp",
             ].map((t) => (
               <li key={t} className="flex items-center gap-2">
-                <CheckCircle2 className="h-4 w-4 text-[#795831]" /> {t}
+                <CheckCircle2 className="h-4 w-4 text-[#2A1D12]" /> {t}
               </li>
             ))}
           </ul>
         </div>
         <div className="rounded-xl border border-[#ccc6bd]/40 bg-white p-8 flex flex-col items-center text-center">
-          <QrCode className="h-32 w-32 text-[#050504]" />
-          <p className="mt-4 text-sm font-medium text-[#050504]">Scan to open your booking page</p>
+          <QrCode className="h-32 w-32 text-[#2A1D12]" />
+          <p className="mt-4 text-sm font-medium text-[#2A1D12]">Scan to open your booking page</p>
           <p className="text-xs text-[#7b766f] mt-1">Generated automatically when your profile goes live</p>
         </div>
       </section>
 
       {/* Business benefits */}
       <section className="px-6 lg:px-12 py-16 max-w-[1200px] mx-auto">
-        <h2 className="text-3xl font-semibold tracking-tight text-[#050504] text-center">
+        <h2 className="text-3xl font-semibold tracking-tight text-[#2A1D12] text-center">
           Built for how salons in Sri Lanka actually work
         </h2>
         <div className="mt-10 grid md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -212,8 +212,8 @@ export default function ForBusinessPage() {
             },
           ].map((b) => (
             <div key={b.title} className="rounded-lg bg-white border border-[#ccc6bd]/40 p-6">
-              <b.icon className="h-5 w-5 text-[#795831]" />
-              <h3 className="mt-3 text-sm font-semibold text-[#050504]">{b.title}</h3>
+              <b.icon className="h-5 w-5 text-[#2A1D12]" />
+              <h3 className="mt-3 text-sm font-semibold text-[#2A1D12]">{b.title}</h3>
               <p className="mt-2 text-xs leading-relaxed text-[#4a4640]">{b.desc}</p>
             </div>
           ))}
@@ -222,7 +222,7 @@ export default function ForBusinessPage() {
 
       {/* Final CTA */}
       <section className="px-6 lg:px-12 py-16">
-        <div className="max-w-[1000px] mx-auto rounded-2xl bg-[#050504] text-white p-12 text-center">
+        <div className="max-w-[1000px] mx-auto rounded-2xl bg-[#2A1D12] text-white p-12 text-center">
           <h2 className="text-3xl font-semibold">Your business deserves to be discovered</h2>
           <p className="mt-3 text-white/85 max-w-xl mx-auto text-sm">
             Join salons across Sri Lanka already taking bookings without the phone tag. Set up your
@@ -244,3 +244,4 @@ export default function ForBusinessPage() {
     </main>
   );
 }
+

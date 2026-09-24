@@ -40,7 +40,7 @@ export function BrowseByCategory({
           return (
             <Link
               key={c.slug}
-              href={`/customer/search?category=${encodeURIComponent(c.slug)}`}
+              href={`/categories/${encodeURIComponent(c.slug)}`}
               className="group card-lift relative flex min-h-[192px] flex-col justify-start gap-8 rounded-xl border border-[#E5DDD0] bg-white p-5 hover:border-[#795831]"
             >
               <div className="flex items-start justify-between">

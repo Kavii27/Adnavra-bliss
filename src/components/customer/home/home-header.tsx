@@ -8,7 +8,6 @@ import { Menu, X, Search } from "lucide-react";
 const NAV_LINKS = [
   { href: "/about", label: "About" },
   { href: "/about#features", label: "Features" },
-  { href: "/categories", label: "Categories" },
   { href: "/locations", label: "Locations" },
   { href: "/for-business", label: "Partners" },
   { href: "/contact", label: "Contact" },
@@ -34,7 +33,7 @@ export function HomeHeader() {
       className={`sticky top-4 z-50 px-4 lg:px-8 transition-all ${scrolled ? "top-3" : ""}`}
     >
       <header
-        className={`mx-auto flex h-16 max-w-[1400px] items-center justify-between gap-4 rounded-full border border-white/10 bg-[#1F1E1D] px-4 lg:px-6 transition-shadow ${
+        className={`mx-auto flex h-16 max-w-[1400px] items-center justify-between gap-4 rounded-full border border-white/10 bg-[#2A1D12] px-4 lg:px-6 transition-shadow ${
           scrolled ? "shadow-[0_8px_30px_rgba(0,0,0,0.35)]" : "shadow-[0_4px_20px_rgba(0,0,0,0.2)]"
         }`}
       >
@@ -77,7 +76,7 @@ export function HomeHeader() {
           </a>
           <Link
             href="/login"
-            className="card-lift inline-flex items-center rounded-full bg-[#C9A063] px-4 py-2 text-[13px] font-semibold text-[#1F1E1D] hover:bg-[#D8B27A]"
+            className="card-lift inline-flex items-center rounded-full bg-[#C9A063] px-4 py-2 text-[13px] font-semibold text-[#2A1D12] hover:bg-[#D8B27A]"
           >
             Access Portal
           </Link>
@@ -96,7 +95,7 @@ export function HomeHeader() {
 
       {/* Mobile menu */}
       {mobileOpen && (
-        <div className="mx-auto mt-2 max-w-[1400px] rounded-2xl border border-white/10 bg-[#1F1E1D] px-6 py-4 lg:hidden">
+        <div className="mx-auto mt-2 max-w-[1400px] rounded-2xl border border-white/10 bg-[#2A1D12] px-6 py-4 lg:hidden">
           <nav className="flex flex-col gap-1">
             {NAV_LINKS.map((l) => (
               <Link
@@ -111,7 +110,7 @@ export function HomeHeader() {
             <Link
               href="/login"
               onClick={() => setMobileOpen(false)}
-              className="mt-2 inline-flex items-center justify-center rounded-full bg-[#C9A063] px-4 py-2.5 text-sm font-semibold text-[#1F1E1D]"
+              className="mt-2 inline-flex items-center justify-center rounded-full bg-[#C9A063] px-4 py-2.5 text-sm font-semibold text-[#2A1D12]"
             >
               Access Portal
             </Link>
@@ -121,3 +120,4 @@ export function HomeHeader() {
     </div>
   );
 }
+
