@@ -207,34 +207,35 @@ export default function ReportsPage() {
   }, [profile, serviceCount, staffList, reviewCount]);
 
   if (loading) {
-    return <div className="flex items-center gap-2 text-sm text-[#a89880]"><Loader2 className="h-4 w-4 animate-spin" /> Loading reports...</div>;
+    return <div className="flex items-center gap-2 text-sm text-[#8A8377]"><Loader2 className="h-4 w-4 animate-spin" /> Loading reports...</div>;
   }
   if (error) {
-    return <div className="flex items-center gap-2 text-sm text-red-300"><AlertCircle className="h-4 w-4" /> {error}</div>;
+    return <div className="flex items-center gap-2 text-sm text-red-600"><AlertCircle className="h-4 w-4" /> {error}</div>;
   }
 
   const periodLabel = period === "7d" ? "Last 7 days" : period === "30d" ? "Last 30 days" : "All time";
 
   return (
     <div>
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+      <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
         <div>
-          <h1 className="text-xl font-semibold text-[#3a2f22]">All reports</h1>
-          <p className="text-sm text-[#a89880] mt-1">Real data from your bookings, services, and team. Locked reports show why they are not available yet.</p>
+          <p className="text-[10px] font-semibold uppercase tracking-[0.22em]" style={{ color: "#9A7B4F" }}>Reports</p>
+          <h1 className="font-[family-name:var(--font-display)] mt-1 text-3xl font-medium tracking-tight text-[#1F1B17]">All reports</h1>
+          <p className="text-sm text-[#8A8377] mt-1.5">Real data from your bookings, services, and team. Locked reports show why they are not available yet.</p>
         </div>
-        <div className="flex items-center gap-2 rounded-full bg-[#f6efe3] border border-[#e6dcc8] p-1">
+        <div className="flex items-center gap-2 rounded-full bg-white border border-[#E9E1D3] p-1 shadow-[0_2px_12px_rgba(30,28,26,0.04)]">
           {(["7d", "30d", "all"] as Period[]).map((p) => (
             <button
               key={p}
               onClick={() => setPeriod(p)}
-              className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${period === p ? "bg-[#8a6d4f] text-[#ffffff]" : "text-[#a89880] hover:text-[#3a2f22]"}`}
+              className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${period === p ? "bg-[#1F1B17] text-white" : "text-[#8A8377] hover:text-[#1F1E1D]"}`}
             >
               {p === "7d" ? "7 days" : p === "30d" ? "30 days" : "All time"}
             </button>
           ))}
         </div>
       </div>
-      <p className="text-xs text-[#a89880] mt-2">Period: {periodLabel} · {filtered.length} bookings in range · Prices in LKR</p>
+      <p className="text-xs text-[#8A8377] mt-2">Period: {periodLabel} · {filtered.length} bookings in range · Prices in LKR</p>
 
       {/* Catalog grid */}
       <div className="mt-6 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
@@ -243,10 +244,10 @@ export default function ReportsPage() {
           const card = (
           <div
             key={r.id}
-            className="rounded-xl border p-4 flex flex-col border-[#e6dcc8] bg-[#f6efe3]"
+            className="rounded-2xl border p-4 flex flex-col border-[#E9E1D3] bg-white shadow-[0_4px_20px_rgba(30,28,26,0.05)]"
           >
             <div className="flex items-start justify-between gap-2">
-              <div className="h-9 w-9 rounded-lg flex items-center justify-center shrink-0 bg-[#8a6d4f] text-[#ffffff]">
+              <div className="h-9 w-9 rounded-lg flex items-center justify-center shrink-0 bg-[#1F1B17] text-white">
                 {r.id === "bookings-summary" && <CalendarDays className="h-4 w-4" />}
                 {r.id === "services-summary" && <BarChart3 className="h-4 w-4" />}
                 {(r.id === "revenue-summary" || r.id === "client-retention") && <TrendingUp className="h-4 w-4" />}
@@ -254,15 +255,15 @@ export default function ReportsPage() {
                 {r.id === "online-presence" && <Lock className="h-4 w-4" />}
               </div>
               {needsGate ? (
-                <span className="rounded-full bg-[#8a6d4f]/15 px-2 py-1 text-[10px] font-medium uppercase tracking-wide text-[#3a2f22]">
+                <span className="rounded-full bg-[#795831]/15 px-2 py-1 text-[10px] font-medium uppercase tracking-wide text-[#1F1E1D]">
                   {r.gate === "basicAnalytics" ? "Pro" : "Premium"}
                 </span>
               ) : (
-                <span className="rounded-full bg-emerald-500/20 px-2 py-1 text-[10px] font-medium text-emerald-300">Available</span>
+                <span className="rounded-full bg-emerald-100 px-2 py-1 text-[10px] font-medium text-emerald-700">Available</span>
               )}
             </div>
-            <h3 className="mt-3 text-sm font-semibold text-[#3a2f22]">{r.title}</h3>
-            <p className="mt-1 text-xs text-[#a89880] flex-1">{r.description}</p>
+            <h3 className="mt-3 text-sm font-semibold text-[#1F1E1D]">{r.title}</h3>
+            <p className="mt-1 text-xs text-[#8A8377] flex-1">{r.description}</p>
           </div>
           );
           if (needsGate) {
@@ -283,17 +284,17 @@ export default function ReportsPage() {
       {/* Detailed reports - only for available ones */}
       <div className="mt-8 space-y-6">
         {/* Bookings summary */}
-        <div className="rounded-xl border border-[#e6dcc8] bg-[#f6efe3] p-5">
-          <h2 className="text-sm font-semibold text-[#3a2f22] flex items-center gap-2"><CalendarDays className="h-4 w-4 text-[#a89880]" /> Bookings summary</h2>
-          <p className="text-xs text-[#a89880] mt-1">Bookings by status for {periodLabel.toLowerCase()}.</p>
+        <div className="rounded-2xl border border-[#E9E1D3] bg-white shadow-[0_4px_20px_rgba(30,28,26,0.05)] p-5">
+          <h2 className="text-sm font-semibold text-[#1F1E1D] flex items-center gap-2"><CalendarDays className="h-4 w-4 text-[#8A8377]" /> Bookings summary</h2>
+          <p className="text-xs text-[#8A8377] mt-1">Bookings by status for {periodLabel.toLowerCase()}.</p>
           {filtered.length === 0 ? (
-            <p className="mt-4 text-sm text-[#a89880]">No bookings in this period yet. New appointments will appear here automatically.</p>
+            <p className="mt-4 text-sm text-[#8A8377]">No bookings in this period yet. New appointments will appear here automatically.</p>
           ) : (
             <div className="mt-4 grid grid-cols-2 sm:grid-cols-5 gap-3">
               {(["CONFIRMED", "COMPLETED", "PENDING", "CANCELLED", "NO_SHOW"] as const).map((s) => (
-                <div key={s} className="rounded-lg bg-[#faf6ef] border border-[#e6dcc8] p-3 text-center">
-                  <p className="text-xs uppercase tracking-wide text-[#a89880]">{s.replace("_", " ")}</p>
-                  <p className="text-xl font-semibold text-[#3a2f22] mt-1">{bookingsByStatus[s] ?? 0}</p>
+                <div key={s} className="rounded-lg bg-[#FAF7F2] border border-[#E9E1D3] p-3 text-center">
+                  <p className="text-xs uppercase tracking-wide text-[#8A8377]">{s.replace("_", " ")}</p>
+                  <p className="text-xl font-semibold text-[#1F1E1D] mt-1">{bookingsByStatus[s] ?? 0}</p>
                 </div>
               ))}
             </div>
@@ -301,21 +302,21 @@ export default function ReportsPage() {
         </div>
 
         {/* Top services */}
-        <div className="rounded-xl border border-[#e6dcc8] bg-[#f6efe3] p-5">
-          <h2 className="text-sm font-semibold text-[#3a2f22] flex items-center gap-2"><BarChart3 className="h-4 w-4 text-[#a89880]" /> Top services</h2>
-          <p className="text-xs text-[#a89880] mt-1">Most booked services for the selected period.</p>
+        <div className="rounded-2xl border border-[#E9E1D3] bg-white shadow-[0_4px_20px_rgba(30,28,26,0.05)] p-5">
+          <h2 className="text-sm font-semibold text-[#1F1E1D] flex items-center gap-2"><BarChart3 className="h-4 w-4 text-[#8A8377]" /> Top services</h2>
+          <p className="text-xs text-[#8A8377] mt-1">Most booked services for the selected period.</p>
           {topServices.length === 0 ? (
-            <p className="mt-4 text-sm text-[#a89880]">No bookings yet to rank services.</p>
+            <p className="mt-4 text-sm text-[#8A8377]">No bookings yet to rank services.</p>
           ) : (
             <div className="mt-4 space-y-3">
               {topServices.map((t) => (
                 <div key={t.name} className="space-y-1">
                   <div className="flex items-center justify-between text-sm">
-                    <span className="text-[#3a2f22] truncate">{t.name}</span>
-                    <span className="text-[#a89880] text-xs">{t.count} bookings · {(t.revenue / 100).toLocaleString("en-LK", { style: "currency", currency: "LKR" })} completed revenue</span>
+                    <span className="text-[#1F1E1D] truncate">{t.name}</span>
+                    <span className="text-[#8A8377] text-xs">{t.count} bookings · {(t.revenue / 100).toLocaleString("en-LK", { style: "currency", currency: "LKR" })} completed revenue</span>
                   </div>
-                  <div className="h-2 rounded-full bg-[#f3ebdd] overflow-hidden">
-                    <div className="h-full bg-white rounded-full" style={{ width: `${(t.count / maxTopServicesCount) * 100}%` }} />
+                  <div className="h-2 rounded-full bg-[#F3EEE4] overflow-hidden">
+                    <div className="h-full bg-[#1F1B17] rounded-full" style={{ width: `${(t.count / maxTopServicesCount) * 100}%` }} />
                   </div>
                 </div>
               ))}
@@ -325,25 +326,25 @@ export default function ReportsPage() {
 
         {/* Revenue summary — PROFESSIONAL and up */}
         <PlanGate feature="basicAnalytics">
-        <div className="rounded-xl border border-[#e6dcc8] bg-[#f6efe3] p-5">
-          <h2 className="text-sm font-semibold text-[#3a2f22] flex items-center gap-2"><TrendingUp className="h-4 w-4 text-[#a89880]" /> Revenue summary</h2>
-          <p className="text-xs text-[#a89880] mt-1">Completed-booking revenue by day.</p>
+        <div className="rounded-2xl border border-[#E9E1D3] bg-white shadow-[0_4px_20px_rgba(30,28,26,0.05)] p-5">
+          <h2 className="text-sm font-semibold text-[#1F1E1D] flex items-center gap-2"><TrendingUp className="h-4 w-4 text-[#8A8377]" /> Revenue summary</h2>
+          <p className="text-xs text-[#8A8377] mt-1">Completed-booking revenue by day.</p>
           {revenueByDay.length === 0 ? (
-            <p className="mt-4 text-sm text-[#a89880]">No completed bookings in this period, so there is no revenue to chart yet. Confirm or complete bookings to see revenue here.</p>
+            <p className="mt-4 text-sm text-[#8A8377]">No completed bookings in this period, so there is no revenue to chart yet. Confirm or complete bookings to see revenue here.</p>
           ) : (
             <div className="mt-4 space-y-2">
               {revenueByDay.map(([day, amount]) => (
                 <div key={day} className="flex items-center gap-3">
-                  <span className="text-xs text-[#a89880] w-24 shrink-0">{day}</span>
-                  <div className="flex-1 h-6 rounded bg-[#f3ebdd] overflow-hidden relative">
-                    <div className="h-full bg-emerald-400 rounded" style={{ width: `${(amount / maxRevenue) * 100}%` }} />
+                  <span className="text-xs text-[#8A8377] w-24 shrink-0">{day}</span>
+                  <div className="flex-1 h-6 rounded bg-[#F3EEE4] overflow-hidden relative">
+                    <div className="h-full bg-emerald-500 rounded" style={{ width: `${(amount / maxRevenue) * 100}%` }} />
                   </div>
-                  <span className="text-xs text-[#3a2f22] w-28 text-right">{(amount / 100).toLocaleString("en-LK", { style: "currency", currency: "LKR" })}</span>
+                  <span className="text-xs text-[#1F1E1D] w-28 text-right">{(amount / 100).toLocaleString("en-LK", { style: "currency", currency: "LKR" })}</span>
                 </div>
               ))}
-              <div className="pt-3 border-t border-[#e6dcc8] flex items-center justify-between text-sm">
-                <span className="text-[#a89880]">Total completed revenue</span>
-                <span className="font-semibold text-[#3a2f22]">
+              <div className="pt-3 border-t border-[#E9E1D3] flex items-center justify-between text-sm">
+                <span className="text-[#8A8377]">Total completed revenue</span>
+                <span className="font-semibold text-[#1F1E1D]">
                   {(revenueByDay.reduce((a, [, v]) => a + v, 0) / 100).toLocaleString("en-LK", { style: "currency", currency: "LKR" })}
                 </span>
               </div>
@@ -354,16 +355,16 @@ export default function ReportsPage() {
 
         {/* Team performance — PROFESSIONAL and up */}
         <PlanGate feature="basicAnalytics">
-        <div className="rounded-xl border border-[#e6dcc8] bg-[#f6efe3] p-5">
-          <h2 className="text-sm font-semibold text-[#3a2f22] flex items-center gap-2"><Users className="h-4 w-4 text-[#a89880]" /> Team performance</h2>
-          <p className="text-xs text-[#a89880] mt-1">Bookings and revenue by team member for the selected period.</p>
+        <div className="rounded-2xl border border-[#E9E1D3] bg-white shadow-[0_4px_20px_rgba(30,28,26,0.05)] p-5">
+          <h2 className="text-sm font-semibold text-[#1F1E1D] flex items-center gap-2"><Users className="h-4 w-4 text-[#8A8377]" /> Team performance</h2>
+          <p className="text-xs text-[#8A8377] mt-1">Bookings and revenue by team member for the selected period.</p>
           {teamPerf.length === 0 ? (
-            <p className="mt-4 text-sm text-[#a89880]">No bookings to attribute yet. Add team members in Team and assign them to bookings to see performance here.</p>
+            <p className="mt-4 text-sm text-[#8A8377]">No bookings to attribute yet. Add team members in Team and assign them to bookings to see performance here.</p>
           ) : (
             <div className="mt-4 overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="text-xs uppercase tracking-wide text-[#a89880] border-b border-[#e6dcc8]">
+                  <tr className="text-xs uppercase tracking-wide text-[#8A8377] border-b border-[#E9E1D3]">
                     <th className="text-left py-2 font-medium">Team member</th>
                     <th className="text-right py-2 font-medium">Bookings</th>
                     <th className="text-right py-2 font-medium">Revenue (completed)</th>
@@ -372,18 +373,18 @@ export default function ReportsPage() {
                 </thead>
                 <tbody>
                   {teamPerf.map((t) => (
-                    <tr key={t.name} className="border-b border-white/5 last:border-0">
-                      <td className="py-3 text-[#3a2f22]">
+                    <tr key={t.name} className="border-b border-[#F0EAE0] last:border-0">
+                      <td className="py-3 text-[#1F1E1D]">
                         <span className="inline-flex items-center gap-2">
-                          <span className="h-7 w-7 rounded-full bg-[#f3ebdd] flex items-center justify-center text-xs text-[#3a2f22]">{t.name.slice(0, 2).toUpperCase()}</span>
+                          <span className="h-7 w-7 rounded-full bg-[#F3EEE4] flex items-center justify-center text-xs text-[#1F1E1D]">{t.name.slice(0, 2).toUpperCase()}</span>
                           {t.name}
                         </span>
                       </td>
-                      <td className="py-3 text-right text-[#3a2f22]">{t.count}</td>
-                      <td className="py-3 text-right text-[#3a2f22]">{(t.revenue / 100).toLocaleString("en-LK", { style: "currency", currency: "LKR" })}</td>
+                      <td className="py-3 text-right text-[#1F1E1D]">{t.count}</td>
+                      <td className="py-3 text-right text-[#1F1E1D]">{(t.revenue / 100).toLocaleString("en-LK", { style: "currency", currency: "LKR" })}</td>
                       <td className="py-3 pl-4 w-40">
-                        <div className="h-2 rounded-full bg-[#f3ebdd] overflow-hidden">
-                          <div className="h-full bg-[#a67c52] rounded-full" style={{ width: `${(t.count / maxTeamCount) * 100}%` }} />
+                        <div className="h-2 rounded-full bg-[#F3EEE4] overflow-hidden">
+                          <div className="h-full bg-[#9A7B4F] rounded-full" style={{ width: `${(t.count / maxTeamCount) * 100}%` }} />
                         </div>
                       </td>
                     </tr>
@@ -396,11 +397,11 @@ export default function ReportsPage() {
         </PlanGate>
 
         {/* Client retention — STARTER (booking counts only) */}
-        <div className="rounded-xl border border-[#e6dcc8] bg-[#f6efe3] p-5">
-          <h2 className="text-sm font-semibold text-[#3a2f22] flex items-center gap-2"><TrendingUp className="h-4 w-4 text-[#a89880]" /> Client retention</h2>
-          <p className="text-xs text-[#a89880] mt-1">Repeat vs first-time clients for {periodLabel.toLowerCase()} (cancelled bookings excluded).</p>
+        <div className="rounded-2xl border border-[#E9E1D3] bg-white shadow-[0_4px_20px_rgba(30,28,26,0.05)] p-5">
+          <h2 className="text-sm font-semibold text-[#1F1E1D] flex items-center gap-2"><TrendingUp className="h-4 w-4 text-[#8A8377]" /> Client retention</h2>
+          <p className="text-xs text-[#8A8377] mt-1">Repeat vs first-time clients for {periodLabel.toLowerCase()} (cancelled bookings excluded).</p>
           {retention.total === 0 ? (
-            <p className="mt-4 text-sm text-[#a89880]">No bookings in this period yet.</p>
+            <p className="mt-4 text-sm text-[#8A8377]">No bookings in this period yet.</p>
           ) : (
             <div className="mt-4 space-y-3">
               {[
@@ -409,11 +410,11 @@ export default function ReportsPage() {
               ].map((row) => (
                 <div key={row.label} className="space-y-1">
                   <div className="flex items-center justify-between text-sm">
-                    <span className="text-[#3a2f22]">{row.label}</span>
-                    <span className="text-[#a89880] text-xs">{row.count} ({Math.round((row.count / Math.max(1, retention.total)) * 100)}%)</span>
+                    <span className="text-[#1F1E1D]">{row.label}</span>
+                    <span className="text-[#8A8377] text-xs">{row.count} ({Math.round((row.count / Math.max(1, retention.total)) * 100)}%)</span>
                   </div>
-                  <div className="h-2 rounded-full bg-[#f3ebdd] overflow-hidden">
-                    <div className="h-full bg-white rounded-full" style={{ width: `${(row.count / Math.max(1, retention.total)) * 100}%` }} />
+                  <div className="h-2 rounded-full bg-[#F3EEE4] overflow-hidden">
+                    <div className="h-full bg-[#1F1B17] rounded-full" style={{ width: `${(row.count / Math.max(1, retention.total)) * 100}%` }} />
                   </div>
                 </div>
               ))}
@@ -423,19 +424,19 @@ export default function ReportsPage() {
 
         {/* Online presence — PREMIUM advanced analytics */}
         <PlanGate feature="advancedAnalytics">
-        <div className="rounded-xl border border-[#e6dcc8] bg-[#f6efe3] p-5">
-          <h2 className="text-sm font-semibold text-[#3a2f22] flex items-center gap-2"><Lock className="h-4 w-4 text-[#a89880]" /> Online presence</h2>
-          <p className="text-xs text-[#a89880] mt-1">Profile completeness signals that drive marketplace discovery. {presence.done} of {presence.total} complete.</p>
-          <div className="mt-2 h-2 rounded-full bg-[#f3ebdd] overflow-hidden">
-            <div className="h-full bg-[#a67c52] rounded-full" style={{ width: `${(presence.done / Math.max(1, presence.total)) * 100}%` }} />
+        <div className="rounded-2xl border border-[#E9E1D3] bg-white shadow-[0_4px_20px_rgba(30,28,26,0.05)] p-5">
+          <h2 className="text-sm font-semibold text-[#1F1E1D] flex items-center gap-2"><Lock className="h-4 w-4 text-[#8A8377]" /> Online presence</h2>
+          <p className="text-xs text-[#8A8377] mt-1">Profile completeness signals that drive marketplace discovery. {presence.done} of {presence.total} complete.</p>
+          <div className="mt-2 h-2 rounded-full bg-[#F3EEE4] overflow-hidden">
+            <div className="h-full bg-[#9A7B4F] rounded-full" style={{ width: `${(presence.done / Math.max(1, presence.total)) * 100}%` }} />
           </div>
           <ul className="mt-4 space-y-2">
             {presence.items.map((item) => (
               <li key={item.label} className="flex items-center gap-2 text-sm">
-                <span className={`flex h-5 w-5 items-center justify-center rounded-full text-[11px] font-bold ${item.done ? "bg-emerald-500/20 text-emerald-300" : "bg-[#f3ebdd] text-[#a89880]"}`}>
+                <span className={`flex h-5 w-5 items-center justify-center rounded-full text-[11px] font-bold ${item.done ? "bg-emerald-100 text-emerald-700" : "bg-[#F3EEE4] text-[#8A8377]"}`}>
                   {item.done ? "✓" : "·"}
                 </span>
-                <span className={item.done ? "text-[#3a2f22]" : "text-[#a89880]"}>{item.label}</span>
+                <span className={item.done ? "text-[#1F1E1D]" : "text-[#8A8377]"}>{item.label}</span>
               </li>
             ))}
           </ul>
@@ -443,7 +444,7 @@ export default function ReportsPage() {
         </PlanGate>
 
         {bookings.length >= 100 && (
-          <p className="text-xs text-[#a89880] text-center">Showing first 100 bookings. Reports are sampled if you have more than 100 bookings. For full accuracy at scale, a paginated reports API will be added later.</p>
+          <p className="text-xs text-[#8A8377] text-center">Showing first 100 bookings. Reports are sampled if you have more than 100 bookings. For full accuracy at scale, a paginated reports API will be added later.</p>
         )}
       </div>
     </div>

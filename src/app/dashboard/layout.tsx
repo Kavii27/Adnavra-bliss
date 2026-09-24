@@ -2,12 +2,21 @@ import { redirect } from "next/navigation";
 import { headers } from "next/headers";
 import { auth } from "@/lib/auth";
 import Link from "next/link";
+import { Cormorant_Garamond } from "next/font/google";
 import { db } from "@/lib/db";
 import { DashboardSidebar } from "@/components/dashboard/sidebar";
 import { DashboardTopbar } from "@/components/dashboard/topbar";
 import { MobileNav } from "@/components/dashboard/mobile-nav";
 import { PlanProvider } from "@/components/dashboard/plan-context";
 import { normalizePlan, type Plan } from "@/lib/plan-features";
+
+const display = Cormorant_Garamond({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  style: ["normal", "italic"],
+  variable: "--font-display",
+  display: "swap",
+});
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const session = await auth();
@@ -21,13 +30,13 @@ export default async function DashboardLayout({ children }: { children: React.Re
   const allowed: string[] = ["OWNER", "STAFF", "ADMIN"];
   if (!allowed.includes(role)) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#faf6ef] px-6">
+      <div className="min-h-screen flex items-center justify-center bg-[#FAF7F2] px-6">
         <div className="max-w-md text-center">
-          <h1 className="text-2xl font-semibold text-[#3a2f22]">Access denied</h1>
-          <p className="mt-2 text-sm text-[#a89880]">
+          <h1 className="text-2xl font-semibold text-[#1F1E1D]">Access denied</h1>
+          <p className="mt-2 text-sm text-[#8A8377]">
             Dashboard is available to salon owners and staff only. Your role is {role}.
           </p>
-          <Link href="/" className="mt-6 inline-flex text-sm font-medium text-[#8a6d4f] hover:underline">
+          <Link href="/" className="mt-6 inline-flex text-sm font-medium text-[#795831] hover:underline">
             Back to home
           </Link>
         </div>
@@ -84,14 +93,14 @@ export default async function DashboardLayout({ children }: { children: React.Re
 
   return (
     <PlanProvider value={currentPlan}>
-    <div className="flex min-h-screen bg-[#faf6ef]">
+    <div className={`${display.variable} flex min-h-screen bg-[#FAF7F2]`}>
       <DashboardSidebar />
       <div className="flex min-w-0 flex-1 flex-col">
         <DashboardTopbar businessName={businessName} businessId={businessId} businessSlug={businessSlug} userName={userName} userInitials={userInitials} />
         {/* Mobile nav trigger - visible only on small screens, rendered below topbar */}
-        <div className="flex md:hidden items-center px-4 py-2 border-b border-[#e6dcc8] bg-[#faf6ef]">
+        <div className="flex md:hidden items-center px-4 py-2 border-b border-[#E9E1D3] bg-[#FAF7F2]">
           <MobileNav />
-          <span className="ml-2 text-sm text-[#a89880] truncate">{businessName}</span>
+          <span className="ml-2 text-sm text-[#8A8377] truncate">{businessName}</span>
         </div>
         <main className="flex-1 overflow-y-auto">{children}</main>
       </div>

@@ -6,6 +6,8 @@ import { PlanGate } from "@/components/dashboard/plan-gate";
 import { CalendarProTools } from "@/components/dashboard/calendar-pro-tools";
 import { AddBookingModal } from "@/components/dashboard/add-booking-modal";
 
+const SERIF = "font-[family-name:var(--font-display)]";
+
 type Booking = {
   id: string;
   reference: string;
@@ -135,50 +137,55 @@ export default function CalendarPage() {
   const dayLabel = formatDayLabel(date);
 
   return (
-    <div className="min-h-full bg-[#0F1729] px-4 py-6 text-[#3a2f22] md:px-6">
+    <div className="min-h-full bg-[#FAF7F2] px-4 py-6 md:px-6">
       {/* Header */}
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <h1 className="text-2xl font-semibold tracking-tight text-[#3a2f22]">Calendar</h1>
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <p className="text-[10px] font-semibold uppercase tracking-[0.22em]" style={{ color: "#9A7B4F" }}>
+            Calendar
+          </p>
+          <h1 className={`${SERIF} mt-1 text-3xl font-medium tracking-tight text-[#1F1B17]`}>Day view</h1>
+        </div>
         <input
           type="date"
           value={date}
           onChange={(e) => setDate(e.target.value)}
-          className="rounded-lg border border-[#e6dcc8] bg-[#f6efe3] px-3 py-2 text-sm text-[#3a2f22] placeholder:text-[#a89880] focus:outline-none focus:ring-2 focus:ring-[var(--color-sidebar-active)]"
+          className="rounded-lg border border-[#E9E1D3] bg-white px-3 py-2 text-sm text-[#1F1E1D] placeholder:text-[#8A8377] focus:outline-none focus:ring-2 focus:ring-[var(--color-sidebar-active)]"
         />
       </div>
 
-      {/* Control row — matches screenshot 10 */}
-      <div className="mt-4 flex flex-wrap items-center gap-2 rounded-xl border border-[#e6dcc8] bg-white/[0.04] px-3 py-2.5">
+      {/* Control row */}
+      <div className="mt-4 flex flex-wrap items-center gap-2 rounded-2xl border border-[#E9E1D3] bg-white shadow-[0_4px_20px_rgba(30,28,26,0.05)] px-3 py-2.5">
         <div className="flex items-center gap-1">
           <button
             onClick={() => setDate(new Date().toISOString().slice(0, 10))}
-            className="rounded-full border border-[#e6dcc8] bg-[#f6efe3] px-3 py-1.5 text-xs font-semibold text-[#3a2f22] hover:bg-[#f3ebdd]"
+            className="rounded-full border border-[#E9E1D3] bg-[#FBF7EF] px-3 py-1.5 text-xs font-semibold text-[#1F1E1D] hover:bg-[#F3EEE4]"
           >
             Today
           </button>
           <button
             aria-label="Previous day"
             onClick={() => setDate((d) => addDays(d, -1))}
-            className="flex h-8 w-8 items-center justify-center rounded-full text-[#a89880] hover:bg-[#f3ebdd] hover:text-[#3a2f22]"
+            className="flex h-8 w-8 items-center justify-center rounded-full text-[#8A8377] hover:bg-[#F3EEE4] hover:text-[#1F1E1D]"
           >
             <ChevronLeft className="h-4 w-4" />
           </button>
           <button
             aria-label="Next day"
             onClick={() => setDate((d) => addDays(d, 1))}
-            className="flex h-8 w-8 items-center justify-center rounded-full text-[#a89880] hover:bg-[#f3ebdd] hover:text-[#3a2f22]"
+            className="flex h-8 w-8 items-center justify-center rounded-full text-[#8A8377] hover:bg-[#F3EEE4] hover:text-[#1F1E1D]"
           >
             <ChevronRight className="h-4 w-4" />
           </button>
-          <span className="ml-1 text-sm font-medium text-[#3a2f22]">{dayLabel}</span>
+          <span className="ml-1 text-sm font-medium text-[#1F1E1D]">{dayLabel}</span>
         </div>
 
-        <div className="hidden sm:flex items-center gap-2 ml-2 pl-3 border-l border-[#e6dcc8]">
+        <div className="hidden sm:flex items-center gap-2 ml-2 pl-3 border-l border-[#E9E1D3]">
           <select
             aria-label="Filter by team member"
             value={staffFilter}
             onChange={(e) => setStaffFilter(e.target.value)}
-            className="rounded-full bg-[#f6efe3] px-3 py-1.5 text-xs font-medium text-[#a89880] hover:bg-[#f3ebdd] hover:text-[#3a2f22] focus:outline-none focus:ring-2 focus:ring-[var(--color-sidebar-active)]"
+            className="rounded-full bg-[#FBF7EF] px-3 py-1.5 text-xs font-medium text-[#8A8377] hover:bg-[#F3EEE4] hover:text-[#1F1E1D] focus:outline-none focus:ring-2 focus:ring-[var(--color-sidebar-active)]"
           >
             <option value="">Scheduled team</option>
             {staff.map((s) => (
@@ -190,27 +197,27 @@ export default function CalendarPage() {
         </div>
 
         <div className="ml-auto flex items-center gap-2">
-          <span className="inline-flex items-center rounded-lg border border-[#e6dcc8] bg-[#f6efe3] px-3 py-1.5 text-xs font-semibold text-[#3a2f22]">
+          <span className="inline-flex items-center rounded-lg border border-[#E9E1D3] bg-[#FBF7EF] px-3 py-1.5 text-xs font-semibold text-[#1F1E1D]">
             Day view
           </span>
           <button
             onClick={() => setAddOpen(true)}
             disabled={!businessId}
             title={businessId ? "Add a walk-in or phone booking" : "Create your business profile first"}
-            className="inline-flex items-center gap-1 rounded-lg bg-[var(--color-sidebar-active)] px-3 py-1.5 text-xs font-semibold text-[#3a2f22] hover:opacity-90 disabled:opacity-40"
+            className="inline-flex items-center gap-1 rounded-full bg-[#1F1B17] px-3.5 py-1.5 text-xs font-semibold uppercase tracking-[0.08em] text-white transition-colors hover:bg-[#795831] disabled:opacity-40"
           >
             <Plus className="h-3.5 w-3.5" /> Add
           </button>
         </div>
       </div>
 
-      <p className="mt-2 text-xs text-[#a89880]">Day view showing bookings on {date}, ordered by time.</p>
+      <p className="mt-2 text-xs text-[#8A8377]">Day view showing bookings on {date}, ordered by time.</p>
 
       {(() => {
         if (isNoBusiness) return null;
         if (error) {
           return (
-            <div className="mt-4 flex items-center gap-2 text-sm text-red-300">
+            <div className="mt-4 flex items-center gap-2 text-sm text-red-600">
               <AlertCircle className="h-4 w-4" /> {error}
             </div>
           );
@@ -219,49 +226,52 @@ export default function CalendarPage() {
       })()}
 
       {loading ? (
-        <div className="mt-8 flex items-center gap-2 text-sm text-[#a89880]">
+        <div className="mt-8 flex items-center gap-2 text-sm text-[#8A8377]">
           <Loader2 className="h-4 w-4 animate-spin" /> Loading...
         </div>
       ) : isNoBusiness ? (
-        <div className="mt-6 rounded-xl border border-[#e6dcc8] bg-white/[0.04] p-8 text-center">
-          <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-full bg-[#f6efe3] border border-[#e6dcc8]">
-            <Store className="h-5 w-5 text-[#a89880]" />
+        <div className="mt-6 rounded-2xl border border-dashed border-[#E5DDD0] bg-white p-8 text-center">
+          <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-full bg-[#FBF7EF] border border-[#E9E1D3]">
+            <Store className="h-5 w-5 text-[#8A8377]" />
           </div>
-          <h3 className="mt-3 text-sm font-medium text-[#3a2f22]">Set up your salon to see your calendar</h3>
-          <p className="mt-1 text-sm text-[#a89880]">You have not created a business profile yet. Create it in Settings and bookings will appear here.</p>
-          <Link href="/dashboard/settings" className="mt-4 inline-flex items-center justify-center rounded-lg bg-white px-4 py-2 text-sm font-semibold text-[#3a2f22] hover:bg-[#f6efe3]">
+          <h3 className="mt-3 text-sm font-medium text-[#1F1E1D]">Set up your salon to see your calendar</h3>
+          <p className="mt-1 text-sm text-[#8A8377]">You have not created a business profile yet. Create it in Settings and bookings will appear here.</p>
+          <Link
+            href="/dashboard/settings"
+            className="mt-4 inline-flex h-10 items-center justify-center rounded-full bg-[#1F1B17] px-6 text-[12px] font-bold uppercase tracking-[0.14em] text-white transition-colors hover:bg-[#795831]"
+          >
             Go to Settings
           </Link>
-          {error && <p className="mt-3 text-xs text-[#a89880]/60">{error}</p>}
+          {error && <p className="mt-3 text-xs text-[#8A8377]/60">{error}</p>}
         </div>
       ) : visibleBookings.length === 0 && staff.length === 0 ? (
-        <div className="mt-6 rounded-xl border border-[#e6dcc8] bg-white/[0.04] overflow-hidden">
+        <div className="mt-6 rounded-2xl border border-[#E9E1D3] bg-white shadow-[0_4px_20px_rgba(30,28,26,0.05)] overflow-hidden">
           {/* Still render the empty column shell so solo owners see the grid */}
           <div className="grid" style={{ gridTemplateColumns: `64px 1fr` }}>
-            <div className="border-r border-[#e6dcc8] bg-[#faf6ef] px-2 py-3">
+            <div className="border-r border-[#E9E1D3] bg-[#FAF7F2] px-2 py-3">
               <div className="flex flex-col gap-1">
                 {hours.map((h) => (
-                  <div key={h} className="text-[11px] text-[#a89880] leading-none" style={{ height: HOUR_HEIGHT }}>
+                  <div key={h} className="text-[11px] text-[#8A8377] leading-none" style={{ height: HOUR_HEIGHT }}>
                     {String(h).padStart(2, "0")}:00
                   </div>
                 ))}
               </div>
             </div>
             <div>
-              <div className="flex items-center justify-center border-b border-[#e6dcc8] bg-[#faf6ef] px-3 py-3">
+              <div className="flex items-center justify-center border-b border-[#E9E1D3] bg-[#FAF7F2] px-3 py-3">
                 <div className="flex flex-col items-center gap-1">
-                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#f3ebdd] text-xs font-semibold text-[#3a2f22]">—</div>
-                  <span className="text-xs font-medium text-[#a89880]">Unassigned</span>
+                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#F3EEE4] text-xs font-semibold text-[#1F1E1D]">—</div>
+                  <span className="text-xs font-medium text-[#8A8377]">Unassigned</span>
                 </div>
               </div>
               <div className="relative" style={{ height: GRID_HEIGHT }}>
                 <div className="absolute inset-0 flex flex-col">
                   {hours.map((h) => (
-                    <div key={h} className="border-b border-white/[0.06]" style={{ height: HOUR_HEIGHT }} />
+                    <div key={h} className="border-b border-[#F0EAE0]" style={{ height: HOUR_HEIGHT }} />
                   ))}
                 </div>
                 <div className="absolute inset-0 flex items-center justify-center p-4">
-                  <p className="text-sm text-[#a89880] text-center">
+                  <p className="text-sm text-[#8A8377] text-center">
                     {staffFilter ? "No bookings for this team member on this day." : "No bookings on this day."}
                   </p>
                 </div>
@@ -270,16 +280,16 @@ export default function CalendarPage() {
           </div>
         </div>
       ) : (
-        <div className="mt-6 rounded-xl border border-[#e6dcc8] bg-white/[0.04] overflow-hidden">
+        <div className="mt-6 rounded-2xl border border-[#E9E1D3] bg-white shadow-[0_4px_20px_rgba(30,28,26,0.05)] overflow-hidden">
           {/* Staff header row */}
-          <div className="grid border-b border-[#e6dcc8] bg-[#faf6ef]" style={{ gridTemplateColumns: `64px repeat(${columns.length}, minmax(0, 1fr))` }}>
-            <div className="border-r border-[#e6dcc8] px-2 py-3 text-[11px] font-medium text-[#a89880]">Time</div>
+          <div className="grid border-b border-[#E9E1D3] bg-[#FAF7F2]" style={{ gridTemplateColumns: `64px repeat(${columns.length}, minmax(0, 1fr))` }}>
+            <div className="border-r border-[#E9E1D3] px-2 py-3 text-[11px] font-medium text-[#8A8377]">Time</div>
             {columns.map((c) => (
-              <div key={String(c.id ?? "unassigned")} className="flex flex-col items-center justify-center gap-1 border-r border-[#e6dcc8] px-2 py-3 last:border-r-0">
-                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#f3ebdd] text-xs font-semibold text-[#3a2f22] ring-1 ring-white/10">
+              <div key={String(c.id ?? "unassigned")} className="flex flex-col items-center justify-center gap-1 border-r border-[#E9E1D3] px-2 py-3 last:border-r-0">
+                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#F3EEE4] text-xs font-semibold text-[#1F1E1D] ring-1 ring-black/5">
                   {c.name === "Unassigned" ? "—" : initials(c.name)}
                 </div>
-                <span className="max-w-full truncate text-xs font-medium text-[#3a2f22] text-center">{c.name}</span>
+                <span className="max-w-full truncate text-xs font-medium text-[#1F1E1D] text-center">{c.name}</span>
               </div>
             ))}
           </div>
@@ -287,14 +297,14 @@ export default function CalendarPage() {
           {/* Grid body: gutter + each staff column as positioned container */}
           <div className="grid" style={{ gridTemplateColumns: `64px repeat(${columns.length}, minmax(0, 1fr))` }}>
             {/* Time gutter */}
-            <div className="relative border-r border-[#e6dcc8] bg-[#0F1729]" style={{ height: GRID_HEIGHT }}>
+            <div className="relative border-r border-[#E9E1D3] bg-white" style={{ height: GRID_HEIGHT }}>
               {hours.map((h) => (
                 <div
                   key={h}
-                  className="absolute left-0 right-0 border-t border-white/[0.06] px-2 text-[11px] text-[#a89880]"
+                  className="absolute left-0 right-0 border-t border-[#F0EAE0] px-2 text-[11px] text-[#8A8377]"
                   style={{ top: (h - 8) * HOUR_HEIGHT }}
                 >
-                  <span className="relative -top-2 bg-[#0F1729] pr-1">{String(h).padStart(2, "0")}:00</span>
+                  <span className="relative -top-2 bg-white pr-1">{String(h).padStart(2, "0")}:00</span>
                 </div>
               ))}
             </div>
@@ -303,11 +313,11 @@ export default function CalendarPage() {
             {columns.map((c) => {
               const colBookings = bookingsByColumn.get(c.id as string | null) ?? [];
               return (
-                <div key={String(c.id ?? "unassigned-col")} className="relative border-r border-white/[0.06] bg-[#0F1729] last:border-r-0" style={{ height: GRID_HEIGHT }}>
+                <div key={String(c.id ?? "unassigned-col")} className="relative border-r border-[#F0EAE0] bg-white last:border-r-0" style={{ height: GRID_HEIGHT }}>
                   {/* hour lines */}
                   <div className="absolute inset-0">
                     {hours.map((h) => (
-                      <div key={h} className="absolute left-0 right-0 border-t border-white/[0.06]" style={{ top: (h - 8) * HOUR_HEIGHT }} />
+                      <div key={h} className="absolute left-0 right-0 border-t border-[#F0EAE0]" style={{ top: (h - 8) * HOUR_HEIGHT }} />
                     ))}
                   </div>
 
@@ -326,11 +336,11 @@ export default function CalendarPage() {
                       }
                       const statusColor =
                         b.status === "CONFIRMED"
-                          ? "bg-[#8a6d4f] text-[#faf6ef] border-[#8a6d4f]"
+                          ? "bg-[#795831] text-[#FAF7F2] border-[#795831]"
                           : b.status === "PENDING"
                             ? "bg-[#FDE68A] text-[#78350f] border-[#FDE68A]"
                             : b.status === "CANCELLED"
-                              ? "bg-[#f3ebdd] text-[#a89880] border-[#e6dcc8]"
+                              ? "bg-[#FBF7EF] text-[#8A8377] border-[#E9E1D3]"
                               : "bg-[#A7F3D0] text-[#064e3b] border-[#A7F3D0]";
                       return (
                         <div
@@ -354,11 +364,11 @@ export default function CalendarPage() {
           </div>
 
           {/* Footer summary */}
-          <div className="border-t border-[#e6dcc8] bg-[#faf6ef] px-4 py-2.5 flex items-center gap-2 text-xs text-[#a89880]">
+          <div className="border-t border-[#E9E1D3] bg-[#FAF7F2] px-4 py-2.5 flex items-center gap-2 text-xs text-[#8A8377]">
             <span>
               {visibleBookings.length} booking(s) on {date}{staffFilter ? " (filtered by team member)" : ""}
             </span>
-            <button onClick={load} className="ml-auto rounded-full border border-[#e6dcc8] bg-[#f6efe3] px-3 py-1.5 text-xs font-medium text-[#3a2f22] hover:bg-[#f3ebdd]">
+            <button onClick={load} className="ml-auto rounded-full border border-[#E9E1D3] bg-[#FBF7EF] px-3 py-1.5 text-xs font-medium text-[#1F1E1D] hover:bg-[#F3EEE4]">
               Refresh
             </button>
           </div>

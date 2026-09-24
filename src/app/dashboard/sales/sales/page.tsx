@@ -147,17 +147,25 @@ function SalesInner() {
   }
 
   if (bizLoading || (loading && businessId)) {
-    return <div className="flex items-center gap-2 text-sm text-[#a89880]"><Loader2 className="h-4 w-4 animate-spin" /> Loading sales...</div>;
+    return <div className="flex items-center gap-2 text-sm text-[#8A8377]"><Loader2 className="h-4 w-4 animate-spin" /> Loading sales...</div>;
   }
   if (isNoBusiness || bizError) {
     return (
-      <div className="rounded-xl border border-[#e6dcc8] bg-white/[0.04] p-8 text-center">
-        <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-full bg-[#f6efe3] border border-[#e6dcc8]">
-          <Store className="h-5 w-5 text-[#a89880]" />
+      <div className="rounded-2xl border border-dashed border-[#E5DDD0] bg-white p-10 text-center">
+        <div
+          className="mx-auto flex h-14 w-14 items-center justify-center rounded-full"
+          style={{ background: "linear-gradient(135deg, #D9BE8C, #C9A467)" }}
+        >
+          <Store className="h-6 w-6 text-[#1B1714]" />
         </div>
-        <h3 className="mt-3 text-sm font-semibold text-[#3a2f22]">Set up your salon to see sales</h3>
-        <p className="mt-1 text-sm text-[#a89880]">{bizError ?? "Create your business profile first."}</p>
-        <Link href="/dashboard/settings" className="mt-4 inline-flex items-center justify-center rounded-lg bg-white px-4 py-2 text-sm font-semibold text-[#faf6ef] hover:bg-white/90">Go to Settings</Link>
+        <h3 className="font-[family-name:var(--font-display)] mt-5 text-xl font-semibold text-[#1F1B17]">Set up your salon to see sales</h3>
+        <p className="mt-1.5 text-sm text-[#8A8377]">{bizError ?? "Create your business profile first."}</p>
+        <Link
+          href="/dashboard/settings"
+          className="mt-6 inline-flex h-11 items-center justify-center rounded-full bg-[#1F1B17] px-7 text-[12px] font-bold uppercase tracking-[0.14em] text-white transition-colors hover:bg-[#795831]"
+        >
+          Go to Settings
+        </Link>
       </div>
     );
   }
@@ -166,29 +174,30 @@ function SalesInner() {
     <div>
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-xl font-semibold text-[#3a2f22]">Sales</h1>
-          <p className="text-sm text-[#a89880] mt-1">Detailed ledger. Package, membership, and gift-card sales post here automatically.</p>
+          <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-[#9A7B4F]">Sales</p>
+          <h1 className="font-[family-name:var(--font-display)] mt-1 text-3xl font-medium tracking-tight text-[#1F1B17]">Sales</h1>
+          <p className="text-sm text-[#8A8377] mt-1.5">Detailed ledger. Package, membership, and gift-card sales post here automatically.</p>
         </div>
-        <Button onClick={() => { setFormError(null); setShowForm(true); }} className="bg-[#8a6d4f] text-[#ffffff] hover:bg-white/90">
+        <Button onClick={() => { setFormError(null); setShowForm(true); }} className="rounded-full bg-[#1F1B17] text-white hover:bg-[#795831]">
           <Plus className="h-4 w-4 mr-2" /> Record sale
         </Button>
       </div>
 
       <div className="mt-6 grid grid-cols-1 sm:grid-cols-3 gap-3">
-        <div className="rounded-xl border border-[#e6dcc8] bg-[#f6efe3] p-4">
-          <p className="text-xs uppercase tracking-wide text-[#a89880]">Net total ({filter === "ALL" ? "all" : filter.toLowerCase()})</p>
-          <p className="mt-1 text-xl font-semibold text-[#3a2f22]">{lkr(netTotal)}</p>
+        <div className="rounded-2xl border border-[#E9E1D3] bg-white p-4 shadow-[0_4px_20px_rgba(30,28,26,0.05)]">
+          <p className="text-xs uppercase tracking-wide text-[#9A7B4F]">Net total ({filter === "ALL" ? "all" : filter.toLowerCase()})</p>
+          <p className="mt-1 text-xl font-semibold text-[#1F1E1D]">{lkr(netTotal)}</p>
           {showTax && taxRate > 0 && (
-            <p className="mt-1 text-xs text-[#a89880]">incl. {lkr(Math.round((netTotal * taxRate) / (100 + taxRate)))} tax ({taxRate}%)</p>
+            <p className="mt-1 text-xs text-[#8A8377]">incl. {lkr(Math.round((netTotal * taxRate) / (100 + taxRate)))} tax ({taxRate}%)</p>
           )}
         </div>
-        <div className="rounded-xl border border-[#e6dcc8] bg-[#f6efe3] p-4">
-          <p className="text-xs uppercase tracking-wide text-[#a89880]">Transactions</p>
-          <p className="mt-1 text-xl font-semibold text-[#3a2f22]">{filtered.length}</p>
+        <div className="rounded-2xl border border-[#E9E1D3] bg-white p-4 shadow-[0_4px_20px_rgba(30,28,26,0.05)]">
+          <p className="text-xs uppercase tracking-wide text-[#9A7B4F]">Transactions</p>
+          <p className="mt-1 text-xl font-semibold text-[#1F1E1D]">{filtered.length}</p>
         </div>
-        <div className="rounded-xl border border-[#e6dcc8] bg-[#f6efe3] p-4">
-          <p className="text-xs uppercase tracking-wide text-[#a89880]">Filter</p>
-          <select value={filter} onChange={(e) => setFilter(e.target.value)} className="mt-2 w-full rounded-md border border-[#e6dcc8] bg-[#faf6ef] px-2 py-1.5 text-sm text-[#3a2f22]">
+        <div className="rounded-2xl border border-[#E9E1D3] bg-white p-4 shadow-[0_4px_20px_rgba(30,28,26,0.05)]">
+          <p className="text-xs uppercase tracking-wide text-[#9A7B4F]">Filter</p>
+          <select value={filter} onChange={(e) => setFilter(e.target.value)} className="mt-2 w-full rounded-md border border-[#E9E1D3] bg-[#FBF7EF] px-2 py-1.5 text-sm text-[#1F1E1D]">
             <option value="ALL" className="text-black">All categories</option>
             {CATEGORIES.map((c) => (
               <option key={c} value={c} className="text-black">{c.replace("_", " ")}</option>
@@ -198,19 +207,24 @@ function SalesInner() {
       </div>
 
       {error ? (
-        <div className="mt-4 flex items-center gap-2 text-sm text-red-300"><AlertCircle className="h-4 w-4" /> {error}</div>
+        <div className="mt-4 flex items-center gap-2 rounded-xl border border-[#FDECEC] bg-[#FDECEC] px-4 py-3 text-sm text-[#B91C1C]"><AlertCircle className="h-4 w-4 shrink-0" /> {error}</div>
       ) : filtered.length === 0 ? (
-        <div className="mt-6 rounded-xl border border-[#e6dcc8] bg-[#f6efe3] p-8 text-center">
-          <ReceiptText className="h-6 w-6 text-[#a89880] mx-auto" />
-          <p className="mt-2 text-sm text-[#a89880]">No sales recorded yet. Package, membership, and gift-card sales appear here automatically — or record one manually.</p>
-          <Button onClick={() => setShowForm(true)} className="mt-4 bg-[#8a6d4f] text-[#ffffff] hover:bg-white/90">Record sale</Button>
+        <div className="mt-6 rounded-2xl border border-dashed border-[#E5DDD0] bg-white p-10 text-center">
+          <div
+            className="mx-auto flex h-14 w-14 items-center justify-center rounded-full"
+            style={{ background: "linear-gradient(135deg, #D9BE8C, #C9A467)" }}
+          >
+            <ReceiptText className="h-6 w-6 text-[#1B1714]" />
+          </div>
+          <p className="mt-4 text-sm text-[#4A4640]">No sales recorded yet. Package, membership, and gift-card sales appear here automatically — or record one manually.</p>
+          <Button onClick={() => setShowForm(true)} className="mt-4 rounded-full bg-[#1F1B17] text-white hover:bg-[#795831]">Record sale</Button>
         </div>
       ) : (
-        <div className="mt-6 overflow-hidden rounded-xl border border-[#e6dcc8] bg-white/[0.04]">
+        <div className="mt-6 overflow-hidden rounded-2xl border border-[#E9E1D3] bg-white shadow-[0_4px_20px_rgba(30,28,26,0.05)]">
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="text-left text-xs uppercase tracking-wide text-[#a89880] border-b border-[#e6dcc8] bg-white/[0.02]">
+                <tr className="text-left text-xs uppercase tracking-wide text-[#8A8377] border-b border-[#E9E1D3] bg-[#FBF7EF]">
                   <th className="px-4 py-3 font-medium">Description</th>
                   <th className="px-4 py-3 font-medium">Category</th>
                   <th className="px-4 py-3 font-medium">Customer</th>
@@ -220,22 +234,22 @@ function SalesInner() {
                   <th className="px-4 py-3 font-medium text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-white/10">
+              <tbody className="divide-y divide-[#F3EEE4]">
                 {filtered.map((r) => (
-                  <tr key={r.id} className="hover:bg-white/[0.02]">
-                    <td className="px-4 py-3 font-medium text-[#3a2f22]">{r.label}</td>
-                    <td className="px-4 py-3 text-[#a89880] text-xs">{r.category.replace("_", " ")}</td>
-                    <td className="px-4 py-3 text-[#a89880]">{r.customer?.name ?? "—"}</td>
-                    <td className="px-4 py-3 text-[#a89880] text-xs">{formatDate(r.occurredAt)}</td>
-                    <td className="px-4 py-3 text-right text-[#3a2f22]">{lkr(r.amount)}</td>
+                  <tr key={r.id} className="hover:bg-[#FBF7EF]/60">
+                    <td className="px-4 py-3 font-medium text-[#1F1E1D]">{r.label}</td>
+                    <td className="px-4 py-3 text-[#8A8377] text-xs">{r.category.replace("_", " ")}</td>
+                    <td className="px-4 py-3 text-[#8A8377]">{r.customer?.name ?? "—"}</td>
+                    <td className="px-4 py-3 text-[#8A8377] text-xs">{formatDate(r.occurredAt)}</td>
+                    <td className="px-4 py-3 text-right text-[#1F1E1D]">{lkr(r.amount)}</td>
                     <td className="px-4 py-3">
-                      <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${r.status === "COMPLETED" ? "bg-emerald-500/20 text-emerald-300" : r.status === "REFUNDED" ? "bg-[#f3ebdd] text-[#a89880]" : "bg-red-500/20 text-red-300"}`}>{r.status}</span>
+                      <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${r.status === "COMPLETED" ? "bg-emerald-500/20 text-emerald-300" : r.status === "REFUNDED" ? "bg-[#FBF7EF] text-[#8A8377]" : "bg-red-500/20 text-red-300"}`}>{r.status}</span>
                     </td>
                     <td className="px-4 py-3 text-right">
                       {r.status === "COMPLETED" && (
                         <div className="inline-flex gap-2">
-                          <button onClick={() => setStatus(r.id, "REFUNDED")} className="rounded-md border border-[#e6dcc8] bg-[#f6efe3] px-3 py-1.5 text-xs font-medium text-[#a89880] hover:bg-[#f3ebdd] hover:text-[#3a2f22]">Refund</button>
-                          <button onClick={() => setStatus(r.id, "VOIDED")} className="rounded-md border border-[#e6dcc8] bg-[#f6efe3] px-3 py-1.5 text-xs font-medium text-[#a89880] hover:bg-red-500/20 hover:text-red-300">Void</button>
+                          <button onClick={() => setStatus(r.id, "REFUNDED")} className="rounded-md border border-[#E9E1D3] bg-[#FBF7EF] px-3 py-1.5 text-xs font-medium text-[#8A8377] hover:bg-[#F3EEE4] hover:text-[#1F1E1D]">Refund</button>
+                          <button onClick={() => setStatus(r.id, "VOIDED")} className="rounded-md border border-[#E9E1D3] bg-[#FBF7EF] px-3 py-1.5 text-xs font-medium text-[#8A8377] hover:bg-red-500/20 hover:text-red-300">Void</button>
                         </div>
                       )}
                     </td>
@@ -249,21 +263,21 @@ function SalesInner() {
 
       {showForm && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50" onClick={() => setShowForm(false)}>
-          <div className="bg-[#0F1729] rounded-xl border border-[#e6dcc8] p-6 w-full max-w-lg shadow-xl" onClick={(e) => e.stopPropagation()}>
-            <h2 className="text-lg font-semibold text-[#3a2f22]">Record sale</h2>
+          <div className="bg-white rounded-2xl border border-[#E9E1D3] p-6 w-full max-w-lg shadow-xl" onClick={(e) => e.stopPropagation()}>
+            <h2 className="font-[family-name:var(--font-display)] text-lg font-semibold text-[#1F1B17]">Record sale</h2>
             <div className="mt-4 space-y-4">
               <div>
-                <label className="text-sm font-medium text-[#3a2f22]">Description *</label>
-                <Input value={label} onChange={(e) => setLabel(e.target.value)} placeholder="Haircut — walk-in" className="mt-1 bg-[#f6efe3] border-[#e6dcc8] text-[#3a2f22] placeholder:text-[#a89880]" />
+                <label className="text-sm font-medium text-[#1F1E1D]">Description *</label>
+                <Input value={label} onChange={(e) => setLabel(e.target.value)} placeholder="Haircut — walk-in" className="mt-1 bg-[#FBF7EF] border-[#E9E1D3] text-[#1F1E1D] placeholder:text-[#8A8377]" />
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="text-sm font-medium text-[#3a2f22]">Amount (LKR) *</label>
-                  <Input value={amount} onChange={(e) => setAmount(e.target.value)} type="number" min={0} className="mt-1 bg-[#f6efe3] border-[#e6dcc8] text-[#3a2f22]" />
+                  <label className="text-sm font-medium text-[#1F1E1D]">Amount (LKR) *</label>
+                  <Input value={amount} onChange={(e) => setAmount(e.target.value)} type="number" min={0} className="mt-1 bg-[#FBF7EF] border-[#E9E1D3] text-[#1F1E1D]" />
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-[#3a2f22]">Category</label>
-                  <select value={category} onChange={(e) => setCategory(e.target.value as typeof category)} className="mt-1 w-full rounded-md border border-[#e6dcc8] bg-[#f6efe3] px-3 py-2 text-sm text-[#3a2f22]">
+                  <label className="text-sm font-medium text-[#1F1E1D]">Category</label>
+                  <select value={category} onChange={(e) => setCategory(e.target.value as typeof category)} className="mt-1 w-full rounded-md border border-[#E9E1D3] bg-[#FBF7EF] px-3 py-2 text-sm text-[#1F1E1D]">
                     {CATEGORIES.map((c) => (
                       <option key={c} value={c} className="text-black">{c.replace("_", " ")}</option>
                     ))}
@@ -271,18 +285,18 @@ function SalesInner() {
                 </div>
               </div>
               <div>
-                <label className="text-sm font-medium text-[#3a2f22]">Customer</label>
-                <select value={customerId} onChange={(e) => setCustomerId(e.target.value)} className="mt-1 w-full rounded-md border border-[#e6dcc8] bg-[#f6efe3] px-3 py-2 text-sm text-[#3a2f22]">
+                <label className="text-sm font-medium text-[#1F1E1D]">Customer</label>
+                <select value={customerId} onChange={(e) => setCustomerId(e.target.value)} className="mt-1 w-full rounded-md border border-[#E9E1D3] bg-[#FBF7EF] px-3 py-2 text-sm text-[#1F1E1D]">
                   <option value="" className="text-black">None</option>
                   {customers.map((c) => (
                     <option key={c.id} value={c.id} className="text-black">{c.name}</option>
                   ))}
                 </select>
               </div>
-              {formError && <p className="text-sm text-red-300 flex items-center gap-1"><AlertCircle className="h-4 w-4" /> {formError}</p>}
+              {formError && <p className="text-sm text-red-500 flex items-center gap-1"><AlertCircle className="h-4 w-4" /> {formError}</p>}
               <div className="flex justify-end gap-2">
                 <Button variant="ghostDark" onClick={() => setShowForm(false)}>Cancel</Button>
-                <Button onClick={handleCreate} disabled={submitting} className="bg-[#8a6d4f] text-[#ffffff] hover:bg-white/90">{submitting ? <><Loader2 className="h-4 w-4 animate-spin mr-2" /> Saving...</> : <><Check className="h-4 w-4 mr-2" /> Record</>}</Button>
+                <Button onClick={handleCreate} disabled={submitting} className="rounded-full bg-[#1F1B17] text-white hover:bg-[#795831]">{submitting ? <><Loader2 className="h-4 w-4 animate-spin mr-2" /> Saving...</> : <><Check className="h-4 w-4 mr-2" /> Record</>}</Button>
               </div>
             </div>
           </div>
