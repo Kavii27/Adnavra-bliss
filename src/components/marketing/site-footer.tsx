@@ -60,7 +60,7 @@ export function SiteFooter() {
             <p className="text-[#050504] text-sm font-semibold">{col.title}</p>
             <ul className="mt-3 space-y-2">
               {col.links.map((l) => (
-                <li key={l.href}>
+                <li key={l.label}>
                   <Link href={l.href} className="text-sm hover:text-[#050504] transition-colors">
                     {l.label}
                   </Link>
