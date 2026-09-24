@@ -49,4 +49,4 @@ next-env.d.ts
 # (migrations are committed, but generated client is not needed to commit with Prisma 6)
 
 # user-uploaded salon images (local-disk storage for Priority 3) — never commit
-/public/uploads/
+
