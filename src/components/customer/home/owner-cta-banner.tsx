@@ -11,7 +11,7 @@ export function OwnerCtaBanner() {
   return (
     <Reveal as="section" className="reveal-up">
       <div className="bg-[#2A1D12] text-white">
-        <div className="max-w-[1200px] mx-auto px-6 lg:px-12 py-14">
+        <div className="max-w-[1400px] mx-auto px-6 lg:px-12 py-14">
           <div className="grid gap-10 lg:grid-cols-2 lg:items-center">
             {/* Left: message */}
             <div>

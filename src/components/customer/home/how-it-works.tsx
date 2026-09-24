@@ -32,7 +32,7 @@ const STEPS = [
 /** Explainer over flows that already exist — no new booking logic. */
 export function HowItWorks() {
   return (
-    <section id="how-it-works" className="px-6 lg:px-12 py-14 max-w-[1200px] mx-auto text-center scroll-mt-20">
+    <section id="how-it-works" className="px-6 lg:px-12 py-14 max-w-[1400px] mx-auto text-center scroll-mt-20">
       <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#795831]">How to book</p>
       <h2 className="mt-2 text-2xl lg:text-3xl font-semibold tracking-tight text-[#1F1E1D]">
         Book in three easy steps

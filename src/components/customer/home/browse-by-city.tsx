@@ -60,7 +60,7 @@ export function BrowseByCity({
   }, []);
 
   return (
-    <section id="locations" className="px-6 lg:px-12 py-10 max-w-[1200px] mx-auto scroll-mt-20">
+    <section id="locations" className="px-6 lg:px-12 py-10 max-w-[1400px] mx-auto scroll-mt-20">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#2A1D12]">All locations</p>
