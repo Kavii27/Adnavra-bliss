@@ -1,18 +1,26 @@
 import { ClipboardList } from "lucide-react";
 
+const SERIF = "font-[family-name:var(--font-display)]";
+
 export default function FormsPage() {
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       <div>
-        <h1 className="text-xl font-semibold tracking-tight text-[#3a2f22]">Forms</h1>
-        <p className="mt-1 text-sm text-[#a89880]">Intake and consent forms from salons you book with.</p>
+        <p className="text-[10px] font-semibold uppercase tracking-[0.22em]" style={{ color: "#9A7B4F" }}>
+          Your account
+        </p>
+        <h1 className={`${SERIF} mt-1 text-3xl font-medium tracking-tight text-[#1F1B17]`}>Forms</h1>
+        <p className="mt-1.5 text-sm text-[#8A8377]">Intake and consent forms from salons you book with.</p>
       </div>
-      <div className="rounded-xl border border-[#E3E8F0] bg-white p-10 text-center">
-        <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-[#EFF4FA] border border-[#E3E8F0]">
-          <ClipboardList className="h-6 w-6 text-[#8a6d4f]" />
+      <div className="rounded-2xl border border-dashed border-[#E5DDD0] bg-white p-12 text-center">
+        <div
+          className="mx-auto flex h-14 w-14 items-center justify-center rounded-full"
+          style={{ background: "linear-gradient(135deg, #D9BE8C, #C9A467)" }}
+        >
+          <ClipboardList className="h-6 w-6 text-[#1B1714]" />
         </div>
-        <p className="mt-4 text-sm font-semibold text-[#3a2f22]">No forms yet</p>
-        <p className="mt-1 text-sm text-[#a89880] max-w-md mx-auto">
+        <p className={`${SERIF} mt-5 text-xl font-semibold text-[#1F1B17]`}>No forms yet</p>
+        <p className="mx-auto mt-1.5 max-w-md text-sm text-[#8A8377]">
           Salons you book with may ask you to fill out forms before your appointment. When a salon sends you one, it will show up
           here.
         </p>

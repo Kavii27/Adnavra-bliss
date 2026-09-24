@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { Heart, MapPin, BadgeCheck, ArrowUpRight } from "lucide-react";
 import { getCategoryLabel } from "@/lib/categories";
@@ -9,6 +10,7 @@ type VenueCardProps = {
   name: string;
   slug: string;
   logoUrl?: string | null;
+  coverUrl?: string | null;
   address?: string | null;
   city?: string | null;
   category?: string | null;
@@ -30,6 +32,7 @@ export function VenueCard({
   name,
   slug,
   logoUrl,
+  coverUrl,
   address,
   city,
   category,
@@ -38,6 +41,8 @@ export function VenueCard({
   featured,
   fromPriceMinor,
 }: VenueCardProps) {
+  const [coverFailed, setCoverFailed] = useState(false);
+  const [logoFailed, setLogoFailed] = useState(false);
   const locationText = [address, city].filter(Boolean).join(" · ") || city || "Sri Lanka";
   // Prefer the full tag list; fall back to the legacy single category.
   // Salon-type tags (own column) come first so they survive the 2-tag slice.
@@ -54,13 +59,14 @@ export function VenueCard({
     >
       {/* Image / placeholder */}
       <div className="relative h-[156px] w-full overflow-hidden bg-[#F7F3ED]">
-        {logoUrl ? (
+        {coverUrl && !coverFailed ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
-            src={logoUrl}
+            src={coverUrl}
             alt={name}
             className="h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-[1.06]"
             loading="lazy"
+            onError={() => setCoverFailed(true)}
           />
         ) : (
           <div className="flex h-full w-full items-center justify-center">
@@ -89,6 +95,14 @@ export function VenueCard({
         >
           <Heart className="h-4 w-4 text-[#4A4640]" />
         </button>
+
+        {/* Salon logo badge, bottom-left of the photo */}
+        {logoUrl && !logoFailed && (
+          <span className="absolute bottom-3 left-3 flex h-11 w-11 items-center justify-center overflow-hidden rounded-full border-2 border-white bg-white shadow-[0_2px_8px_rgba(30,28,26,0.25)]">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={logoUrl} alt={`${name} logo`} className="h-full w-full object-cover" loading="lazy" onError={() => setLogoFailed(true)} />
+          </span>
+        )}
       </div>
 
       <div className="flex flex-1 flex-col gap-1.5 p-4">

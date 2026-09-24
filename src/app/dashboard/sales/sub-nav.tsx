@@ -13,7 +13,7 @@ export function SalesSubNav({ links }: { links: { href: string; label: string }[
             key={href}
             href={href}
             className={`rounded-lg px-3 py-2 text-sm transition-colors ${
-              active ? "bg-[#f3ebdd] text-[#3a2f22] font-medium" : "text-[#a89880] hover:bg-[#f3ebdd] hover:text-[#3a2f22]"
+              active ? "bg-[#FBF7EF] text-[#1F1E1D] font-medium" : "text-[#8A8377] hover:bg-[#FBF7EF] hover:text-[#1F1E1D]"
             }`}
           >
             {label}

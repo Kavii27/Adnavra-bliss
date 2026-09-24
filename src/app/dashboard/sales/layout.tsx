@@ -16,7 +16,7 @@ export default function SalesLayout({ children }: { children: React.ReactNode })
     <SectionShell
       sidebar={
         <div>
-          <p className="text-xs uppercase tracking-wide text-[#a89880] mb-2">Sales</p>
+          <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-[#9A7B4F] mb-2">Sales</p>
           <SalesSubNav links={SALES_LINKS} />
         </div>
       }

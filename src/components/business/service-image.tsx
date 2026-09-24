@@ -7,17 +7,23 @@ import { resolveServiceImageCandidates } from "@/lib/service-images";
 type Props = {
   name: string;
   category: string | null;
+  /** The service's own photo (Service.imageUrl), if the owner uploaded one — takes priority over the shared resolver. */
+  imageUrl?: string | null;
   /** Size / shape classes, e.g. "h-20 w-20 rounded-lg". */
   className?: string;
 };
 
 /**
- * Thumbnail for a service. Picks the best shared image from the resolver and,
- * if a file is missing or fails to load, quietly steps down to the category
+ * Thumbnail for a service. Prefers the service's own uploaded photo; if there
+ * isn't one (or it fails to load), falls back to the shared resolver's best
+ * match and, if that file is missing or fails, steps down to the category
  * image, then the default, then a plain placeholder — never a broken image.
  */
-export function ServiceImage({ name, category, className = "h-20 w-20 rounded-lg" }: Props) {
-  const candidates = useMemo(() => resolveServiceImageCandidates(name, category), [name, category]);
+export function ServiceImage({ name, category, imageUrl, className = "h-20 w-20 rounded-lg" }: Props) {
+  const candidates = useMemo(() => {
+    const shared = resolveServiceImageCandidates(name, category);
+    return imageUrl ? [imageUrl, ...shared] : shared;
+  }, [name, category, imageUrl]);
   const key = candidates.join("|");
   const [state, setState] = useState({ key, index: 0 });
   const index = state.key === key ? state.index : 0;

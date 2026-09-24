@@ -185,49 +185,50 @@ function MarketingInner() {
   }
 
   if (bizLoading || (loading && businessId)) {
-    return <div className="flex items-center gap-2 text-sm text-[#a89880]"><Loader2 className="h-4 w-4 animate-spin" /> Loading marketing...</div>;
+    return <div className="flex items-center gap-2 text-sm text-[#8A8377]"><Loader2 className="h-4 w-4 animate-spin" /> Loading marketing...</div>;
   }
   if (isNoBusiness || bizError) {
     return (
-      <div className="rounded-xl border border-[#e6dcc8] bg-white/[0.04] p-8 text-center">
-        <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-full bg-[#f6efe3] border border-[#e6dcc8]">
-          <Store className="h-5 w-5 text-[#a89880]" />
+      <div className="rounded-2xl border border-dashed border-[#E5DDD0] bg-white p-8 text-center">
+        <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-full bg-[#FBF7EF] border border-[#E9E1D3]">
+          <Store className="h-5 w-5 text-[#8A8377]" />
         </div>
-        <h3 className="mt-3 text-sm font-semibold text-[#3a2f22]">Set up your salon to run promotions</h3>
-        <p className="mt-1 text-sm text-[#a89880]">{bizError ?? "Create your business profile first."}</p>
-        <Link href="/dashboard/settings" className="mt-4 inline-flex items-center justify-center rounded-lg bg-white px-4 py-2 text-sm font-semibold text-[#faf6ef] hover:bg-white/90">Go to Settings</Link>
+        <h3 className="mt-3 text-sm font-semibold text-[#1F1E1D]">Set up your salon to run promotions</h3>
+        <p className="mt-1 text-sm text-[#8A8377]">{bizError ?? "Create your business profile first."}</p>
+        <Link href="/dashboard/settings" className="mt-4 inline-flex h-10 items-center justify-center rounded-full bg-[#1F1B17] px-6 text-[12px] font-bold uppercase tracking-[0.14em] text-white transition-colors hover:bg-[#795831]">Go to Settings</Link>
       </div>
     );
   }
 
   return (
     <div>
-      <div className="flex flex-wrap items-center justify-between gap-3">
+      <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <h1 className="text-xl font-semibold text-[#3a2f22]">Marketing</h1>
-          <p className="text-sm text-[#a89880] mt-1">Discount codes, recurring campaigns, and marketplace placement.</p>
+          <p className="text-[10px] font-semibold uppercase tracking-[0.22em]" style={{ color: "#9A7B4F" }}>Marketing</p>
+          <h1 className="font-[family-name:var(--font-display)] mt-1 text-3xl font-medium tracking-tight text-[#1F1B17]">Promotions</h1>
+          <p className="text-sm text-[#8A8377] mt-1.5">Discount codes, recurring campaigns, and marketplace placement.</p>
         </div>
-        <Button onClick={() => { setFormError(null); setShowForm(true); }} className="bg-[#8a6d4f] text-[#ffffff] hover:bg-white/90">
+        <Button onClick={() => { setFormError(null); setShowForm(true); }} className="rounded-full bg-[#1F1B17] text-white hover:bg-[#795831]">
           <Plus className="h-4 w-4 mr-2" /> New offer
         </Button>
       </div>
 
-      {error && <div className="mt-4 flex items-center gap-2 text-sm text-red-300"><AlertCircle className="h-4 w-4" /> {error}</div>}
+      {error && <div className="mt-4 flex items-center gap-2 text-sm text-red-600"><AlertCircle className="h-4 w-4" /> {error}</div>}
 
-      <div className="mt-6 rounded-xl border border-[#e6dcc8] bg-[#f6efe3] p-5">
+      <div className="mt-6 rounded-2xl border border-[#E9E1D3] bg-white shadow-[0_4px_20px_rgba(30,28,26,0.05)] p-5">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-2">
-            <Star className="h-4 w-4 text-[#c9a26d]" />
+            <Star className="h-4 w-4 text-[#9A7B4F]" />
             <div>
-              <p className="text-sm font-semibold text-[#3a2f22]">Marketplace priority placement</p>
-              <p className="text-xs text-[#a89880]">Boosted salons rank first in customer search. Premium feature.</p>
+              <p className="text-sm font-semibold text-[#1F1E1D]">Marketplace priority placement</p>
+              <p className="text-xs text-[#8A8377]">Boosted salons rank first in customer search. Premium feature.</p>
             </div>
           </div>
           <PlanGate feature="campaigns">
             <button
               onClick={() => savePriority(!priority)}
               disabled={savingPriority}
-              className={`rounded-full px-4 py-1.5 text-xs font-semibold ${priority ? "bg-[#8a6d4f] text-[#ffffff]" : "border border-[#e6dcc8] bg-[#faf6ef] text-[#3a2f22] hover:bg-[#f3ebdd]"}`}
+              className={`rounded-full px-4 py-1.5 text-xs font-semibold ${priority ? "bg-[#1F1B17] text-white" : "border border-[#E9E1D3] bg-[#FBF7EF] text-[#1F1E1D] hover:bg-[#F3EEE4]"}`}
             >
               {savingPriority ? "Saving..." : priority ? "Priority ON" : "Turn on priority"}
             </button>
@@ -235,9 +236,9 @@ function MarketingInner() {
         </div>
       </div>
 
-      <h2 className="mt-8 text-sm font-semibold text-[#3a2f22] flex items-center gap-2"><Megaphone className="h-4 w-4 text-[#a89880]" /> Promotional offers ({offers.length})</h2>
+      <h2 className="mt-8 text-sm font-semibold text-[#1F1E1D] flex items-center gap-2"><Megaphone className="h-4 w-4 text-[#8A8377]" /> Promotional offers ({offers.length})</h2>
       {offers.length === 0 ? (
-        <div className="mt-3 rounded-xl border border-[#e6dcc8] bg-[#f6efe3] p-6 text-center text-sm text-[#a89880]">
+        <div className="mt-3 rounded-2xl border border-[#E9E1D3] bg-white shadow-[0_4px_20px_rgba(30,28,26,0.05)] p-6 text-center text-sm text-[#8A8377]">
           No offers yet. Create a discount code customers can mention when booking.
         </div>
       ) : (
@@ -248,10 +249,10 @@ function MarketingInner() {
         </div>
       )}
 
-      <h2 className="mt-8 text-sm font-semibold text-[#3a2f22] flex items-center gap-2"><Repeat className="h-4 w-4 text-[#a89880]" /> Scheduled campaigns ({campaigns.length}) <span className="rounded-full bg-[#8a6d4f] px-2 py-0.5 text-[10px] font-bold text-white">PREMIUM</span></h2>
+      <h2 className="mt-8 text-sm font-semibold text-[#1F1E1D] flex items-center gap-2"><Repeat className="h-4 w-4 text-[#8A8377]" /> Scheduled campaigns ({campaigns.length}) <span className="rounded-full bg-[#1F1B17] px-2 py-0.5 text-[10px] font-bold text-white">PREMIUM</span></h2>
       <PlanGate feature="campaigns">
         {campaigns.length === 0 ? (
-          <div className="mt-3 rounded-xl border border-[#e6dcc8] bg-[#f6efe3] p-6 text-center text-sm text-[#a89880]">
+          <div className="mt-3 rounded-2xl border border-[#E9E1D3] bg-white shadow-[0_4px_20px_rgba(30,28,26,0.05)] p-6 text-center text-sm text-[#8A8377]">
             No campaigns yet. Create an offer with “Recurring campaign” on to repeat it weekly or monthly.
           </div>
         ) : (
@@ -265,62 +266,62 @@ function MarketingInner() {
 
       {showForm && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50" onClick={() => setShowForm(false)}>
-          <div className="bg-[#0F1729] rounded-xl border border-[#e6dcc8] p-6 w-full max-w-lg shadow-xl max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
-            <h2 className="text-lg font-semibold text-[#3a2f22]">New offer</h2>
+          <div className="bg-white rounded-2xl border border-[#E9E1D3] p-6 w-full max-w-lg shadow-xl max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+            <h2 className="text-lg font-semibold text-[#1F1E1D]">New offer</h2>
             <div className="mt-4 space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="text-sm font-medium text-[#3a2f22]">Code *</label>
-                  <Input value={code} onChange={(e) => setCode(e.target.value.toUpperCase())} placeholder="GLOW10" className="mt-1 bg-[#f6efe3] border-[#e6dcc8] text-[#3a2f22] placeholder:text-[#a89880] font-mono" />
+                  <label className="text-sm font-medium text-[#1F1E1D]">Code *</label>
+                  <Input value={code} onChange={(e) => setCode(e.target.value.toUpperCase())} placeholder="GLOW10" className="mt-1 bg-[#FBF7EF] border-[#E9E1D3] text-[#1F1E1D] placeholder:text-[#8A8377] font-mono" />
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-[#3a2f22]">Title *</label>
-                  <Input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="10% off facials" className="mt-1 bg-[#f6efe3] border-[#e6dcc8] text-[#3a2f22] placeholder:text-[#a89880]" />
+                  <label className="text-sm font-medium text-[#1F1E1D]">Title *</label>
+                  <Input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="10% off facials" className="mt-1 bg-[#FBF7EF] border-[#E9E1D3] text-[#1F1E1D] placeholder:text-[#8A8377]" />
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="text-sm font-medium text-[#3a2f22]">Discount type</label>
-                  <select value={kind} onChange={(e) => setKind(e.target.value as typeof kind)} className="mt-1 w-full rounded-md border border-[#e6dcc8] bg-[#f6efe3] px-3 py-2 text-sm text-[#3a2f22]">
+                  <label className="text-sm font-medium text-[#1F1E1D]">Discount type</label>
+                  <select value={kind} onChange={(e) => setKind(e.target.value as typeof kind)} className="mt-1 w-full rounded-md border border-[#E9E1D3] bg-[#FBF7EF] px-3 py-2 text-sm text-[#1F1E1D]">
                     <option value="percent" className="text-black">Percent %</option>
                     <option value="amount" className="text-black">Fixed LKR</option>
                   </select>
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-[#3a2f22]">Value *</label>
-                  <Input value={value} onChange={(e) => setValue(e.target.value)} type="number" min={1} className="mt-1 bg-[#f6efe3] border-[#e6dcc8] text-[#3a2f22]" />
+                  <label className="text-sm font-medium text-[#1F1E1D]">Value *</label>
+                  <Input value={value} onChange={(e) => setValue(e.target.value)} type="number" min={1} className="mt-1 bg-[#FBF7EF] border-[#E9E1D3] text-[#1F1E1D]" />
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="text-sm font-medium text-[#3a2f22]">Starts</label>
-                  <Input value={startsAt} onChange={(e) => setStartsAt(e.target.value)} type="date" className="mt-1 bg-[#f6efe3] border-[#e6dcc8] text-[#3a2f22]" />
+                  <label className="text-sm font-medium text-[#1F1E1D]">Starts</label>
+                  <Input value={startsAt} onChange={(e) => setStartsAt(e.target.value)} type="date" className="mt-1 bg-[#FBF7EF] border-[#E9E1D3] text-[#1F1E1D]" />
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-[#3a2f22]">Ends</label>
-                  <Input value={endsAt} onChange={(e) => setEndsAt(e.target.value)} type="date" className="mt-1 bg-[#f6efe3] border-[#e6dcc8] text-[#3a2f22]" />
+                  <label className="text-sm font-medium text-[#1F1E1D]">Ends</label>
+                  <Input value={endsAt} onChange={(e) => setEndsAt(e.target.value)} type="date" className="mt-1 bg-[#FBF7EF] border-[#E9E1D3] text-[#1F1E1D]" />
                 </div>
               </div>
-              <label className="flex items-start gap-3 text-sm rounded-lg border border-[#e6dcc8] bg-[#f6efe3] p-3">
-                <input type="checkbox" checked={isCampaign} onChange={(e) => setIsCampaign(e.target.checked)} className="mt-1 accent-white" />
+              <label className="flex items-start gap-3 text-sm rounded-lg border border-[#E9E1D3] bg-[#FBF7EF] p-3">
+                <input type="checkbox" checked={isCampaign} onChange={(e) => setIsCampaign(e.target.checked)} className="mt-1 accent-[#1F1B17]" />
                 <span>
-                  <span className="font-medium text-[#3a2f22]">Recurring campaign <span className="rounded-full bg-[#8a6d4f] px-1.5 py-0.5 text-[10px] font-bold text-white ml-1">PREMIUM</span></span>
-                  <span className="block text-xs text-[#a89880]">Repeat this offer on a schedule instead of running it once.</span>
+                  <span className="font-medium text-[#1F1E1D]">Recurring campaign <span className="rounded-full bg-[#1F1B17] px-1.5 py-0.5 text-[10px] font-bold text-white ml-1">PREMIUM</span></span>
+                  <span className="block text-xs text-[#8A8377]">Repeat this offer on a schedule instead of running it once.</span>
                 </span>
               </label>
               {isCampaign && (
                 <div>
-                  <label className="text-sm font-medium text-[#3a2f22]">Repeats</label>
-                  <select value={repeatRule} onChange={(e) => setRepeatRule(e.target.value)} className="mt-1 w-full rounded-md border border-[#e6dcc8] bg-[#f6efe3] px-3 py-2 text-sm text-[#3a2f22]">
+                  <label className="text-sm font-medium text-[#1F1E1D]">Repeats</label>
+                  <select value={repeatRule} onChange={(e) => setRepeatRule(e.target.value)} className="mt-1 w-full rounded-md border border-[#E9E1D3] bg-[#FBF7EF] px-3 py-2 text-sm text-[#1F1E1D]">
                     <option value="weekly" className="text-black">Weekly</option>
                     <option value="monthly" className="text-black">Monthly</option>
                   </select>
                 </div>
               )}
-              {formError && <p className="text-sm text-red-300 flex items-center gap-1"><AlertCircle className="h-4 w-4" /> {formError}</p>}
+              {formError && <p className="text-sm text-red-600 flex items-center gap-1"><AlertCircle className="h-4 w-4" /> {formError}</p>}
               <div className="flex justify-end gap-2">
                 <Button variant="ghostDark" onClick={() => setShowForm(false)}>Cancel</Button>
-                <Button onClick={handleSubmit} disabled={submitting} className="bg-[#8a6d4f] text-[#ffffff] hover:bg-white/90">{submitting ? <><Loader2 className="h-4 w-4 animate-spin mr-2" /> Saving...</> : <><Check className="h-4 w-4 mr-2" /> Create</>}</Button>
+                <Button onClick={handleSubmit} disabled={submitting} className="rounded-full bg-[#1F1B17] text-white hover:bg-[#795831]">{submitting ? <><Loader2 className="h-4 w-4 animate-spin mr-2" /> Saving...</> : <><Check className="h-4 w-4 mr-2" /> Create</>}</Button>
               </div>
             </div>
           </div>
@@ -332,26 +333,26 @@ function MarketingInner() {
 
 function PromoCard({ promo: p, onToggle, onDelete }: { promo: Promotion; onToggle: () => void; onDelete: () => void }) {
   return (
-    <div className="rounded-xl border border-[#e6dcc8] bg-[#f6efe3] p-4">
+    <div className="rounded-2xl border border-[#E9E1D3] bg-white shadow-[0_4px_20px_rgba(30,28,26,0.05)] p-4">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div className="min-w-0">
-          <p className="font-medium text-[#3a2f22] flex items-center gap-2 flex-wrap">
-            <span className="font-mono rounded-md bg-[#8a6d4f]/15 px-2 py-0.5 text-sm">{p.code}</span>
+          <p className="font-medium text-[#1F1E1D] flex items-center gap-2 flex-wrap">
+            <span className="font-mono rounded-md bg-[#795831]/15 px-2 py-0.5 text-sm">{p.code}</span>
             <span className="truncate">{p.title}</span>
-            {!p.isActive && <span className="rounded-full bg-[#f3ebdd] px-2 py-0.5 text-xs text-[#a89880]">Paused</span>}
+            {!p.isActive && <span className="rounded-full bg-[#F3EEE4] px-2 py-0.5 text-xs text-[#8A8377]">Paused</span>}
           </p>
-          <p className="text-xs text-[#a89880] mt-1">
+          <p className="text-xs text-[#8A8377] mt-1">
             {discountLabel(p)}
             {p.isCampaign && p.repeatRule ? ` · repeats ${p.repeatRule}` : ""}
             {p.startsAt || p.endsAt ? ` · ${p.startsAt ? new Date(p.startsAt).toLocaleDateString("en-GB") : "…"} → ${p.endsAt ? new Date(p.endsAt).toLocaleDateString("en-GB") : "…"}` : ""}
           </p>
         </div>
         <div className="flex items-center gap-2 shrink-0">
-          <button onClick={onToggle} className="rounded-md border border-[#e6dcc8] bg-[#faf6ef] px-3 py-1.5 text-xs font-medium text-[#a89880] hover:bg-[#f3ebdd] hover:text-[#3a2f22]">
+          <button onClick={onToggle} className="rounded-md border border-[#E9E1D3] bg-[#FBF7EF] px-3 py-1.5 text-xs font-medium text-[#8A8377] hover:bg-[#F3EEE4] hover:text-[#1F1E1D]">
             {p.isActive ? "Pause" : "Resume"}
           </button>
-          <button onClick={onDelete} className="p-2 rounded-lg border border-[#e6dcc8] bg-[#faf6ef] hover:bg-red-500/20" aria-label="Delete offer">
-            <Trash2 className="h-4 w-4 text-red-300" />
+          <button onClick={onDelete} className="p-2 rounded-lg border border-[#E9E1D3] bg-[#FBF7EF] hover:bg-red-50" aria-label="Delete offer">
+            <Trash2 className="h-4 w-4 text-red-500" />
           </button>
         </div>
       </div>

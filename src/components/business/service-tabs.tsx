@@ -12,6 +12,7 @@ export type TabbedService = {
   price: number;
   duration: number;
   category: string | null;
+  imageUrl?: string | null;
 };
 
 const SERIF = { fontFamily: "var(--font-display, Georgia, 'Times New Roman', serif)" } as const;
@@ -102,7 +103,7 @@ export function ServiceTabs({
           </p>
         </div>
       ) : (
-        <ul className="mt-5 grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-3">
+        <ul className="mt-5 grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-3 2xl:grid-cols-4">
           {visible.map((s) => {
             const href = `/${businessSlug}/book?serviceId=${s.id}`;
             return (
@@ -114,6 +115,7 @@ export function ServiceTabs({
                   <ServiceImage
                     name={s.name}
                     category={s.category}
+                    imageUrl={s.imageUrl}
                     className="h-full w-full transition-transform duration-500 group-hover:scale-105"
                   />
                   {s.category && (

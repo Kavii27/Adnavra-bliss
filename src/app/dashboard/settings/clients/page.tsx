@@ -92,46 +92,49 @@ function ClientSettingsInner() {
   }
 
   if (bizLoading || loading) {
-    return <div className="flex items-center gap-2 text-sm text-[#a89880]"><Loader2 className="h-4 w-4 animate-spin" /> Loading client settings...</div>;
+    return <div className="flex items-center gap-2 text-sm text-[#8A8377]"><Loader2 className="h-4 w-4 animate-spin" /> Loading client settings...</div>;
   }
 
   return (
-    <div className="bg-[#0F1729] min-h-full px-6 py-8">
+    <div className="bg-[#FAF7F2] min-h-full px-6 py-8">
       <div className="max-w-2xl">
-        <Link href="/dashboard/settings" className="inline-flex items-center gap-1.5 text-xs font-medium text-[#a89880] hover:text-[#3a2f22] mb-4">
+        <Link href="/dashboard/settings" className="inline-flex items-center gap-1.5 text-xs font-medium text-[#8A8377] hover:text-[#1F1E1D] mb-4">
           <ArrowLeft className="h-3.5 w-3.5" /> Back to Settings
         </Link>
-        <h1 className="text-xl font-semibold text-[#3a2f22]">Client settings</h1>
-        <p className="mt-1 text-sm text-[#a89880]">Custom client fields plus booking notification preferences.</p>
+        <p className="text-[10px] font-semibold uppercase tracking-[0.22em]" style={{ color: "#9A7B4F" }}>
+          Settings
+        </p>
+        <h1 className="font-[family-name:var(--font-display)] mt-0.5 text-2xl font-medium tracking-tight text-[#1F1B17]">Client settings</h1>
+        <p className="mt-1 text-sm text-[#8A8377]">Custom client fields plus booking notification preferences.</p>
 
         {bizError ? (
-          <div className="mt-4 flex items-center gap-2 text-sm text-red-300"><AlertCircle className="h-4 w-4" /> {bizError}</div>
+          <div className="mt-4 flex items-center gap-2 text-sm text-red-700"><AlertCircle className="h-4 w-4" /> {bizError}</div>
         ) : (
           <>
-            <div className="mt-6 rounded-xl border border-[#e6dcc8] bg-[#f6efe3] p-5">
-              <h2 className="text-sm font-semibold text-[#3a2f22]">Custom client fields</h2>
-              <p className="text-xs text-[#a89880] mt-1">Extra details collected for every client (allergies, preferred stylist, ...).</p>
+            <div className="mt-6 rounded-2xl border border-[#E9E1D3] bg-white shadow-[0_4px_20px_rgba(30,28,26,0.05)] p-5">
+              <h2 className="text-sm font-semibold text-[#1F1E1D]">Custom client fields</h2>
+              <p className="text-xs text-[#8A8377] mt-1">Extra details collected for every client (allergies, preferred stylist, ...).</p>
               <div className="mt-3 space-y-2">
                 {fields.length === 0 ? (
-                  <p className="text-sm text-[#a89880]">No custom fields. Add one below.</p>
+                  <p className="text-sm text-[#8A8377]">No custom fields. Add one below.</p>
                 ) : (
                   fields.map((f, i) => (
-                    <div key={i} className="flex items-center gap-2 rounded-lg bg-[#faf6ef] border border-[#e6dcc8] px-3 py-2 text-sm">
-                      <span className="font-medium text-[#3a2f22] flex-1 truncate">{f.name}</span>
-                      <span className="text-xs text-[#a89880]">{f.type}</span>
-                      <label className="flex items-center gap-1 text-xs text-[#a89880]">
-                        <input type="checkbox" checked={f.required} onChange={(e) => setFields((prev) => prev.map((x, xi) => (xi === i ? { ...x, required: e.target.checked } : x)))} className="accent-white" /> Required
+                    <div key={i} className="flex items-center gap-2 rounded-lg bg-[#FAF7F2] border border-[#E9E1D3] px-3 py-2 text-sm">
+                      <span className="font-medium text-[#1F1E1D] flex-1 truncate">{f.name}</span>
+                      <span className="text-xs text-[#8A8377]">{f.type}</span>
+                      <label className="flex items-center gap-1 text-xs text-[#8A8377]">
+                        <input type="checkbox" checked={f.required} onChange={(e) => setFields((prev) => prev.map((x, xi) => (xi === i ? { ...x, required: e.target.checked } : x)))} className="accent-[#795831]" /> Required
                       </label>
-                      <button onClick={() => setFields((prev) => prev.filter((_, xi) => xi !== i))} className="p-1 hover:bg-red-500/20 rounded" aria-label="Remove field">
-                        <Trash2 className="h-4 w-4 text-red-300" />
+                      <button onClick={() => setFields((prev) => prev.filter((_, xi) => xi !== i))} className="p-1 hover:bg-red-50 rounded" aria-label="Remove field">
+                        <Trash2 className="h-4 w-4 text-red-700" />
                       </button>
                     </div>
                   ))
                 )}
               </div>
               <div className="mt-3 flex gap-2">
-                <Input value={fieldName} onChange={(e) => setFieldName(e.target.value)} placeholder="Field name, e.g. Allergies" className="flex-1 bg-[#faf6ef] border-[#e6dcc8] text-[#3a2f22] placeholder:text-[#a89880]" />
-                <select value={fieldType} onChange={(e) => setFieldType(e.target.value as CustomField["type"])} className="rounded-md border border-[#e6dcc8] bg-[#faf6ef] px-2 py-2 text-sm text-[#3a2f22]">
+                <Input value={fieldName} onChange={(e) => setFieldName(e.target.value)} placeholder="Field name, e.g. Allergies" className="flex-1 bg-[#FAF7F2] border-[#E9E1D3] text-[#1F1E1D] placeholder:text-[#8A8377]" />
+                <select value={fieldType} onChange={(e) => setFieldType(e.target.value as CustomField["type"])} className="rounded-md border border-[#E9E1D3] bg-[#FAF7F2] px-2 py-2 text-sm text-[#1F1E1D]">
                   <option value="text" className="text-black">Text</option>
                   <option value="phone" className="text-black">Phone</option>
                   <option value="date" className="text-black">Date</option>
@@ -141,29 +144,29 @@ function ClientSettingsInner() {
               </div>
             </div>
 
-            <div className="mt-4 rounded-xl border border-[#e6dcc8] bg-[#f6efe3] p-5 space-y-3">
-              <h2 className="text-sm font-semibold text-[#3a2f22]">Notifications</h2>
+            <div className="mt-4 rounded-2xl border border-[#E9E1D3] bg-white shadow-[0_4px_20px_rgba(30,28,26,0.05)] p-5 space-y-3">
+              <h2 className="text-sm font-semibold text-[#1F1E1D]">Notifications</h2>
               {[
                 { label: "SMS booking reminders", hint: "Text clients before their appointment.", value: smsReminders, set: setSmsReminders },
                 { label: "Email confirmations", hint: "Email a confirmation on every booking.", value: emailConfirmations, set: setEmailConfirmations },
                 { label: "Birthday offers", hint: "Flag clients with upcoming birthdays for a treat.", value: birthdayOffers, set: setBirthdayOffers },
               ].map((t) => (
                 <label key={t.label} className="flex items-start gap-3 text-sm">
-                  <input type="checkbox" checked={t.value} onChange={(e) => t.set(e.target.checked)} className="mt-1 accent-white" />
+                  <input type="checkbox" checked={t.value} onChange={(e) => t.set(e.target.checked)} className="mt-1 accent-[#795831]" />
                   <span>
-                    <span className="font-medium text-[#3a2f22]">{t.label}</span>
-                    <span className="block text-xs text-[#a89880]">{t.hint}</span>
+                    <span className="font-medium text-[#1F1E1D]">{t.label}</span>
+                    <span className="block text-xs text-[#8A8377]">{t.hint}</span>
                   </span>
                 </label>
               ))}
             </div>
 
-            {error && <p className="mt-3 text-sm text-red-300 flex items-center gap-1"><AlertCircle className="h-4 w-4" /> {error}</p>}
+            {error && <p className="mt-3 text-sm text-red-700 flex items-center gap-1"><AlertCircle className="h-4 w-4" /> {error}</p>}
             <div className="mt-4 flex items-center gap-3">
-              <Button onClick={save} disabled={saving || !businessId} className="bg-[#8a6d4f] text-[#ffffff] hover:bg-white/90">
+              <Button onClick={save} disabled={saving || !businessId} className="rounded-full bg-[#1F1B17] text-white text-xs font-bold uppercase tracking-[0.12em] hover:bg-[#795831]">
                 {saving ? <><Loader2 className="h-4 w-4 animate-spin mr-2" /> Saving...</> : <><Check className="h-4 w-4 mr-2" /> Save settings</>}
               </Button>
-              {saved && <span className="text-sm text-emerald-300">Saved.</span>}
+              {saved && <span className="text-sm text-emerald-700">Saved.</span>}
             </div>
           </>
         )}

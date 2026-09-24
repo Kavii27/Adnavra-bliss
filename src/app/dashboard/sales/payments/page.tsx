@@ -90,17 +90,25 @@ function PaymentsInner() {
   const total = useMemo(() => rows.reduce((s, r) => s + r.amount, 0), [rows]);
 
   if (bizLoading || (loading && businessId)) {
-    return <div className="flex items-center gap-2 text-sm text-[#a89880]"><Loader2 className="h-4 w-4 animate-spin" /> Loading payments...</div>;
+    return <div className="flex items-center gap-2 text-sm text-[#8A8377]"><Loader2 className="h-4 w-4 animate-spin" /> Loading payments...</div>;
   }
   if (isNoBusiness || bizError) {
     return (
-      <div className="rounded-xl border border-[#e6dcc8] bg-white/[0.04] p-8 text-center">
-        <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-full bg-[#f6efe3] border border-[#e6dcc8]">
-          <Store className="h-5 w-5 text-[#a89880]" />
+      <div className="rounded-2xl border border-dashed border-[#E5DDD0] bg-white p-10 text-center">
+        <div
+          className="mx-auto flex h-14 w-14 items-center justify-center rounded-full"
+          style={{ background: "linear-gradient(135deg, #D9BE8C, #C9A467)" }}
+        >
+          <Store className="h-6 w-6 text-[#1B1714]" />
         </div>
-        <h3 className="mt-3 text-sm font-semibold text-[#3a2f22]">Set up your salon to see payments</h3>
-        <p className="mt-1 text-sm text-[#a89880]">{bizError ?? "Create your business profile first."}</p>
-        <Link href="/dashboard/settings" className="mt-4 inline-flex items-center justify-center rounded-lg bg-white px-4 py-2 text-sm font-semibold text-[#faf6ef] hover:bg-white/90">Go to Settings</Link>
+        <h3 className="font-[family-name:var(--font-display)] mt-5 text-xl font-semibold text-[#1F1B17]">Set up your salon to see payments</h3>
+        <p className="mt-1.5 text-sm text-[#8A8377]">{bizError ?? "Create your business profile first."}</p>
+        <Link
+          href="/dashboard/settings"
+          className="mt-6 inline-flex h-11 items-center justify-center rounded-full bg-[#1F1B17] px-7 text-[12px] font-bold uppercase tracking-[0.14em] text-white transition-colors hover:bg-[#795831]"
+        >
+          Go to Settings
+        </Link>
       </div>
     );
   }
@@ -109,40 +117,46 @@ function PaymentsInner() {
     <div>
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-xl font-semibold text-[#3a2f22]">Payments</h1>
-          <p className="text-sm text-[#a89880] mt-1">Every completed transaction: ledger entries plus completed-booking revenue.</p>
+          <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-[#9A7B4F]">Sales</p>
+          <h1 className="font-[family-name:var(--font-display)] mt-1 text-3xl font-medium tracking-tight text-[#1F1B17]">Payments</h1>
+          <p className="text-sm text-[#8A8377] mt-1.5">Every completed transaction: ledger entries plus completed-booking revenue.</p>
         </div>
-        <Link href="/dashboard/settings/payments" className="rounded-lg border border-[#e6dcc8] bg-[#f6efe3] px-3 py-1.5 text-xs font-medium text-[#3a2f22] hover:bg-[#f3ebdd]">
+        <Link href="/dashboard/settings/payments" className="inline-flex items-center rounded-full border border-[#E5DDD0] bg-white px-4 py-2 text-sm font-medium text-[#4A4640] transition-colors hover:bg-[#FBF7EF] hover:text-[#1F1E1D]">
           Payment settings
         </Link>
       </div>
 
       {!gatewayOn && (
-        <div className="mt-6 rounded-xl border border-[#e6dcc8] bg-[#f6efe3] p-4 text-sm text-[#a89880]">
+        <div className="mt-6 rounded-xl border border-[#E9E1D3] bg-[#FBF7EF] p-4 text-sm text-[#8A8377]">
           No payment provider connected yet — amounts below are recorded revenue.{" "}
-          <Link href="/dashboard/settings/payments" className="font-medium text-[#3a2f22] underline">Connect one in Settings → Payments</Link>.
+          <Link href="/dashboard/settings/payments" className="font-medium text-[#795831] underline">Connect one in Settings → Payments</Link>.
         </div>
       )}
 
-      <div className="mt-6 rounded-xl border border-[#e6dcc8] bg-[#f6efe3] p-4">
-        <p className="text-xs uppercase tracking-wide text-[#a89880]">Collected total</p>
-        <p className="mt-1 text-xl font-semibold text-[#3a2f22]">{lkr(total)}</p>
-        <p className="mt-1 text-xs text-[#a89880]">{rows.length} transaction(s)</p>
+      <div className="mt-6 rounded-2xl border border-[#E9E1D3] bg-white p-4 shadow-[0_4px_20px_rgba(30,28,26,0.05)]">
+        <p className="text-xs uppercase tracking-wide text-[#9A7B4F]">Collected total</p>
+        <p className="mt-1 text-xl font-semibold text-[#1F1E1D]">{lkr(total)}</p>
+        <p className="mt-1 text-xs text-[#8A8377]">{rows.length} transaction(s)</p>
       </div>
 
       {error ? (
-        <div className="mt-4 flex items-center gap-2 text-sm text-red-300"><AlertCircle className="h-4 w-4" /> {error}</div>
+        <div className="mt-4 flex items-center gap-2 rounded-xl border border-[#FDECEC] bg-[#FDECEC] px-4 py-3 text-sm text-[#B91C1C]"><AlertCircle className="h-4 w-4 shrink-0" /> {error}</div>
       ) : rows.length === 0 ? (
-        <div className="mt-6 rounded-xl border border-[#e6dcc8] bg-[#f6efe3] p-8 text-center">
-          <Wallet className="h-6 w-6 text-[#a89880] mx-auto" />
-          <p className="mt-2 text-sm text-[#a89880]">No payments yet. Complete a booking or record a sale and it will appear here.</p>
+        <div className="mt-6 rounded-2xl border border-dashed border-[#E5DDD0] bg-white p-10 text-center">
+          <div
+            className="mx-auto flex h-14 w-14 items-center justify-center rounded-full"
+            style={{ background: "linear-gradient(135deg, #D9BE8C, #C9A467)" }}
+          >
+            <Wallet className="h-6 w-6 text-[#1B1714]" />
+          </div>
+          <p className="mt-4 text-sm text-[#4A4640]">No payments yet. Complete a booking or record a sale and it will appear here.</p>
         </div>
       ) : (
-        <div className="mt-6 overflow-hidden rounded-xl border border-[#e6dcc8] bg-white/[0.04]">
+        <div className="mt-6 overflow-hidden rounded-2xl border border-[#E9E1D3] bg-white shadow-[0_4px_20px_rgba(30,28,26,0.05)]">
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="text-left text-xs uppercase tracking-wide text-[#a89880] border-b border-[#e6dcc8] bg-white/[0.02]">
+                <tr className="text-left text-xs uppercase tracking-wide text-[#8A8377] border-b border-[#E9E1D3] bg-[#FBF7EF]">
                   <th className="px-4 py-3 font-medium">Description</th>
                   <th className="px-4 py-3 font-medium">Customer</th>
                   <th className="px-4 py-3 font-medium">Source</th>
@@ -150,14 +164,14 @@ function PaymentsInner() {
                   <th className="px-4 py-3 font-medium text-right">Amount</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-white/10">
+              <tbody className="divide-y divide-[#F3EEE4]">
                 {rows.map((r) => (
-                  <tr key={r.id} className="hover:bg-white/[0.02]">
-                    <td className="px-4 py-3 font-medium text-[#3a2f22]">{r.label}</td>
-                    <td className="px-4 py-3 text-[#a89880]">{r.customer}</td>
-                    <td className="px-4 py-3 text-[#a89880] text-xs">{r.source}</td>
-                    <td className="px-4 py-3 text-[#a89880] text-xs">{new Date(r.date).toLocaleDateString("en-GB")}</td>
-                    <td className="px-4 py-3 text-right text-[#3a2f22]">{lkr(r.amount)}</td>
+                  <tr key={r.id} className="hover:bg-[#FBF7EF]/60">
+                    <td className="px-4 py-3 font-medium text-[#1F1E1D]">{r.label}</td>
+                    <td className="px-4 py-3 text-[#8A8377]">{r.customer}</td>
+                    <td className="px-4 py-3 text-[#8A8377] text-xs">{r.source}</td>
+                    <td className="px-4 py-3 text-[#8A8377] text-xs">{new Date(r.date).toLocaleDateString("en-GB")}</td>
+                    <td className="px-4 py-3 text-right text-[#1F1E1D]">{lkr(r.amount)}</td>
                   </tr>
                 ))}
               </tbody>

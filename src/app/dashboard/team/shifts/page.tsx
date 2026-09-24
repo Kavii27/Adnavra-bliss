@@ -157,17 +157,20 @@ function ShiftsInner() {
   }
 
   if (bizLoading || (loading && businessId)) {
-    return <div className="flex items-center gap-2 text-sm text-[#a89880]"><Loader2 className="h-4 w-4 animate-spin" /> Loading shifts...</div>;
+    return <div className="flex items-center gap-2 text-sm text-[#8A8377]"><Loader2 className="h-4 w-4 animate-spin" /> Loading shifts...</div>;
   }
   if (isNoBusiness || bizError) {
     return (
-      <div className="rounded-xl border border-[#e6dcc8] bg-white/[0.04] p-8 text-center">
-        <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-full bg-[#f6efe3] border border-[#e6dcc8]">
-          <Store className="h-5 w-5 text-[#a89880]" />
+      <div className="rounded-2xl border border-dashed border-[#E5DDD0] bg-white p-10 text-center">
+        <div
+          className="mx-auto flex h-14 w-14 items-center justify-center rounded-full"
+          style={{ background: "linear-gradient(135deg, #D9BE8C, #C9A467)" }}
+        >
+          <Store className="h-6 w-6 text-[#1B1714]" />
         </div>
-        <h3 className="mt-3 text-sm font-semibold text-[#3a2f22]">Set up your salon to roster shifts</h3>
-        <p className="mt-1 text-sm text-[#a89880]">{bizError ?? "Create your business profile first."}</p>
-        <Link href="/dashboard/settings" className="mt-4 inline-flex items-center justify-center rounded-lg bg-white px-4 py-2 text-sm font-semibold text-[#faf6ef] hover:bg-white/90">Go to Settings</Link>
+        <h3 className="mt-5 font-[family-name:var(--font-display)] text-xl font-semibold text-[#1F1B17]">Set up your salon to roster shifts</h3>
+        <p className="mt-1.5 text-sm text-[#8A8377]">{bizError ?? "Create your business profile first."}</p>
+        <Link href="/dashboard/settings" className="mt-6 inline-flex h-11 items-center justify-center rounded-full bg-[#1F1B17] px-7 text-[12px] font-bold uppercase tracking-[0.14em] text-white transition-colors hover:bg-[#795831]">Go to Settings</Link>
       </div>
     );
   }
@@ -176,34 +179,39 @@ function ShiftsInner() {
     <div>
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-xl font-semibold text-[#3a2f22]">Scheduled shifts</h1>
-          <p className="text-sm text-[#a89880] mt-1">Weekly roster per staff member. Overlapping shifts are rejected.</p>
+          <p className="text-[10px] font-semibold uppercase tracking-[0.22em]" style={{ color: "#9A7B4F" }}>Team</p>
+          <h1 className="font-[family-name:var(--font-display)] mt-1 text-3xl font-medium tracking-tight text-[#1F1B17]">Scheduled shifts</h1>
+          <p className="text-sm text-[#8A8377] mt-1.5">Weekly roster per staff member. Overlapping shifts are rejected.</p>
         </div>
-        <Button onClick={() => { setFormError(null); setShowForm(true); }} disabled={staff.length === 0} className="bg-[#8a6d4f] text-[#ffffff] hover:bg-white/90">
+        <button
+          onClick={() => { setFormError(null); setShowForm(true); }}
+          disabled={staff.length === 0}
+          className="inline-flex items-center rounded-full bg-[#1F1B17] px-5 py-2.5 text-xs font-bold uppercase tracking-[0.14em] text-white transition-colors hover:bg-[#795831] disabled:opacity-40"
+        >
           <Plus className="h-4 w-4 mr-2" /> Assign shift
-        </Button>
+        </button>
       </div>
 
       {staff.length === 0 && !error ? (
-        <div className="mt-6 rounded-xl border border-[#e6dcc8] bg-[#f6efe3] p-6 text-sm text-[#a89880]">
+        <div className="mt-6 rounded-2xl border border-[#E9E1D3] bg-white p-6 text-sm text-[#8A8377] shadow-[0_4px_20px_rgba(30,28,26,0.05)]">
           Add team members first — shifts are assigned to staff.{" "}
-          <Link href="/dashboard/team/members" className="font-medium text-[#3a2f22] underline">Go to Team members</Link>.
+          <Link href="/dashboard/team/members" className="font-medium text-[#1F1E1D] underline">Go to Team members</Link>.
         </div>
       ) : (
         <>
           <div className="mt-6 flex items-center gap-2">
-            <button aria-label="Previous week" onClick={() => setAnchor((a) => dayIso(new Date(new Date(a + "T12:00:00").getTime() - 7 * 86400000)))} className="flex h-8 w-8 items-center justify-center rounded-full border border-[#e6dcc8] bg-[#f6efe3] text-[#a89880] hover:bg-[#f3ebdd] hover:text-[#3a2f22]">
+            <button aria-label="Previous week" onClick={() => setAnchor((a) => dayIso(new Date(new Date(a + "T12:00:00").getTime() - 7 * 86400000)))} className="flex h-8 w-8 items-center justify-center rounded-full border border-[#E9E1D3] bg-white text-[#8A8377] hover:bg-[#FBF7EF] hover:text-[#1F1E1D]">
               <ChevronLeft className="h-4 w-4" />
             </button>
-            <button onClick={() => setAnchor(dayIso(new Date()))} className="rounded-full border border-[#e6dcc8] bg-[#f6efe3] px-3 py-1.5 text-xs font-semibold text-[#3a2f22] hover:bg-[#f3ebdd]">This week</button>
-            <span className="ml-1 text-sm font-medium text-[#3a2f22]">{days[0]} → {days[6]}</span>
-            <button aria-label="Next week" onClick={() => setAnchor((a) => dayIso(new Date(new Date(a + "T12:00:00").getTime() + 7 * 86400000)))} className="flex h-8 w-8 items-center justify-center rounded-full border border-[#e6dcc8] bg-[#f6efe3] text-[#a89880] hover:bg-[#f3ebdd] hover:text-[#3a2f22]">
+            <button onClick={() => setAnchor(dayIso(new Date()))} className="rounded-full border border-[#E9E1D3] bg-white px-3 py-1.5 text-xs font-semibold text-[#1F1E1D] hover:bg-[#FBF7EF]">This week</button>
+            <span className="ml-1 text-sm font-medium text-[#1F1E1D]">{days[0]} → {days[6]}</span>
+            <button aria-label="Next week" onClick={() => setAnchor((a) => dayIso(new Date(new Date(a + "T12:00:00").getTime() + 7 * 86400000)))} className="flex h-8 w-8 items-center justify-center rounded-full border border-[#E9E1D3] bg-white text-[#8A8377] hover:bg-[#FBF7EF] hover:text-[#1F1E1D]">
               <ChevronRight className="h-4 w-4" />
             </button>
           </div>
 
           {error ? (
-            <div className="mt-4 flex items-center gap-2 text-sm text-red-300"><AlertCircle className="h-4 w-4" /> {error}</div>
+            <div className="mt-4 flex items-center gap-2 text-sm text-red-500"><AlertCircle className="h-4 w-4" /> {error}</div>
           ) : (
             <>
               <div className="mt-4 grid grid-cols-1 md:grid-cols-7 gap-2">
@@ -212,17 +220,17 @@ function ShiftsInner() {
                   const label = new Date(d + "T12:00:00").toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short" });
                   const isToday = d === dayIso(new Date());
                   return (
-                    <div key={d} className={`rounded-xl border p-3 min-h-28 ${isToday ? "border-[#8a6d4f] bg-[#8a6d4f]/10" : "border-[#e6dcc8] bg-[#f6efe3]"}`}>
-                      <p className={`text-xs font-semibold ${isToday ? "text-[#3a2f22]" : "text-[#a89880]"}`}>{label}</p>
+                    <div key={d} className={`rounded-2xl border p-3 min-h-28 ${isToday ? "border-[#795831] bg-[#FBF7EF]" : "border-[#E9E1D3] bg-white shadow-[0_4px_20px_rgba(30,28,26,0.05)]"}`}>
+                      <p className={`text-xs font-semibold ${isToday ? "text-[#1F1E1D]" : "text-[#8A8377]"}`}>{label}</p>
                       <div className="mt-2 space-y-1.5">
                         {list.length === 0 ? (
-                          <p className="text-[11px] text-[#a89880]">—</p>
+                          <p className="text-[11px] text-[#8A8377]">—</p>
                         ) : (
                           list.map((s) => (
-                            <div key={s.id} className="rounded-lg bg-[#faf6ef] border border-[#e6dcc8] px-2 py-1.5 text-[11px] group">
-                              <p className="font-medium text-[#3a2f22] truncate">{s.staffMember.name}</p>
-                              <p className="text-[#a89880]">{fmtTime(s.start)}–{fmtTime(s.end)}</p>
-                              <button onClick={() => handleDelete(s.id)} className="mt-0.5 inline-flex items-center gap-1 text-[11px] text-red-300 hover:underline"><Trash2 className="h-3 w-3" /> Remove</button>
+                            <div key={s.id} className="rounded-lg bg-[#FAF7F2] border border-[#E9E1D3] px-2 py-1.5 text-[11px] group">
+                              <p className="font-medium text-[#1F1E1D] truncate">{s.staffMember.name}</p>
+                              <p className="text-[#8A8377]">{fmtTime(s.start)}–{fmtTime(s.end)}</p>
+                              <button onClick={() => handleDelete(s.id)} className="mt-0.5 inline-flex items-center gap-1 text-[11px] text-red-500 hover:underline"><Trash2 className="h-3 w-3" /> Remove</button>
                             </div>
                           ))
                         )}
@@ -232,11 +240,11 @@ function ShiftsInner() {
                 })}
               </div>
 
-              <div className="mt-4 rounded-xl border border-[#e6dcc8] bg-white/[0.04] p-4">
-                <p className="text-xs uppercase tracking-wide text-[#a89880]">Scheduled hours this week</p>
+              <div className="mt-4 rounded-2xl border border-[#E9E1D3] bg-white p-4 shadow-[0_4px_20px_rgba(30,28,26,0.05)]">
+                <p className="text-xs uppercase tracking-wide text-[#8A8377]">Scheduled hours this week</p>
                 <div className="mt-2 flex flex-wrap gap-2">
                   {staff.map((s) => (
-                    <span key={s.id} className="rounded-full bg-[#f3ebdd] px-3 py-1 text-xs text-[#3a2f22]">
+                    <span key={s.id} className="rounded-full bg-[#FBF7EF] px-3 py-1 text-xs text-[#1F1E1D]">
                       {s.name}: <span className="font-semibold">{fmtHours(weekHours.get(s.id) ?? 0)}</span>
                     </span>
                   ))}
@@ -249,12 +257,12 @@ function ShiftsInner() {
 
       {showForm && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50" onClick={() => setShowForm(false)}>
-          <div className="bg-[#0F1729] rounded-xl border border-[#e6dcc8] p-6 w-full max-w-lg shadow-xl" onClick={(e) => e.stopPropagation()}>
-            <h2 className="text-lg font-semibold text-[#3a2f22]">Assign shift</h2>
+          <div className="bg-white rounded-2xl border border-[#E9E1D3] p-6 w-full max-w-lg shadow-xl" onClick={(e) => e.stopPropagation()}>
+            <h2 className="text-lg font-semibold text-[#1F1E1D]">Assign shift</h2>
             <div className="mt-4 space-y-4">
               <div>
-                <label className="text-sm font-medium text-[#3a2f22]">Staff member *</label>
-                <select value={staffId} onChange={(e) => setStaffId(e.target.value)} className="mt-1 w-full rounded-md border border-[#e6dcc8] bg-[#f6efe3] px-3 py-2 text-sm text-[#3a2f22]">
+                <label className="text-sm font-medium text-[#1F1E1D]">Staff member *</label>
+                <select value={staffId} onChange={(e) => setStaffId(e.target.value)} className="mt-1 w-full rounded-md border border-[#E9E1D3] bg-[#FBF7EF] px-3 py-2 text-sm text-[#1F1E1D]">
                   <option value="" className="text-black">Choose staff</option>
                   {staff.map((s) => (
                     <option key={s.id} value={s.id} className="text-black">{s.name}</option>
@@ -262,27 +270,27 @@ function ShiftsInner() {
                 </select>
               </div>
               <div>
-                <label className="text-sm font-medium text-[#3a2f22]">Date *</label>
-                <Input value={date} onChange={(e) => setDate(e.target.value)} type="date" className="mt-1 bg-[#f6efe3] border-[#e6dcc8] text-[#3a2f22]" />
+                <label className="text-sm font-medium text-[#1F1E1D]">Date *</label>
+                <Input value={date} onChange={(e) => setDate(e.target.value)} type="date" className="mt-1 bg-[#FBF7EF] border-[#E9E1D3] text-[#1F1E1D]" />
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="text-sm font-medium text-[#3a2f22]">Start *</label>
-                  <Input value={start} onChange={(e) => setStart(e.target.value)} type="time" className="mt-1 bg-[#f6efe3] border-[#e6dcc8] text-[#3a2f22]" />
+                  <label className="text-sm font-medium text-[#1F1E1D]">Start *</label>
+                  <Input value={start} onChange={(e) => setStart(e.target.value)} type="time" className="mt-1 bg-[#FBF7EF] border-[#E9E1D3] text-[#1F1E1D]" />
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-[#3a2f22]">End *</label>
-                  <Input value={end} onChange={(e) => setEnd(e.target.value)} type="time" className="mt-1 bg-[#f6efe3] border-[#e6dcc8] text-[#3a2f22]" />
+                  <label className="text-sm font-medium text-[#1F1E1D]">End *</label>
+                  <Input value={end} onChange={(e) => setEnd(e.target.value)} type="time" className="mt-1 bg-[#FBF7EF] border-[#E9E1D3] text-[#1F1E1D]" />
                 </div>
               </div>
               <div>
-                <label className="text-sm font-medium text-[#3a2f22]">Notes</label>
-                <Input value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Optional" className="mt-1 bg-[#f6efe3] border-[#e6dcc8] text-[#3a2f22] placeholder:text-[#a89880]" />
+                <label className="text-sm font-medium text-[#1F1E1D]">Notes</label>
+                <Input value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Optional" className="mt-1 bg-[#FBF7EF] border-[#E9E1D3] text-[#1F1E1D] placeholder:text-[#8A8377]" />
               </div>
-              {formError && <p className="text-sm text-red-300 flex items-center gap-1"><AlertCircle className="h-4 w-4" /> {formError}</p>}
+              {formError && <p className="text-sm text-red-500 flex items-center gap-1"><AlertCircle className="h-4 w-4" /> {formError}</p>}
               <div className="flex justify-end gap-2">
-                <Button variant="ghostDark" onClick={() => setShowForm(false)}>Cancel</Button>
-                <Button onClick={handleSubmit} disabled={submitting} className="bg-[#8a6d4f] text-[#ffffff] hover:bg-white/90">{submitting ? <><Loader2 className="h-4 w-4 animate-spin mr-2" /> Saving...</> : <><Check className="h-4 w-4 mr-2" /> Assign</>}</Button>
+                <button onClick={() => setShowForm(false)} className="inline-flex items-center rounded-full border border-[#E5DDD0] bg-white px-4 py-2 text-sm font-medium text-[#4A4640] hover:bg-[#FBF7EF]">Cancel</button>
+                <Button onClick={handleSubmit} disabled={submitting} className="bg-[#1F1B17] text-white hover:bg-[#795831]">{submitting ? <><Loader2 className="h-4 w-4 animate-spin mr-2" /> Saving...</> : <><Check className="h-4 w-4 mr-2" /> Assign</>}</Button>
               </div>
             </div>
           </div>

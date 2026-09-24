@@ -63,31 +63,32 @@ export default function AppsPage() {
   return (
     <div>
       <div>
-        <h1 className="text-xl font-semibold text-[#3a2f22]">Apps</h1>
-        <p className="text-sm text-[#a89880] mt-1">Integrations that extend ADNAVRA. Browse freely on any plan — availability is marked per app.</p>
+        <p className="text-[10px] font-semibold uppercase tracking-[0.22em]" style={{ color: "#9A7B4F" }}>Integrations</p>
+        <h1 className="font-[family-name:var(--font-display)] mt-1 text-3xl font-medium tracking-tight text-[#1F1B17]">Apps</h1>
+        <p className="text-sm text-[#8A8377] mt-1.5">Integrations that extend ADNAVRA. Browse freely on any plan — availability is marked per app.</p>
       </div>
 
       <div className="mt-6 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
         {APPS.map((app) => (
-          <div key={app.name} className="rounded-xl border border-[#e6dcc8] bg-[#f6efe3] p-5 flex flex-col">
+          <div key={app.name} className="rounded-2xl border border-[#E9E1D3] bg-white shadow-[0_4px_20px_rgba(30,28,26,0.05)] p-5 flex flex-col">
             <div className="flex items-start justify-between gap-2">
-              <div className="h-10 w-10 rounded-lg bg-[#8a6d4f] text-[#ffffff] flex items-center justify-center shrink-0">
+              <div className="h-10 w-10 rounded-lg bg-[#1F1B17] text-white flex items-center justify-center shrink-0">
                 <app.icon className="h-5 w-5" />
               </div>
-              <span className="rounded-full bg-[#f3ebdd] px-2.5 py-1 text-[10px] font-medium uppercase tracking-wide text-[#a89880]">
+              <span className="rounded-full bg-[#F3EEE4] px-2.5 py-1 text-[10px] font-medium uppercase tracking-wide text-[#8A8377]">
                 {app.status}
               </span>
             </div>
-            <h3 className="mt-3 text-sm font-semibold text-[#3a2f22]">{app.name}</h3>
-            <p className="mt-1 text-xs text-[#a89880] flex-1">{app.description}</p>
-            <Link href={app.href} className="mt-3 inline-flex items-center gap-1 text-xs font-semibold text-[#8a6d4f] hover:underline">
+            <h3 className="mt-3 text-sm font-semibold text-[#1F1E1D]">{app.name}</h3>
+            <p className="mt-1 text-xs text-[#8A8377] flex-1">{app.description}</p>
+            <Link href={app.href} className="mt-3 inline-flex items-center gap-1 text-xs font-semibold text-[#795831] hover:underline">
               Open related section <ArrowUpRight className="h-3.5 w-3.5" />
             </Link>
           </div>
         ))}
       </div>
 
-      <p className="mt-6 text-xs text-[#a89880]">
+      <p className="mt-6 text-xs text-[#8A8377]">
         No functional third-party connection ships in this release — each card links to the dashboard
         section its future integration will read from.
       </p>

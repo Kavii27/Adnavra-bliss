@@ -2,7 +2,6 @@
 import { useState, useTransition } from "react";
 import { Loader2, AlertCircle, Check } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 
 export function ProfileForm({
   initial,
@@ -51,37 +50,37 @@ export function ProfileForm({
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 max-w-lg">
+    <form onSubmit={handleSubmit} className="space-y-5 max-w-lg">
       {error && (
-        <div className="flex gap-2 rounded-md border border-[#FDECEC] bg-[#FDECEC] px-3 py-2 text-sm">
+        <div className="flex gap-2 rounded-xl border border-[#FDECEC] bg-[#FDECEC] px-3 py-2.5 text-sm">
           <AlertCircle className="h-4 w-4 shrink-0 mt-0.5 text-[#B91C1C]" />
-          <span className="text-[#475467]">{error}</span>
+          <span className="text-[#4A4640]">{error}</span>
         </div>
       )}
       {success && (
-        <div className="flex gap-2 rounded-md border border-[#DCF5E7] bg-[#DCF5E7] px-3 py-2 text-sm">
+        <div className="flex gap-2 rounded-xl border border-[#DCF5E7] bg-[#DCF5E7] px-3 py-2.5 text-sm">
           <Check className="h-4 w-4 shrink-0 mt-0.5 text-[#15803D]" />
-          <span className="text-[#475467]">{success}</span>
+          <span className="text-[#4A4640]">{success}</span>
         </div>
       )}
 
       <div>
-        <label htmlFor="name" className="text-sm font-medium text-[#3a2f22]">
+        <label htmlFor="name" className="text-sm font-medium text-[#1F1E1D]">
           Name
         </label>
         <Input id="name" value={name} onChange={(e) => setName(e.target.value)} required maxLength={100} className="mt-1.5 bg-white" disabled={pending} />
       </div>
 
       <div>
-        <label htmlFor="email" className="text-sm font-medium text-[#3a2f22]">
+        <label htmlFor="email" className="text-sm font-medium text-[#1F1E1D]">
           Email
         </label>
-        <Input id="email" value={initial.email} disabled className="mt-1.5 bg-[#faf6ef] text-[#a89880]" />
-        <p className="mt-1 text-xs text-[#a89880]">Email cannot be changed. Contact support if needed.</p>
+        <Input id="email" value={initial.email} disabled className="mt-1.5 bg-[#FBF7EF] text-[#8A8377]" />
+        <p className="mt-1 text-xs text-[#8A8377]">Email cannot be changed. Contact support if needed.</p>
       </div>
 
       <div>
-        <label htmlFor="phone" className="text-sm font-medium text-[#3a2f22]">
+        <label htmlFor="phone" className="text-sm font-medium text-[#1F1E1D]">
           Phone
         </label>
         <Input
@@ -96,7 +95,7 @@ export function ProfileForm({
       </div>
 
       <div>
-        <label htmlFor="image" className="text-sm font-medium text-[#3a2f22]">
+        <label htmlFor="image" className="text-sm font-medium text-[#1F1E1D]">
           Profile photo URL
         </label>
         <Input
@@ -109,15 +108,19 @@ export function ProfileForm({
         />
       </div>
 
-      <Button type="submit" disabled={pending} className="mt-2">
+      <button
+        type="submit"
+        disabled={pending}
+        className="inline-flex h-11 items-center justify-center gap-2 rounded-full bg-[#1F1B17] px-7 text-[12px] font-bold uppercase tracking-[0.14em] text-white transition-all hover:scale-[1.02] hover:bg-[#795831] disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:scale-100"
+      >
         {pending ? (
           <>
-            <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Saving...
+            <Loader2 className="h-4 w-4 animate-spin" /> Saving...
           </>
         ) : (
           "Save changes"
         )}
-      </Button>
+      </button>
     </form>
   );
 }

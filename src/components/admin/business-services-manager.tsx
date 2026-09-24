@@ -16,6 +16,7 @@ type Service = {
   isActive: boolean;
   businessId: string;
   category: string | null;
+  imageUrl?: string | null;
 };
 
 type Props = {
@@ -194,7 +195,7 @@ export function AdminBusinessServicesManager({ businessId, businessSlug }: Props
               className="flex items-center justify-between rounded-lg border border-[#E3E8F0] bg-white p-4"
             >
               <div className="flex min-w-0 items-center gap-3">
-              <ServiceImage name={s.name} category={s.category} className="h-14 w-14 rounded-lg" />
+              <ServiceImage name={s.name} category={s.category} imageUrl={s.imageUrl} className="h-14 w-14 rounded-lg" />
               <div className="min-w-0">
                 <div className="flex items-center gap-2">
                   <p className="truncate font-medium text-[#3a2f22]">{s.name}</p>

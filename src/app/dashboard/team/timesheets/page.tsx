@@ -156,17 +156,20 @@ function TimesheetsInner() {
   }
 
   if (bizLoading || (loading && businessId)) {
-    return <div className="flex items-center gap-2 text-sm text-[#a89880]"><Loader2 className="h-4 w-4 animate-spin" /> Loading timesheets...</div>;
+    return <div className="flex items-center gap-2 text-sm text-[#8A8377]"><Loader2 className="h-4 w-4 animate-spin" /> Loading timesheets...</div>;
   }
   if (isNoBusiness || bizError) {
     return (
-      <div className="rounded-xl border border-[#e6dcc8] bg-white/[0.04] p-8 text-center">
-        <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-full bg-[#f6efe3] border border-[#e6dcc8]">
-          <Store className="h-5 w-5 text-[#a89880]" />
+      <div className="rounded-2xl border border-dashed border-[#E5DDD0] bg-white p-10 text-center">
+        <div
+          className="mx-auto flex h-14 w-14 items-center justify-center rounded-full"
+          style={{ background: "linear-gradient(135deg, #D9BE8C, #C9A467)" }}
+        >
+          <Store className="h-6 w-6 text-[#1B1714]" />
         </div>
-        <h3 className="mt-3 text-sm font-semibold text-[#3a2f22]">Set up your salon to track hours</h3>
-        <p className="mt-1 text-sm text-[#a89880]">{bizError ?? "Create your business profile first."}</p>
-        <Link href="/dashboard/settings" className="mt-4 inline-flex items-center justify-center rounded-lg bg-white px-4 py-2 text-sm font-semibold text-[#faf6ef] hover:bg-white/90">Go to Settings</Link>
+        <h3 className="mt-5 font-[family-name:var(--font-display)] text-xl font-semibold text-[#1F1B17]">Set up your salon to track hours</h3>
+        <p className="mt-1.5 text-sm text-[#8A8377]">{bizError ?? "Create your business profile first."}</p>
+        <Link href="/dashboard/settings" className="mt-6 inline-flex h-11 items-center justify-center rounded-full bg-[#1F1B17] px-7 text-[12px] font-bold uppercase tracking-[0.14em] text-white transition-colors hover:bg-[#795831]">Go to Settings</Link>
       </div>
     );
   }
@@ -175,45 +178,50 @@ function TimesheetsInner() {
     <div>
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-xl font-semibold text-[#3a2f22]">Timesheets</h1>
-          <p className="text-sm text-[#a89880] mt-1">Clock-in/out or manual hours, compared against scheduled shifts.</p>
+          <p className="text-[10px] font-semibold uppercase tracking-[0.22em]" style={{ color: "#9A7B4F" }}>Team</p>
+          <h1 className="font-[family-name:var(--font-display)] mt-1 text-3xl font-medium tracking-tight text-[#1F1B17]">Timesheets</h1>
+          <p className="text-sm text-[#8A8377] mt-1.5">Clock-in/out or manual hours, compared against scheduled shifts.</p>
         </div>
-        <Button onClick={() => { setFormError(null); setShowForm(true); }} disabled={staff.length === 0} className="bg-[#8a6d4f] text-[#ffffff] hover:bg-white/90">
+        <button
+          onClick={() => { setFormError(null); setShowForm(true); }}
+          disabled={staff.length === 0}
+          className="inline-flex items-center rounded-full bg-[#1F1B17] px-5 py-2.5 text-xs font-bold uppercase tracking-[0.14em] text-white transition-colors hover:bg-[#795831] disabled:opacity-40"
+        >
           <Plus className="h-4 w-4 mr-2" /> Log hours
-        </Button>
+        </button>
       </div>
 
       {staff.length === 0 && !error ? (
-        <div className="mt-6 rounded-xl border border-[#e6dcc8] bg-[#f6efe3] p-6 text-sm text-[#a89880]">
+        <div className="mt-6 rounded-2xl border border-[#E9E1D3] bg-white p-6 text-sm text-[#8A8377] shadow-[0_4px_20px_rgba(30,28,26,0.05)]">
           Add team members first — hours are logged per staff.{" "}
-          <Link href="/dashboard/team/members" className="font-medium text-[#3a2f22] underline">Go to Team members</Link>.
+          <Link href="/dashboard/team/members" className="font-medium text-[#1F1E1D] underline">Go to Team members</Link>.
         </div>
       ) : (
         <>
           <div className="mt-6 flex flex-wrap items-center gap-3">
-            <select value={staffFilter} onChange={(e) => setStaffFilter(e.target.value)} className="rounded-lg border border-[#e6dcc8] bg-[#f6efe3] px-3 py-2 text-sm text-[#3a2f22]">
+            <select value={staffFilter} onChange={(e) => setStaffFilter(e.target.value)} className="rounded-lg border border-[#E9E1D3] bg-white px-3 py-2 text-sm text-[#1F1E1D]">
               <option value="ALL" className="text-black">All staff</option>
               {staff.map((s) => (
                 <option key={s.id} value={s.id} className="text-black">{s.name}</option>
               ))}
             </select>
-            <span className="text-sm text-[#a89880]">{entries.length} entries · {totalHours.toFixed(1)}h logged</span>
+            <span className="text-sm text-[#8A8377]">{entries.length} entries · {totalHours.toFixed(1)}h logged</span>
           </div>
 
-          <div className="mt-4 rounded-xl border border-[#e6dcc8] bg-white/[0.04] p-4">
-            <p className="text-xs uppercase tracking-wide text-[#a89880]">Scheduled vs actual</p>
+          <div className="mt-4 rounded-2xl border border-[#E9E1D3] bg-white p-4 shadow-[0_4px_20px_rgba(30,28,26,0.05)]">
+            <p className="text-xs uppercase tracking-wide text-[#8A8377]">Scheduled vs actual</p>
             <div className="mt-2 space-y-2">
               {comparison.length === 0 ? (
-                <p className="text-sm text-[#a89880]">No data yet.</p>
+                <p className="text-sm text-[#8A8377]">No data yet.</p>
               ) : (
                 comparison.map((c) => {
                   const diff = c.actual - c.scheduled;
                   return (
                     <div key={c.name} className="flex items-center justify-between gap-3 text-sm">
-                      <span className="text-[#3a2f22] truncate">{c.name}</span>
-                      <span className="text-xs text-[#a89880] shrink-0">
+                      <span className="text-[#1F1E1D] truncate">{c.name}</span>
+                      <span className="text-xs text-[#8A8377] shrink-0">
                         {c.scheduled.toFixed(1)}h scheduled · {c.actual.toFixed(1)}h logged ·{" "}
-                        <span className={diff === 0 ? "" : diff > 0 ? "text-emerald-300 font-medium" : "text-red-300 font-medium"}>
+                        <span className={diff === 0 ? "" : diff > 0 ? "text-emerald-600 font-medium" : "text-red-500 font-medium"}>
                           {diff >= 0 ? "+" : ""}{diff.toFixed(1)}h
                         </span>
                       </span>
@@ -225,17 +233,17 @@ function TimesheetsInner() {
           </div>
 
           {error ? (
-            <div className="mt-4 flex items-center gap-2 text-sm text-red-300"><AlertCircle className="h-4 w-4" /> {error}</div>
+            <div className="mt-4 flex items-center gap-2 text-sm text-red-500"><AlertCircle className="h-4 w-4" /> {error}</div>
           ) : entries.length === 0 ? (
-            <div className="mt-6 rounded-xl border border-[#e6dcc8] bg-[#f6efe3] p-8 text-center text-sm text-[#a89880]">
+            <div className="mt-6 rounded-2xl border border-[#E9E1D3] bg-white p-8 text-center text-sm text-[#8A8377] shadow-[0_4px_20px_rgba(30,28,26,0.05)]">
               No hours logged yet. Log clock-in/out times or a manual day total.
             </div>
           ) : (
-            <div className="mt-6 overflow-hidden rounded-xl border border-[#e6dcc8] bg-white/[0.04]">
+            <div className="mt-6 overflow-hidden rounded-2xl border border-[#E9E1D3] bg-white shadow-[0_4px_20px_rgba(30,28,26,0.05)]">
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="text-left text-xs uppercase tracking-wide text-[#a89880] border-b border-[#e6dcc8] bg-white/[0.02]">
+                    <tr className="text-left text-xs uppercase tracking-wide text-[#8A8377] border-b border-[#E9E1D3] bg-[#FBF7EF]">
                       <th className="px-4 py-3 font-medium">Staff</th>
                       <th className="px-4 py-3 font-medium">Date</th>
                       <th className="px-4 py-3 font-medium">Clock in → out</th>
@@ -244,21 +252,21 @@ function TimesheetsInner() {
                       <th className="px-4 py-3 font-medium text-right">Actions</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-white/10">
+                  <tbody className="divide-y divide-[#E9E1D3]">
                     {entries.map((e) => (
-                      <tr key={e.id} className="hover:bg-white/[0.02]">
-                        <td className="px-4 py-3 font-medium text-[#3a2f22]">{e.staffMember.name}</td>
-                        <td className="px-4 py-3 text-[#a89880] text-xs">{new Date(e.date).toLocaleDateString("en-GB")}</td>
-                        <td className="px-4 py-3 text-[#a89880] text-xs">
+                      <tr key={e.id} className="hover:bg-[#FBF7EF]">
+                        <td className="px-4 py-3 font-medium text-[#1F1E1D]">{e.staffMember.name}</td>
+                        <td className="px-4 py-3 text-[#8A8377] text-xs">{new Date(e.date).toLocaleDateString("en-GB")}</td>
+                        <td className="px-4 py-3 text-[#8A8377] text-xs">
                           {e.clockIn ? new Date(e.clockIn).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "—"}
                           {" → "}
                           {e.clockOut ? new Date(e.clockOut).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "—"}
                         </td>
-                        <td className="px-4 py-3 text-right text-[#3a2f22]">{e.hours.toFixed(1)}h</td>
-                        <td className="px-4 py-3 text-[#a89880] text-xs max-w-40 truncate">{e.note ?? "—"}</td>
+                        <td className="px-4 py-3 text-right text-[#1F1E1D]">{e.hours.toFixed(1)}h</td>
+                        <td className="px-4 py-3 text-[#8A8377] text-xs max-w-40 truncate">{e.note ?? "—"}</td>
                         <td className="px-4 py-3 text-right">
-                          <button onClick={() => handleDelete(e.id)} className="p-2 rounded-lg border border-[#e6dcc8] bg-[#f6efe3] hover:bg-red-500/20" aria-label="Delete entry">
-                            <Trash2 className="h-4 w-4 text-red-300" />
+                          <button onClick={() => handleDelete(e.id)} className="p-2 rounded-lg border border-[#E9E1D3] bg-white hover:bg-red-50" aria-label="Delete entry">
+                            <Trash2 className="h-4 w-4 text-red-500" />
                           </button>
                         </td>
                       </tr>
@@ -273,13 +281,13 @@ function TimesheetsInner() {
 
       {showForm && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50" onClick={() => setShowForm(false)}>
-          <div className="bg-[#0F1729] rounded-xl border border-[#e6dcc8] p-6 w-full max-w-lg shadow-xl" onClick={(e) => e.stopPropagation()}>
-            <h2 className="text-lg font-semibold text-[#3a2f22]">Log hours</h2>
-            <p className="text-xs text-[#a89880] mt-1">Hours derive from clock times when both are set, otherwise an 8h day is recorded.</p>
+          <div className="bg-white rounded-2xl border border-[#E9E1D3] p-6 w-full max-w-lg shadow-xl" onClick={(e) => e.stopPropagation()}>
+            <h2 className="text-lg font-semibold text-[#1F1E1D]">Log hours</h2>
+            <p className="text-xs text-[#8A8377] mt-1">Hours derive from clock times when both are set, otherwise an 8h day is recorded.</p>
             <div className="mt-4 space-y-4">
               <div>
-                <label className="text-sm font-medium text-[#3a2f22]">Staff member *</label>
-                <select value={staffId} onChange={(e) => setStaffId(e.target.value)} className="mt-1 w-full rounded-md border border-[#e6dcc8] bg-[#f6efe3] px-3 py-2 text-sm text-[#3a2f22]">
+                <label className="text-sm font-medium text-[#1F1E1D]">Staff member *</label>
+                <select value={staffId} onChange={(e) => setStaffId(e.target.value)} className="mt-1 w-full rounded-md border border-[#E9E1D3] bg-[#FBF7EF] px-3 py-2 text-sm text-[#1F1E1D]">
                   <option value="" className="text-black">Choose staff</option>
                   {staff.map((s) => (
                     <option key={s.id} value={s.id} className="text-black">{s.name}</option>
@@ -287,27 +295,27 @@ function TimesheetsInner() {
                 </select>
               </div>
               <div>
-                <label className="text-sm font-medium text-[#3a2f22]">Date *</label>
-                <Input value={date} onChange={(e) => setDate(e.target.value)} type="date" className="mt-1 bg-[#f6efe3] border-[#e6dcc8] text-[#3a2f22]" />
+                <label className="text-sm font-medium text-[#1F1E1D]">Date *</label>
+                <Input value={date} onChange={(e) => setDate(e.target.value)} type="date" className="mt-1 bg-[#FBF7EF] border-[#E9E1D3] text-[#1F1E1D]" />
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="text-sm font-medium text-[#3a2f22]">Clock in</label>
-                  <Input value={clockIn} onChange={(e) => setClockIn(e.target.value)} type="time" className="mt-1 bg-[#f6efe3] border-[#e6dcc8] text-[#3a2f22]" />
+                  <label className="text-sm font-medium text-[#1F1E1D]">Clock in</label>
+                  <Input value={clockIn} onChange={(e) => setClockIn(e.target.value)} type="time" className="mt-1 bg-[#FBF7EF] border-[#E9E1D3] text-[#1F1E1D]" />
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-[#3a2f22]">Clock out</label>
-                  <Input value={clockOut} onChange={(e) => setClockOut(e.target.value)} type="time" className="mt-1 bg-[#f6efe3] border-[#e6dcc8] text-[#3a2f22]" />
+                  <label className="text-sm font-medium text-[#1F1E1D]">Clock out</label>
+                  <Input value={clockOut} onChange={(e) => setClockOut(e.target.value)} type="time" className="mt-1 bg-[#FBF7EF] border-[#E9E1D3] text-[#1F1E1D]" />
                 </div>
               </div>
               <div>
-                <label className="text-sm font-medium text-[#3a2f22]">Note</label>
-                <Input value={note} onChange={(e) => setNote(e.target.value)} placeholder="Optional" className="mt-1 bg-[#f6efe3] border-[#e6dcc8] text-[#3a2f22] placeholder:text-[#a89880]" />
+                <label className="text-sm font-medium text-[#1F1E1D]">Note</label>
+                <Input value={note} onChange={(e) => setNote(e.target.value)} placeholder="Optional" className="mt-1 bg-[#FBF7EF] border-[#E9E1D3] text-[#1F1E1D] placeholder:text-[#8A8377]" />
               </div>
-              {formError && <p className="text-sm text-red-300 flex items-center gap-1"><AlertCircle className="h-4 w-4" /> {formError}</p>}
+              {formError && <p className="text-sm text-red-500 flex items-center gap-1"><AlertCircle className="h-4 w-4" /> {formError}</p>}
               <div className="flex justify-end gap-2">
-                <Button variant="ghostDark" onClick={() => setShowForm(false)}>Cancel</Button>
-                <Button onClick={handleSubmit} disabled={submitting} className="bg-[#8a6d4f] text-[#ffffff] hover:bg-white/90">{submitting ? <><Loader2 className="h-4 w-4 animate-spin mr-2" /> Saving...</> : <><Check className="h-4 w-4 mr-2" /> Log</>}</Button>
+                <button onClick={() => setShowForm(false)} className="inline-flex items-center rounded-full border border-[#E5DDD0] bg-white px-4 py-2 text-sm font-medium text-[#4A4640] hover:bg-[#FBF7EF]">Cancel</button>
+                <Button onClick={handleSubmit} disabled={submitting} className="bg-[#1F1B17] text-white hover:bg-[#795831]">{submitting ? <><Loader2 className="h-4 w-4 animate-spin mr-2" /> Saving...</> : <><Check className="h-4 w-4 mr-2" /> Log</>}</Button>
               </div>
             </div>
           </div>

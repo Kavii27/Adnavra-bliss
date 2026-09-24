@@ -3,7 +3,6 @@ import { useState, useTransition } from "react";
 import { Loader2, AlertCircle, Check, Eye, EyeOff } from "lucide-react";
 import { signOut } from "next-auth/react";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 
 export function ChangePasswordForm() {
   const [currentPassword, setCurrentPassword] = useState("");
@@ -50,22 +49,22 @@ export function ChangePasswordForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
+    <form onSubmit={handleSubmit} className="space-y-5">
       {error && (
-        <div className="flex gap-2 rounded-md border border-[#FDECEC] bg-[#FDECEC] px-3 py-2 text-sm">
+        <div className="flex gap-2 rounded-xl border border-[#FDECEC] bg-[#FDECEC] px-3 py-2.5 text-sm">
           <AlertCircle className="h-4 w-4 shrink-0 mt-0.5 text-[#B91C1C]" />
-          <span className="text-[#475467]">{error}</span>
+          <span className="text-[#4A4640]">{error}</span>
         </div>
       )}
       {success && (
-        <div className="flex gap-2 rounded-md border border-[#DCF5E7] bg-[#DCF5E7] px-3 py-2 text-sm">
+        <div className="flex gap-2 rounded-xl border border-[#DCF5E7] bg-[#DCF5E7] px-3 py-2.5 text-sm">
           <Check className="h-4 w-4 shrink-0 mt-0.5 text-[#15803D]" />
-          <span className="text-[#475467]">{success}</span>
+          <span className="text-[#4A4640]">{success}</span>
         </div>
       )}
 
       <div>
-        <label htmlFor="currentPassword" className="text-sm font-medium text-[#3a2f22]">
+        <label htmlFor="currentPassword" className="text-sm font-medium text-[#1F1E1D]">
           Current password
         </label>
         <div className="relative mt-1.5">
@@ -81,7 +80,7 @@ export function ChangePasswordForm() {
           <button
             type="button"
             onClick={() => setShowCurrent((v) => !v)}
-            className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-[#a89880] hover:text-[#3a2f22]"
+            className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-[#8A8377] hover:text-[#1F1E1D]"
             aria-label={showCurrent ? "Hide" : "Show"}
           >
             {showCurrent ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
@@ -90,7 +89,7 @@ export function ChangePasswordForm() {
       </div>
 
       <div>
-        <label htmlFor="newPassword" className="text-sm font-medium text-[#3a2f22]">
+        <label htmlFor="newPassword" className="text-sm font-medium text-[#1F1E1D]">
           New password
         </label>
         <div className="relative mt-1.5">
@@ -108,7 +107,7 @@ export function ChangePasswordForm() {
           <button
             type="button"
             onClick={() => setShowNew((v) => !v)}
-            className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-[#a89880] hover:text-[#3a2f22]"
+            className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-[#8A8377] hover:text-[#1F1E1D]"
             aria-label={showNew ? "Hide" : "Show"}
           >
             {showNew ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
@@ -117,7 +116,7 @@ export function ChangePasswordForm() {
       </div>
 
       <div>
-        <label htmlFor="confirmPassword" className="text-sm font-medium text-[#3a2f22]">
+        <label htmlFor="confirmPassword" className="text-sm font-medium text-[#1F1E1D]">
           Confirm new password
         </label>
         <Input
@@ -131,15 +130,19 @@ export function ChangePasswordForm() {
         />
       </div>
 
-      <Button type="submit" disabled={pending}>
+      <button
+        type="submit"
+        disabled={pending}
+        className="inline-flex h-11 items-center justify-center gap-2 rounded-full bg-[#1F1B17] px-7 text-[12px] font-bold uppercase tracking-[0.14em] text-white transition-all hover:scale-[1.02] hover:bg-[#795831] disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:scale-100"
+      >
         {pending ? (
           <>
-            <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Updating...
+            <Loader2 className="h-4 w-4 animate-spin" /> Updating...
           </>
         ) : (
           "Change password"
         )}
-      </Button>
+      </button>
     </form>
   );
 }
@@ -167,41 +170,51 @@ export function DeactivateAccount() {
   }
 
   return (
-    <div className="space-y-3">
-      <p className="text-sm text-[#475467]">
+    <div className="space-y-4">
+      <p className="text-sm text-[#4A4640]">
         Deactivating your account will sign you out immediately. You will not be able to log in again. Your past bookings will
         remain linked for salon records.
       </p>
       {error && (
-        <div className="flex gap-2 rounded-md border border-[#FDECEC] bg-[#FDECEC] px-3 py-2 text-sm">
+        <div className="flex gap-2 rounded-xl border border-[#FDECEC] bg-[#FDECEC] px-3 py-2.5 text-sm">
           <AlertCircle className="h-4 w-4 shrink-0 mt-0.5 text-[#B91C1C]" />
-          <span className="text-[#475467]">{error}</span>
+          <span className="text-[#4A4640]">{error}</span>
         </div>
       )}
       {!confirmOpen ? (
-        <Button variant="secondary" onClick={() => setConfirmOpen(true)} className="border-[#FDECEC] text-[#B91C1C] hover:bg-[#FDECEC]">
+        <button
+          type="button"
+          onClick={() => setConfirmOpen(true)}
+          className="inline-flex h-11 items-center justify-center rounded-full border border-[#FDECEC] bg-white px-6 text-[12px] font-bold uppercase tracking-[0.14em] text-[#B91C1C] transition-colors hover:bg-[#FDECEC]"
+        >
           Deactivate account
-        </Button>
+        </button>
       ) : (
-        <div className="rounded-lg border border-[#FDECEC] bg-[#FDECEC]/40 p-4 space-y-3">
-          <p className="text-sm font-medium text-[#3a2f22]">Are you sure? This cannot be undone without contacting support.</p>
-          <div className="flex gap-2">
-            <Button
+        <div className="rounded-xl border border-[#FDECEC] bg-[#FDECEC]/40 p-4 space-y-3">
+          <p className="text-sm font-medium text-[#1F1E1D]">Are you sure? This cannot be undone without contacting support.</p>
+          <div className="flex flex-wrap gap-2">
+            <button
+              type="button"
               onClick={handleDeactivate}
               disabled={pending}
-              className="bg-[#B91C1C] hover:bg-[#991B1B] text-white border-0"
+              className="inline-flex h-11 items-center justify-center gap-2 rounded-full bg-[#B91C1C] px-6 text-[12px] font-bold uppercase tracking-[0.14em] text-white transition-colors hover:bg-[#991B1B] disabled:cursor-not-allowed disabled:opacity-50"
             >
               {pending ? (
                 <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Deactivating...
+                  <Loader2 className="h-4 w-4 animate-spin" /> Deactivating...
                 </>
               ) : (
                 "Yes, deactivate"
               )}
-            </Button>
-            <Button variant="secondary" onClick={() => setConfirmOpen(false)} disabled={pending}>
+            </button>
+            <button
+              type="button"
+              onClick={() => setConfirmOpen(false)}
+              disabled={pending}
+              className="inline-flex h-11 items-center justify-center rounded-full border border-[#E5DDD0] bg-white px-6 text-[12px] font-bold uppercase tracking-[0.14em] text-[#1F1E1D] transition-colors hover:bg-[#FBF7EF] disabled:cursor-not-allowed disabled:opacity-50"
+            >
               Cancel
-            </Button>
+            </button>
           </div>
         </div>
       )}

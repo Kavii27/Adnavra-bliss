@@ -16,6 +16,7 @@ type Venue = {
   name: string;
   slug: string;
   logoUrl: string | null;
+  coverUrl: string | null;
   address: string | null;
   city: string | null;
   category: string | null;
@@ -58,6 +59,11 @@ async function fetchVenues(order: "asc" | "desc", take: number, skip = 0): Promi
         categories: true,
         salonTypes: true,
         marketplacePriority: true,
+        images: {
+          where: { kind: "cover" },
+          take: 1,
+          select: { url: true },
+        },
         services: {
           where: { isActive: true },
           select: { category: true, price: true },
@@ -74,6 +80,7 @@ async function fetchVenues(order: "asc" | "desc", take: number, skip = 0): Promi
         name: b.name,
         slug: b.slug,
         logoUrl: b.logoUrl,
+        coverUrl: b.images[0]?.url ?? null,
         address: b.address,
         city: b.city,
         category: primary,

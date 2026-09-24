@@ -73,98 +73,101 @@ export default async function BillingPage() {
   }
 
   return (
-    <div className="bg-[#0F1729] min-h-full px-6 py-8">
+    <div className="bg-[#FAF7F2] min-h-full px-6 py-8">
       <div className="max-w-3xl">
-        <Link href="/dashboard/settings" className="inline-flex items-center gap-1.5 text-xs font-medium text-[#a89880] hover:text-[#3a2f22] mb-4">
+        <Link href="/dashboard/settings" className="inline-flex items-center gap-1.5 text-xs font-medium text-[#8A8377] hover:text-[#1F1E1D] mb-4">
           <ArrowLeft className="h-3.5 w-3.5" /> Back to Settings
         </Link>
 
         <div className="flex items-center gap-3">
-          <div className="h-10 w-10 rounded-lg bg-white flex items-center justify-center border border-[#e6dcc8]">
-            <CreditCard className="h-5 w-5 text-[#faf6ef]" />
+          <div className="h-10 w-10 rounded-lg bg-white flex items-center justify-center border border-[#E9E1D3]">
+            <CreditCard className="h-5 w-5 text-[#9A7B4F]" />
           </div>
           <div>
-            <h1 className="text-xl font-semibold tracking-tight text-[#3a2f22]">Billing</h1>
-            <p className="text-sm text-[#a89880] mt-1">Your current plan, status, and billing period.</p>
+            <p className="text-[10px] font-semibold uppercase tracking-[0.22em]" style={{ color: "#9A7B4F" }}>
+              Settings
+            </p>
+            <h1 className="font-[family-name:var(--font-display)] mt-0.5 text-2xl font-medium tracking-tight text-[#1F1B17]">Billing</h1>
+            <p className="text-sm text-[#8A8377] mt-1">Your current plan, status, and billing period.</p>
           </div>
         </div>
 
         {error ? (
-          <div className="mt-6 rounded-xl border border-amber-500/20 bg-amber-500/10 p-6">
-            <p className="text-sm font-medium text-amber-200">{error}</p>
-            <p className="mt-1 text-xs text-[#a89880]">Create your business in Business setup and a Starter subscription is created automatically. Contact ADNAVRA to change your plan.</p>
-            <Link href="/dashboard/settings/business" className="mt-4 inline-flex rounded-lg bg-white px-4 py-2 text-sm font-semibold text-[#faf6ef] hover:bg-white/90">
+          <div className="mt-6 rounded-xl border border-amber-200 bg-amber-50 p-6">
+            <p className="text-sm font-medium text-amber-800">{error}</p>
+            <p className="mt-1 text-xs text-[#8A8377]">Create your business in Business setup and a Starter subscription is created automatically. Contact ADNAVRA to change your plan.</p>
+            <Link href="/dashboard/settings/business" className="mt-4 inline-flex rounded-lg bg-white px-4 py-2 text-sm font-semibold text-[#1F1B17] hover:bg-[#FBF7EF]">
               Go to Business setup
             </Link>
           </div>
         ) : subscription && business ? (
           <>
             {/* Current subscription */}
-            <div className="mt-6 rounded-xl border border-[#e6dcc8] bg-[#f6efe3] p-6">
+            <div className="mt-6 rounded-2xl border border-[#E9E1D3] bg-white shadow-[0_4px_20px_rgba(30,28,26,0.05)] p-6">
               <div className="flex flex-wrap items-start justify-between gap-4">
                 <div>
-                  <p className="text-xs uppercase tracking-wide text-[#a89880]">Current plan</p>
-                  <p className="mt-1 text-lg font-semibold text-[#3a2f22]">{subscription.plan}</p>
-                  <p className="mt-1 text-xs text-[#a89880]">Business: {business.name} · /{business.slug}</p>
+                  <p className="text-xs uppercase tracking-wide text-[#8A8377]">Current plan</p>
+                  <p className="mt-1 text-lg font-semibold text-[#1F1E1D]">{subscription.plan}</p>
+                  <p className="mt-1 text-xs text-[#8A8377]">Business: {business.name} · /{business.slug}</p>
                 </div>
                 <span
                   className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${
-                    subscription.status === "ACTIVE" ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/20" : "bg-[#f3ebdd] text-[#a89880] border border-[#e6dcc8]"
+                    subscription.status === "ACTIVE" ? "bg-emerald-50 text-emerald-700 border border-emerald-200" : "bg-[#FBF7EF] text-[#8A8377] border border-[#E9E1D3]"
                   }`}
                 >
                   {subscription.status}
                 </span>
               </div>
-              <div className="mt-4 grid grid-cols-2 gap-4 rounded-lg bg-[#faf6ef] border border-[#e6dcc8] p-4">
+              <div className="mt-4 grid grid-cols-2 gap-4 rounded-lg bg-[#FAF7F2] border border-[#E9E1D3] p-4">
                 <div>
-                  <p className="text-xs uppercase tracking-wide text-[#a89880]">Current period start</p>
-                  <p className="mt-1 text-sm text-[#3a2f22]">{formatDate(subscription.currentPeriodStart)}</p>
+                  <p className="text-xs uppercase tracking-wide text-[#8A8377]">Current period start</p>
+                  <p className="mt-1 text-sm text-[#1F1E1D]">{formatDate(subscription.currentPeriodStart)}</p>
                 </div>
                 <div>
-                  <p className="text-xs uppercase tracking-wide text-[#a89880]">Current period end</p>
-                  <p className="mt-1 text-sm text-[#3a2f22]">{formatDate(subscription.currentPeriodEnd)}</p>
+                  <p className="text-xs uppercase tracking-wide text-[#8A8377]">Current period end</p>
+                  <p className="mt-1 text-sm text-[#1F1E1D]">{formatDate(subscription.currentPeriodEnd)}</p>
                 </div>
               </div>
-              <p className="mt-3 text-xs text-[#a89880]">Dates are shown in your local time. If no end date is shown, billing is ongoing monthly.</p>
+              <p className="mt-3 text-xs text-[#8A8377]">Dates are shown in your local time. If no end date is shown, billing is ongoing monthly.</p>
             </div>
 
             {/* Plans reference */}
             <div className="mt-8">
-              <h2 className="text-sm font-semibold text-[#3a2f22]">Plans reference</h2>
-              <p className="mt-1 text-xs text-[#a89880]">Read-only overview from the ADNAVRA proposal. Contact ADNAVRA to change your plan. There is no self-serve upgrade button yet.</p>
+              <h2 className="text-sm font-semibold text-[#1F1E1D]">Plans reference</h2>
+              <p className="mt-1 text-xs text-[#8A8377]">Read-only overview from the ADNAVRA proposal. Contact ADNAVRA to change your plan. There is no self-serve upgrade button yet.</p>
               <div className="mt-4 grid md:grid-cols-3 gap-4">
                 {PLANS.map((plan) => (
                   <div
                     key={plan.id}
-                    className={`rounded-xl border p-5 flex flex-col ${plan.popular ? "border-[#3a2f22] bg-[#8a6d4f] text-[#ffffff]" : "border-[#e6dcc8] bg-[#f6efe3] text-[#3a2f22]"}`}
+                    className={`rounded-xl border p-5 flex flex-col ${plan.popular ? "border-[#1F1E1D] bg-[#795831] text-[#ffffff]" : "border-[#E9E1D3] bg-[#FBF7EF] text-[#1F1E1D]"}`}
                   >
-                    {plan.popular && <span className="inline-flex w-fit rounded-full bg-[#a67c52] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-[#3a2f22]">Most popular</span>}
-                    <h3 className={`mt-2 text-sm font-semibold ${plan.popular ? "text-[#faf6ef]" : "text-[#3a2f22]"}`}>{plan.name}</h3>
-                    <p className={`mt-1 text-lg font-semibold ${plan.popular ? "text-[#faf6ef]" : "text-[#3a2f22]"}`}>
-                      {plan.price} <span className={`text-xs font-normal ${plan.popular ? "text-[#475467]" : "text-[#a89880]"}`}>{plan.period}</span>
+                    {plan.popular && <span className="inline-flex w-fit rounded-full bg-[#9A7B4F] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-[#1F1E1D]">Most popular</span>}
+                    <h3 className={`mt-2 text-sm font-semibold ${plan.popular ? "text-[#FAF7F2]" : "text-[#1F1E1D]"}`}>{plan.name}</h3>
+                    <p className={`mt-1 text-lg font-semibold ${plan.popular ? "text-[#FAF7F2]" : "text-[#1F1E1D]"}`}>
+                      {plan.price} <span className={`text-xs font-normal ${plan.popular ? "text-[#475467]" : "text-[#8A8377]"}`}>{plan.period}</span>
                     </p>
                     {subscription.plan === plan.id && (
-                      <span className={`mt-2 inline-flex w-fit rounded-full px-2 py-1 text-[10px] font-semibold ${plan.popular ? "bg-[#faf6ef] text-[#3a2f22]" : "bg-emerald-500/20 text-emerald-300 border border-emerald-500/20"}`}>Current plan</span>
+                      <span className={`mt-2 inline-flex w-fit rounded-full px-2 py-1 text-[10px] font-semibold ${plan.popular ? "bg-[#FAF7F2] text-[#1F1E1D]" : "bg-emerald-50 text-emerald-700 border border-emerald-200"}`}>Current plan</span>
                     )}
                     <ul className="mt-4 space-y-2 flex-1">
                       {plan.features.map((f) => (
-                        <li key={f} className={`flex items-start gap-1.5 text-xs ${plan.popular ? "text-[#475467]" : "text-[#a89880]"}`}>
-                          <Check className={`h-3.5 w-3.5 mt-0.5 shrink-0 ${plan.popular ? "text-[#faf6ef]" : "text-[#3a2f22]"}`} /> {f}
+                        <li key={f} className={`flex items-start gap-1.5 text-xs ${plan.popular ? "text-[#475467]" : "text-[#8A8377]"}`}>
+                          <Check className={`h-3.5 w-3.5 mt-0.5 shrink-0 ${plan.popular ? "text-[#FAF7F2]" : "text-[#1F1E1D]"}`} /> {f}
                         </li>
                       ))}
                     </ul>
                   </div>
                 ))}
               </div>
-              <div className="mt-4 rounded-lg border border-[#e6dcc8] bg-[#f6efe3] p-4">
-                <p className="text-sm font-semibold text-[#3a2f22]">One-time setup fee: LKR 15,000</p>
-                <p className="mt-1 text-xs leading-relaxed text-[#a89880]">Covers full onboarding: business profile setup, service and pricing configuration, business hours, QR code generation, dashboard setup, and basic training. Charged once at onboarding, on top of your chosen monthly plan.</p>
-                <p className="mt-3 text-xs font-medium text-[#3a2f22]">To change your plan, contact ADNAVRA support.</p>
+              <div className="mt-4 rounded-lg border border-[#E9E1D3] bg-[#FBF7EF] p-4">
+                <p className="text-sm font-semibold text-[#1F1E1D]">One-time setup fee: LKR 15,000</p>
+                <p className="mt-1 text-xs leading-relaxed text-[#8A8377]">Covers full onboarding: business profile setup, service and pricing configuration, business hours, QR code generation, dashboard setup, and basic training. Charged once at onboarding, on top of your chosen monthly plan.</p>
+                <p className="mt-3 text-xs font-medium text-[#1F1E1D]">To change your plan, contact ADNAVRA support.</p>
               </div>
             </div>
           </>
         ) : (
-          <div className="mt-6 flex items-center gap-2 text-sm text-[#a89880]">Loading...</div>
+          <div className="mt-6 flex items-center gap-2 text-sm text-[#8A8377]">Loading...</div>
         )}
       </div>
     </div>

@@ -154,8 +154,8 @@ function splitTitle(name: string): { before: string; accent: string; after: stri
 
 /* ─────────────────────────── small UI pieces ─────────────────────────── */
 
-// Content wrapper: comfortable side padding, still fills the screen.
-const WRAP = "mx-auto w-full max-w-[1560px] px-4 sm:px-6 lg:px-10";
+// Content wrapper: fills the full screen width, side padding only (no max-width cap).
+const WRAP = "w-full px-4 sm:px-6 lg:px-12";
 
 const CARD = "rounded-2xl border border-[#E9E1D3] bg-white shadow-[0_1px_3px_rgba(30,28,26,0.04)]";
 
@@ -250,15 +250,15 @@ export default async function BusinessProfilePage({ params }: { params: Promise<
   // Hero stats — only facts we really have, never placeholders.
   const stats: { icon: React.ReactNode; label: string; value: string }[] = [];
   if (lowestPrice !== null) {
-    stats.push({ icon: <Tag className="h-4 w-4" />, label: "Starting from", value: formatPrice(lowestPrice) });
+    stats.push({ icon: <Tag className="h-4 w-4" />, label: "From", value: formatPrice(lowestPrice) });
   }
   if (services.length > 0) {
     stats.push({
       icon: <Scissors className="h-4 w-4" />,
-      label: "Curated treatments",
+      label: "Treatments",
       value:
         categoryCount > 1
-          ? `${services.length} services · ${categoryCount} categories`
+          ? `${services.length} · ${categoryCount} categories`
           : `${services.length} ${services.length === 1 ? "service" : "services"}`,
     });
   }
@@ -271,7 +271,7 @@ export default async function BusinessProfilePage({ params }: { params: Promise<
   } else if (business.staffMembers.length > 0) {
     stats.push({
       icon: <Users className="h-4 w-4" />,
-      label: "Our team",
+      label: "Team",
       value: `${business.staffMembers.length} ${business.staffMembers.length === 1 ? "specialist" : "specialists"}`,
     });
   }
@@ -380,26 +380,46 @@ export default async function BusinessProfilePage({ params }: { params: Promise<
 
       {/* ── Hero ── */}
       <header className="relative isolate overflow-hidden bg-[#1B1714]">
+        <style>{`
+          @keyframes heroKenBurns {
+            0% { transform: scale(1); }
+            100% { transform: scale(1.1); }
+          }
+          @keyframes heroFadeUp {
+            0% { opacity: 0; transform: translateY(14px); }
+            100% { opacity: 1; transform: translateY(0); }
+          }
+        `}</style>
         {heroUrl && (
           // eslint-disable-next-line @next/next/no-img-element
-          <img src={heroUrl} alt="" className="absolute inset-0 -z-20 h-full w-full object-cover" />
+          <img
+            src={heroUrl}
+            alt=""
+            className="absolute inset-0 -z-20 h-full w-full object-cover"
+            style={{ animation: "heroKenBurns 22s ease-in-out infinite alternate" }}
+          />
         )}
         <div
           className={`absolute inset-0 -z-10 ${
             heroUrl
-              ? "bg-gradient-to-r from-[#1B1714]/95 via-[#1B1714]/80 to-[#1B1714]/55"
+              ? "bg-gradient-to-t from-[#1B1714] via-[#1B1714]/60 to-[#1B1714]/30"
               : "bg-gradient-to-br from-[#3A2F22] via-[#2A211A] to-[#1B1714]"
           }`}
         />
+        {heroUrl && <div className="absolute inset-0 -z-10 bg-gradient-to-r from-[#1B1714]/90 via-[#1B1714]/30 to-transparent" />}
 
-        <div className={`${WRAP} flex min-h-[440px] flex-col justify-end py-14 sm:min-h-[520px] lg:min-h-[600px] lg:py-20`}>
+        <div
+          className={`${WRAP} flex min-h-[520px] flex-col justify-end py-14 sm:min-h-[600px] lg:min-h-[680px] lg:py-20`}
+          style={{ animation: "heroFadeUp 0.9s ease-out both" }}
+        >
           <div className="flex flex-wrap items-center gap-2">
             {business.logoUrl && (
               // eslint-disable-next-line @next/next/no-img-element
               <img
                 src={business.logoUrl}
                 alt={`${business.name} logo`}
-                className="mr-2 h-12 w-12 rounded-full border border-white/40 bg-white object-cover"
+                className="mr-2 h-12 w-12 rounded-full border-2 shadow-lg object-cover"
+                style={{ borderColor: GOLD }}
               />
             )}
             {business.marketplacePriority && (
@@ -422,7 +442,18 @@ export default async function BusinessProfilePage({ params }: { params: Promise<
             )}
           </div>
 
-          <h1 className={`${SERIF} mt-6 max-w-4xl text-4xl font-medium leading-[1.05] text-white sm:text-5xl lg:text-6xl`}>
+          {salonTypes[0] && (
+            <p
+              className="mt-6 text-[11px] font-bold uppercase tracking-[0.35em]"
+              style={{ color: GOLD }}
+            >
+              {getCategoryLabel(salonTypes[0])} · {locationLine || "Sri Lanka"}
+            </p>
+          )}
+
+          <h1
+            className={`${SERIF} mt-3 max-w-4xl text-5xl font-medium leading-[0.98] text-white drop-shadow-[0_2px_20px_rgba(0,0,0,0.4)] sm:text-6xl lg:text-7xl`}
+          >
             {title.before}
             {title.accent && (
               <>
@@ -436,30 +467,58 @@ export default async function BusinessProfilePage({ params }: { params: Promise<
           </h1>
 
           {business.description && (
-            <p className="mt-4 line-clamp-3 max-w-2xl text-sm leading-relaxed text-white/75 sm:text-[15px]">
-              {business.description}
+            <p className="mt-5 line-clamp-1 max-w-xl text-lg font-medium leading-snug text-white/90 sm:text-xl">
+              {business.description.split(/(?<=[.!?])\s/)[0]}
             </p>
           )}
 
+          <div className="mt-8 flex flex-wrap items-center gap-3">
+            <Link href={bookHref}>
+              <span
+                className="inline-flex h-14 items-center gap-2 rounded-full px-7 text-[12px] font-bold uppercase tracking-[0.16em] text-[#1B1714] shadow-[0_8px_30px_rgba(217,190,140,0.35)] transition-transform hover:scale-[1.03]"
+                style={{ background: `linear-gradient(135deg, ${GOLD}, #C9A467)` }}
+              >
+                Book Now <ArrowRight className="h-3.5 w-3.5" />
+              </span>
+            </Link>
+            <a href="#services">
+              <span className="inline-flex h-14 items-center rounded-full border border-white/30 bg-white/5 px-6 text-[12px] font-bold uppercase tracking-[0.16em] text-white backdrop-blur transition-colors hover:bg-white/15">
+                View Services
+              </span>
+            </a>
+          </div>
+
           {stats.length > 0 && (
-            <div className="mt-10 grid gap-6 border-t border-white/15 pt-8 sm:grid-cols-3">
+            <div className="mt-10 grid gap-6 border-t border-white/15 pt-7 sm:grid-cols-3">
               {stats.map((f) => (
                 <div key={f.label} className="flex items-center gap-3">
-                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-white/20 text-[#D9BE8C]">
+                  <span
+                    className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-[#1B1714]"
+                    style={{ background: `linear-gradient(135deg, ${GOLD}, #C9A467)` }}
+                  >
                     {f.icon}
                   </span>
                   <div className="min-w-0">
                     <p className="text-[9px] font-semibold uppercase tracking-[0.2em] text-white/50">{f.label}</p>
-                    <p className={`${SERIF} truncate text-lg font-medium text-white`}>{f.value}</p>
+                    <p className={`${SERIF} truncate text-xl font-semibold text-white`}>{f.value}</p>
                   </div>
                 </div>
               ))}
             </div>
           )}
         </div>
+
+        {/* Scroll cue */}
+        <div className="pointer-events-none absolute inset-x-0 bottom-5 hidden justify-center sm:flex">
+          <span className="flex h-9 w-9 animate-bounce items-center justify-center rounded-full border border-white/25 text-white/60">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M12 5v14M5 12l7 7 7-7" />
+            </svg>
+          </span>
+        </div>
       </header>
 
-      <div className={`${WRAP} grid gap-8 py-8 lg:grid-cols-[1fr_340px] lg:gap-10 lg:py-12`}>
+      <div className={`${WRAP} grid gap-8 py-8 lg:grid-cols-[1fr_380px] lg:gap-10 lg:py-12 xl:grid-cols-[1fr_400px]`}>
         {/* ── Main column ── */}
         <div className="min-w-0 space-y-12">
           {/* Services & pricing */}
@@ -473,6 +532,7 @@ export default async function BusinessProfilePage({ params }: { params: Promise<
                 price: s.price,
                 duration: s.duration,
                 category: s.category,
+                imageUrl: s.imageUrl,
               }))}
             />
           </section>
@@ -509,7 +569,7 @@ export default async function BusinessProfilePage({ params }: { params: Promise<
                 <p className="text-sm text-[#8A8377]">Team information will appear here once the venue adds its staff.</p>
               </div>
             ) : (
-              <div className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+              <div className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
                 {business.staffMembers.map((m) => (
                   <div key={m.id} className={`${CARD} flex items-center gap-4 p-4`}>
                     <div
@@ -560,7 +620,7 @@ export default async function BusinessProfilePage({ params }: { params: Promise<
                   title={`Map showing ${business.name} location`}
                   src={mapEmbed}
                   loading="lazy"
-                  className="mt-4 h-44 w-full rounded-xl border border-[#E9E1D3]"
+                  className="mt-4 h-72 w-full rounded-xl border border-[#E9E1D3] sm:h-80"
                 />
               )}
               <ul className="mt-4 space-y-3 text-[13px]">

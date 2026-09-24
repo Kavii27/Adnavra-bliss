@@ -43,7 +43,7 @@ export function DashboardSidebar() {
   const pathname = usePathname();
   const plan = useCurrentPlan();
   return (
-    <aside className="hidden md:flex w-16 shrink-0 flex-col items-center border-r border-[#e6dcc8] bg-[#faf6ef] py-4">
+    <aside className="hidden md:flex w-16 shrink-0 flex-col items-center border-r border-[#E9E1D3] bg-[#FAF7F2] py-4">
       <Link href="/dashboard" aria-label="ADNAVRA home" className="mb-3 flex h-11 w-11 items-center justify-center">
         <Image src="/logo.png" alt="ADNAVRA logo" width={32} height={32} className="h-8 w-8 rounded-lg object-contain" />
       </Link>
@@ -58,12 +58,12 @@ export function DashboardSidebar() {
               title={showBadge ? `${label} (${badge.label})` : label}
               aria-label={showBadge ? `${label} (${badge.label})` : label}
               className={`relative flex h-11 w-11 items-center justify-center rounded-xl transition-colors ${
-                active ? "bg-[var(--color-sidebar-active)] text-[#3a2f22]" : "text-[#a89880] hover:bg-[#f3ebdd] hover:text-[#3a2f22]"
+                active ? "bg-[var(--color-sidebar-active)] text-[#1F1E1D]" : "text-[#8A8377] hover:bg-[#FBF7EF] hover:text-[#1F1E1D]"
               }`}
             >
               <Icon className="h-5 w-5" />
               {showBadge && (
-                <span className="absolute -right-1 -top-1 rounded-full bg-[#8a6d4f] px-1 text-[8px] font-bold leading-4 text-white">
+                <span className="absolute -right-1 -top-1 rounded-full bg-[#795831] px-1 text-[8px] font-bold leading-4 text-white">
                   {badge.label}
                 </span>
               )}
@@ -75,7 +75,7 @@ export function DashboardSidebar() {
         href="/help"
         title="Help"
         aria-label="Help"
-        className="flex h-11 w-11 items-center justify-center rounded-xl text-[#a89880] hover:bg-[#f3ebdd] hover:text-[#3a2f22]"
+        className="flex h-11 w-11 items-center justify-center rounded-xl text-[#8A8377] hover:bg-[#FBF7EF] hover:text-[#1F1E1D]"
       >
         <HelpCircle className="h-5 w-5" />
       </Link>

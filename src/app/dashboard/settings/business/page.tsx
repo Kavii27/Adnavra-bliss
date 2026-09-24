@@ -28,6 +28,16 @@ export default function BusinessSetupPage() {
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
   const [address, setAddress] = useState("");
+  const [district, setDistrict] = useState("");
+  const [city, setCity] = useState("");
+  const [county, setCounty] = useState("");
+  const [state, setState] = useState("");
+  const [postcode, setPostcode] = useState("");
+  const [directions, setDirections] = useState("");
+  const [latitude, setLatitude] = useState("");
+  const [longitude, setLongitude] = useState("");
+  const [locationType, setLocationType] = useState("");
+  const [teamSize, setTeamSize] = useState("");
   const [logoUrl, setLogoUrl] = useState("");
   const [salonTypes, setSalonTypes] = useState<string[]>([]);
   const [branches, setBranches] = useState<Branch[]>([]);
@@ -58,6 +68,16 @@ export default function BusinessSetupPage() {
         setPhone(b.phone ?? "");
         setEmail(b.email ?? "");
         setAddress(b.address ?? "");
+        setDistrict((b.district as string) ?? "");
+        setCity((b.city as string) ?? "");
+        setCounty((b.county as string) ?? "");
+        setState((b.state as string) ?? "");
+        setPostcode((b.postcode as string) ?? "");
+        setDirections((b.directions as string) ?? "");
+        setLatitude(typeof b.latitude === "number" ? String(b.latitude) : "");
+        setLongitude(typeof b.longitude === "number" ? String(b.longitude) : "");
+        setLocationType((b.locationType as string) ?? "");
+        setTeamSize((b.teamSize as string) ?? "");
         setLogoUrl(b.logoUrl ?? "");
         // Prefer the dedicated salonTypes column; fall back to legacy rows
         // where type slugs still sit inside categories (pre-migration).
@@ -200,6 +220,16 @@ export default function BusinessSetupPage() {
       phone: phone || null,
       email: email || null,
       address: address || null,
+      district: district || null,
+      city: city || null,
+      county: county || null,
+      state: state || null,
+      postcode: postcode || null,
+      directions: directions || null,
+      latitude: latitude.trim() && Number.isFinite(Number(latitude)) ? Number(latitude) : null,
+      longitude: longitude.trim() && Number.isFinite(Number(longitude)) ? Number(longitude) : null,
+      locationType: locationType || null,
+      teamSize: teamSize || null,
       logoUrl: logoUrl || null,
       salonTypes,
     };
@@ -227,8 +257,8 @@ export default function BusinessSetupPage() {
 
   if (loading) {
     return (
-      <div className="bg-[#0F1729] min-h-full px-6 py-8">
-        <div className="flex items-center gap-2 text-sm text-[#a89880]">
+      <div className="bg-[#FAF7F2] min-h-full px-6 py-8">
+        <div className="flex items-center gap-2 text-sm text-[#8A8377]">
           <Loader2 className="h-4 w-4 animate-spin" /> Loading business profile...
         </div>
       </div>
@@ -236,107 +266,219 @@ export default function BusinessSetupPage() {
   }
 
   return (
-    <div className="bg-[#0F1729] min-h-full px-6 py-8">
+    <div className="bg-[#FAF7F2] min-h-full px-6 py-8">
       <div className="max-w-2xl">
-        <Link href="/dashboard/settings" className="inline-flex items-center gap-1.5 text-xs font-medium text-[#a89880] hover:text-[#3a2f22] mb-4">
+        <Link href="/dashboard/settings" className="inline-flex items-center gap-1.5 text-xs font-medium text-[#8A8377] hover:text-[#1F1E1D] mb-4">
           <ArrowLeft className="h-3.5 w-3.5" /> Back to Settings
         </Link>
         <div className="flex items-center gap-3">
-          <div className="h-10 w-10 rounded-lg bg-white flex items-center justify-center border border-[#e6dcc8]">
-            <Store className="h-5 w-5 text-[#faf6ef]" />
+          <div className="h-10 w-10 rounded-lg bg-white flex items-center justify-center border border-[#E9E1D3]">
+            <Store className="h-5 w-5 text-[#9A7B4F]" />
           </div>
           <div>
-            <h1 className="text-xl font-semibold tracking-tight text-[#3a2f22]">{businessId ? "Business setup" : "Create your salon profile"}</h1>
-            <p className="text-sm text-[#a89880] mt-1">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.22em]" style={{ color: "#9A7B4F" }}>
+              Settings
+            </p>
+            <h1 className="font-[family-name:var(--font-display)] mt-0.5 text-2xl font-medium tracking-tight text-[#1F1B17]">{businessId ? "Business setup" : "Create your salon profile"}</h1>
+            <p className="text-sm text-[#8A8377] mt-1">
               {businessId ? "Update your public booking page, contact and logo. Hours are in Scheduling." : "Set up your salon to start taking bookings. You can add hours in Scheduling after."}
             </p>
           </div>
         </div>
 
         {error && (
-          <div className="mt-4 flex items-center gap-2 text-sm text-red-300 bg-red-500/10 border border-red-500/20 p-3 rounded-lg">
+          <div className="mt-4 flex items-center gap-2 text-sm text-red-700 bg-red-50 border border-red-200 p-3 rounded-lg">
             <AlertCircle className="h-4 w-4" /> {error}
           </div>
         )}
         {success && (
-          <div className="mt-4 flex items-center gap-2 text-sm text-emerald-300 bg-emerald-500/10 border border-emerald-500/20 p-3 rounded-lg">
+          <div className="mt-4 flex items-center gap-2 text-sm text-emerald-700 bg-emerald-50 border border-emerald-200 p-3 rounded-lg">
             <Check className="h-4 w-4" /> Saved successfully
           </div>
         )}
 
-        <div className="mt-6 rounded-xl border border-[#e6dcc8] bg-[#f6efe3] p-6 space-y-5">
+        <div className="mt-6 rounded-2xl border border-[#E9E1D3] bg-white shadow-[0_4px_20px_rgba(30,28,26,0.05)] p-6 space-y-5">
           <div className="grid sm:grid-cols-2 gap-4">
             <div>
-              <label className="text-sm font-medium text-[#3a2f22]">Salon name *</label>
+              <label className="text-sm font-medium text-[#1F1E1D]">Salon name *</label>
               <Input
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="Glow Salon"
-                className="mt-1 bg-[#f6efe3] border-[#e6dcc8] text-[#3a2f22] placeholder:text-[#a89880] focus:border-white/20 focus:ring-white/10"
+                className="mt-1 bg-[#FBF7EF] border-[#E9E1D3] text-[#1F1E1D] placeholder:text-[#8A8377] focus:border-[#9A7B4F] focus:ring-[#9A7B4F]/20"
               />
             </div>
             <div>
-              <label className="text-sm font-medium text-[#3a2f22] flex items-center gap-1">
+              <label className="text-sm font-medium text-[#1F1E1D] flex items-center gap-1">
                 <LinkIcon className="h-3.5 w-3.5" /> Public URL slug *
               </label>
               <div className="flex items-center gap-2 mt-1">
-                <span className="text-xs text-[#a89880]">/ </span>
+                <span className="text-xs text-[#8A8377]">/ </span>
                 <Input
                   value={slug}
                   onChange={(e) => setSlug(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ""))}
                   placeholder="glow-salon"
-                  className="bg-[#f6efe3] border-[#e6dcc8] text-[#3a2f22] placeholder:text-[#a89880] focus:border-white/20 focus:ring-white/10"
+                  className="bg-[#FBF7EF] border-[#E9E1D3] text-[#1F1E1D] placeholder:text-[#8A8377] focus:border-[#9A7B4F] focus:ring-[#9A7B4F]/20"
                 />
               </div>
-              {slug && <p className="text-xs text-[#a89880] mt-1">Public page: /{slug}</p>}
+              {slug && <p className="text-xs text-[#8A8377] mt-1">Public page: /{slug}</p>}
             </div>
           </div>
 
           <div>
-            <label className="text-sm font-medium text-[#3a2f22]">Description</label>
+            <label className="text-sm font-medium text-[#1F1E1D]">Description</label>
             <textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               rows={3}
               placeholder="What makes your salon special?"
-              className="mt-1 w-full rounded-md border border-[#e6dcc8] bg-[#f6efe3] px-3 py-2 text-sm text-[#3a2f22] placeholder:text-[#a89880] focus:outline-none focus:border-white/20 focus:ring-1 focus:ring-white/10"
+              className="mt-1 w-full rounded-md border border-[#E9E1D3] bg-[#FBF7EF] px-3 py-2 text-sm text-[#1F1E1D] placeholder:text-[#8A8377] focus:outline-none focus:border-[#9A7B4F] focus:ring-1 focus:ring-[#9A7B4F]/20"
             />
           </div>
 
           <div className="grid sm:grid-cols-2 gap-4">
             <div>
-              <label className="text-sm font-medium text-[#3a2f22]">Phone</label>
+              <label className="text-sm font-medium text-[#1F1E1D]">Phone</label>
               <Input
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
                 placeholder="+94 ..."
-                className="mt-1 bg-[#f6efe3] border-[#e6dcc8] text-[#3a2f22] placeholder:text-[#a89880] focus:border-white/20 focus:ring-white/10"
+                className="mt-1 bg-[#FBF7EF] border-[#E9E1D3] text-[#1F1E1D] placeholder:text-[#8A8377] focus:border-[#9A7B4F] focus:ring-[#9A7B4F]/20"
               />
             </div>
             <div>
-              <label className="text-sm font-medium text-[#3a2f22]">Email</label>
+              <label className="text-sm font-medium text-[#1F1E1D]">Email</label>
               <Input
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="hello@..."
-                className="mt-1 bg-[#f6efe3] border-[#e6dcc8] text-[#3a2f22] placeholder:text-[#a89880] focus:border-white/20 focus:ring-white/10"
+                className="mt-1 bg-[#FBF7EF] border-[#E9E1D3] text-[#1F1E1D] placeholder:text-[#8A8377] focus:border-[#9A7B4F] focus:ring-[#9A7B4F]/20"
               />
             </div>
           </div>
 
           <div>
-            <label className="text-sm font-medium text-[#3a2f22]">Address</label>
+            <label className="text-sm font-medium text-[#1F1E1D]">Address</label>
             <Input
               value={address}
               onChange={(e) => setAddress(e.target.value)}
               placeholder="Street, city..."
-              className="mt-1 bg-[#f6efe3] border-[#e6dcc8] text-[#3a2f22] placeholder:text-[#a89880] focus:border-white/20 focus:ring-white/10"
+              className="mt-1 bg-[#FBF7EF] border-[#E9E1D3] text-[#1F1E1D] placeholder:text-[#8A8377] focus:border-[#9A7B4F] focus:ring-[#9A7B4F]/20"
             />
           </div>
 
+          <fieldset className="space-y-4">
+            <legend className="text-sm font-medium text-[#1F1E1D]">Location details</legend>
+            <p className="mt-0.5 text-xs text-[#8A8377]">
+              Used for search filters, the map on your public page, and directions.
+            </p>
+            <div className="grid sm:grid-cols-2 gap-4">
+              <div>
+                <label className="text-sm font-medium text-[#1F1E1D]">City</label>
+                <Input
+                  value={city}
+                  onChange={(e) => setCity(e.target.value)}
+                  placeholder="Colombo"
+                  className="mt-1 bg-[#FBF7EF] border-[#E9E1D3] text-[#1F1E1D] placeholder:text-[#8A8377] focus:border-[#9A7B4F] focus:ring-[#9A7B4F]/20"
+                />
+              </div>
+              <div>
+                <label className="text-sm font-medium text-[#1F1E1D]">District</label>
+                <Input
+                  value={district}
+                  onChange={(e) => setDistrict(e.target.value)}
+                  placeholder="Colombo"
+                  className="mt-1 bg-[#FBF7EF] border-[#E9E1D3] text-[#1F1E1D] placeholder:text-[#8A8377] focus:border-[#9A7B4F] focus:ring-[#9A7B4F]/20"
+                />
+              </div>
+              <div>
+                <label className="text-sm font-medium text-[#1F1E1D]">County / Province</label>
+                <Input
+                  value={county}
+                  onChange={(e) => setCounty(e.target.value)}
+                  className="mt-1 bg-[#FBF7EF] border-[#E9E1D3] text-[#1F1E1D] placeholder:text-[#8A8377] focus:border-[#9A7B4F] focus:ring-[#9A7B4F]/20"
+                />
+              </div>
+              <div>
+                <label className="text-sm font-medium text-[#1F1E1D]">State</label>
+                <Input
+                  value={state}
+                  onChange={(e) => setState(e.target.value)}
+                  className="mt-1 bg-[#FBF7EF] border-[#E9E1D3] text-[#1F1E1D] placeholder:text-[#8A8377] focus:border-[#9A7B4F] focus:ring-[#9A7B4F]/20"
+                />
+              </div>
+              <div>
+                <label className="text-sm font-medium text-[#1F1E1D]">Postcode</label>
+                <Input
+                  value={postcode}
+                  onChange={(e) => setPostcode(e.target.value)}
+                  className="mt-1 bg-[#FBF7EF] border-[#E9E1D3] text-[#1F1E1D] placeholder:text-[#8A8377] focus:border-[#9A7B4F] focus:ring-[#9A7B4F]/20"
+                />
+              </div>
+              <div>
+                <label className="text-sm font-medium text-[#1F1E1D]">Location type</label>
+                <select
+                  value={locationType}
+                  onChange={(e) => setLocationType(e.target.value)}
+                  className="mt-1 w-full rounded-md border border-[#E9E1D3] bg-[#FBF7EF] px-3 py-2 text-sm text-[#1F1E1D] focus:outline-none focus:border-[#9A7B4F] focus:ring-1 focus:ring-[#9A7B4F]/20"
+                >
+                  <option value="">Select...</option>
+                  <option value="PHYSICAL">Physical location</option>
+                  <option value="MOBILE">Mobile / home visits</option>
+                  <option value="VIRTUAL">Virtual / online only</option>
+                </select>
+              </div>
+              <div>
+                <label className="text-sm font-medium text-[#1F1E1D]">Latitude</label>
+                <Input
+                  value={latitude}
+                  onChange={(e) => setLatitude(e.target.value)}
+                  placeholder="6.9271"
+                  inputMode="decimal"
+                  className="mt-1 bg-[#FBF7EF] border-[#E9E1D3] text-[#1F1E1D] placeholder:text-[#8A8377] focus:border-[#9A7B4F] focus:ring-[#9A7B4F]/20"
+                />
+              </div>
+              <div>
+                <label className="text-sm font-medium text-[#1F1E1D]">Longitude</label>
+                <Input
+                  value={longitude}
+                  onChange={(e) => setLongitude(e.target.value)}
+                  placeholder="79.8612"
+                  inputMode="decimal"
+                  className="mt-1 bg-[#FBF7EF] border-[#E9E1D3] text-[#1F1E1D] placeholder:text-[#8A8377] focus:border-[#9A7B4F] focus:ring-[#9A7B4F]/20"
+                />
+              </div>
+              <div>
+                <label className="text-sm font-medium text-[#1F1E1D]">Team size</label>
+                <select
+                  value={teamSize}
+                  onChange={(e) => setTeamSize(e.target.value)}
+                  className="mt-1 w-full rounded-md border border-[#E9E1D3] bg-[#FBF7EF] px-3 py-2 text-sm text-[#1F1E1D] focus:outline-none focus:border-[#9A7B4F] focus:ring-1 focus:ring-[#9A7B4F]/20"
+                >
+                  <option value="">Select...</option>
+                  <option value="INDEPENDENT">Just me</option>
+                  <option value="2-5">2-5</option>
+                  <option value="6-10">6-10</option>
+                  <option value="11-20">11-20</option>
+                  <option value="20+">20+</option>
+                </select>
+              </div>
+            </div>
+            <div>
+              <label className="text-sm font-medium text-[#1F1E1D]">Directions</label>
+              <textarea
+                value={directions}
+                onChange={(e) => setDirections(e.target.value)}
+                rows={2}
+                placeholder="e.g. Above the pharmacy, entrance on the side street"
+                className="mt-1 w-full rounded-md border border-[#E9E1D3] bg-[#FBF7EF] px-3 py-2 text-sm text-[#1F1E1D] placeholder:text-[#8A8377] focus:outline-none focus:border-[#9A7B4F] focus:ring-1 focus:ring-[#9A7B4F]/20"
+              />
+            </div>
+          </fieldset>
+
           <fieldset>
-            <legend className="text-sm font-medium text-[#3a2f22]">Salon type</legend>
-            <p className="mt-0.5 text-xs text-[#a89880]">
+            <legend className="text-sm font-medium text-[#1F1E1D]">Salon type</legend>
+            <p className="mt-0.5 text-xs text-[#8A8377]">
               Shown as tags on your marketplace card and public page. Pick up to 4.
             </p>
             <div className="mt-2">
@@ -345,18 +487,18 @@ export default function BusinessSetupPage() {
           </fieldset>
 
           <div>
-            <label className="text-sm font-medium text-[#3a2f22]">Logo</label>
+            <label className="text-sm font-medium text-[#1F1E1D]">Logo</label>
             <div className="mt-2 flex items-center gap-4">
               {logoUrl ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
                   src={logoUrl}
                   alt="Salon logo preview"
-                  className="h-16 w-16 rounded-full object-cover border border-[#e6dcc8] shrink-0"
+                  className="h-16 w-16 rounded-full object-cover border border-[#E9E1D3] shrink-0"
                 />
               ) : (
-                <div className="h-16 w-16 rounded-full bg-[#faf6ef] border border-[#e6dcc8] flex items-center justify-center shrink-0">
-                  <Store className="h-6 w-6 text-[#a89880]" />
+                <div className="h-16 w-16 rounded-full bg-[#FAF7F2] border border-[#E9E1D3] flex items-center justify-center shrink-0">
+                  <Store className="h-6 w-6 text-[#8A8377]" />
                 </div>
               )}
               <div>
@@ -368,9 +510,9 @@ export default function BusinessSetupPage() {
                     onUploaded={(url) => setLogoUrl(url)}
                   />
                 ) : (
-                  <p className="text-xs text-[#a89880]">Create your salon profile first, then upload a logo.</p>
+                  <p className="text-xs text-[#8A8377]">Create your salon profile first, then upload a logo.</p>
                 )}
-                <p className="text-xs text-[#a89880] mt-1">At least 512px wide. JPG, PNG, or WebP, up to 8MB.</p>
+                <p className="text-xs text-[#8A8377] mt-1">At least 512px wide. JPG, PNG, or WebP, up to 8MB.</p>
               </div>
             </div>
             <Input
@@ -378,32 +520,32 @@ export default function BusinessSetupPage() {
               onChange={(e) => setLogoUrl(e.target.value)}
               placeholder="https://..."
               aria-label="Logo image URL"
-              className="mt-2 bg-[#f6efe3] border-[#e6dcc8] text-[#3a2f22] placeholder:text-[#a89880] focus:border-white/20 focus:ring-white/10"
+              className="mt-2 bg-[#FBF7EF] border-[#E9E1D3] text-[#1F1E1D] placeholder:text-[#8A8377] focus:border-[#9A7B4F] focus:ring-[#9A7B4F]/20"
             />
-            <p className="text-xs text-[#a89880] mt-1">Uploaded automatically on save, or paste an image URL instead.</p>
+            <p className="text-xs text-[#8A8377] mt-1">Uploaded automatically on save, or paste an image URL instead.</p>
           </div>
 
           {businessId && (
-            <div className="rounded-xl border border-[#e6dcc8] bg-[#faf6ef] p-4 space-y-4">
+            <div className="rounded-xl border border-[#E9E1D3] bg-[#FAF7F2] p-4 space-y-4">
               <div>
-                <h3 className="text-sm font-semibold text-[#3a2f22]">Cover photo</h3>
-                <p className="text-xs text-[#a89880] mt-0.5">Shown at the top of your public booking page. Uploading replaces the current one.</p>
+                <h3 className="text-sm font-semibold text-[#1F1E1D]">Cover photo</h3>
+                <p className="text-xs text-[#8A8377] mt-0.5">Shown at the top of your public booking page. Uploading replaces the current one.</p>
               </div>
               {imagesLoading ? (
-                <p className="flex items-center gap-2 text-sm text-[#a89880]">
+                <p className="flex items-center gap-2 text-sm text-[#8A8377]">
                   <Loader2 className="h-4 w-4 animate-spin" /> Loading photos...
                 </p>
               ) : (
                 <>
                   {imagesError && (
-                    <p className="flex items-center gap-2 text-sm text-red-300">
+                    <p className="flex items-center gap-2 text-sm text-red-700">
                       <AlertCircle className="h-4 w-4" /> {imagesError}
                     </p>
                   )}
                   {images
                     .filter((img) => img.kind === "cover")
                     .map((img) => (
-                      <div key={img.id} className="relative overflow-hidden rounded-lg border border-[#e6dcc8]">
+                      <div key={img.id} className="relative overflow-hidden rounded-lg border border-[#E9E1D3]">
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img src={img.url} alt="Salon cover photo" className="h-40 w-full object-cover" />
                         <button
@@ -433,23 +575,23 @@ export default function BusinessSetupPage() {
                     }
                   />
                   <div className="pt-1">
-                    <h3 className="text-sm font-semibold text-[#3a2f22]">
+                    <h3 className="text-sm font-semibold text-[#1F1E1D]">
                       Gallery {images.filter((img) => img.kind === "gallery").length > 0 && (
-                        <span className="font-normal text-[#a89880]">
+                        <span className="font-normal text-[#8A8377]">
                           ({images.filter((img) => img.kind === "gallery").length}/12)
                         </span>
                       )}
                     </h3>
-                    <p className="text-xs text-[#a89880] mt-0.5">Extra photos shown on your public booking page.</p>
+                    <p className="text-xs text-[#8A8377] mt-0.5">Extra photos shown on your public booking page.</p>
                   </div>
                   {images.filter((img) => img.kind === "gallery").length === 0 ? (
-                    <p className="text-sm text-[#a89880]">No gallery photos yet.</p>
+                    <p className="text-sm text-[#8A8377]">No gallery photos yet.</p>
                   ) : (
                     <ul className="grid grid-cols-3 gap-2">
                       {images
                         .filter((img) => img.kind === "gallery")
                         .map((img) => (
-                          <li key={img.id} className="relative overflow-hidden rounded-lg border border-[#e6dcc8]">
+                          <li key={img.id} className="relative overflow-hidden rounded-lg border border-[#E9E1D3]">
                             {/* eslint-disable-next-line @next/next/no-img-element */}
                             <img src={img.url} alt="Salon gallery photo" className="h-20 w-full object-cover" />
                             <button
@@ -483,7 +625,7 @@ export default function BusinessSetupPage() {
           <Button
             onClick={handleSave}
             disabled={saving || !name.trim() || !slug.trim()}
-            className="w-full bg-[#8a6d4f] text-[#ffffff] hover:bg-white/90 disabled:opacity-50"
+            className="w-full rounded-full bg-[#1F1B17] text-white text-xs font-bold uppercase tracking-[0.12em] hover:bg-[#795831] disabled:opacity-50"
           >
             {saving ? (
               <>
@@ -497,53 +639,53 @@ export default function BusinessSetupPage() {
           </Button>
 
           {business && (
-            <p className="text-xs text-center text-[#a89880]">
+            <p className="text-xs text-center text-[#8A8377]">
               Public page:{" "}
-              <a href={`/${slug}`} className="text-[#3a2f22] hover:underline">
+              <a href={`/${slug}`} className="text-[#1F1E1D] hover:underline">
                 /{slug}
               </a>{" "}
               ·{" "}
-              <a href={`/${slug}/book`} className="text-[#3a2f22] hover:underline">
+              <a href={`/${slug}/book`} className="text-[#1F1E1D] hover:underline">
                 /{slug}/book
               </a>
             </p>
           )}
         </div>
 
-        <div className="mt-6 rounded-xl border border-[#e6dcc8] bg-[#f6efe3] p-6">
+        <div className="mt-6 rounded-2xl border border-[#E9E1D3] bg-white shadow-[0_4px_20px_rgba(30,28,26,0.05)] p-6">
           <div className="flex items-center gap-2">
-            <Building2 className="h-4 w-4 text-[#a89880]" />
-            <h2 className="text-sm font-semibold text-[#3a2f22]">Additional branches</h2>
-            <span className="rounded-full bg-[#8a6d4f] px-2 py-0.5 text-[10px] font-bold text-white">PREMIUM</span>
+            <Building2 className="h-4 w-4 text-[#8A8377]" />
+            <h2 className="text-sm font-semibold text-[#1F1E1D]">Additional branches</h2>
+            <span className="rounded-full bg-[#795831] px-2 py-0.5 text-[10px] font-bold text-white">PREMIUM</span>
           </div>
-          <p className="text-xs text-[#a89880] mt-1">Run more than one location under the same ADNAVRA account.</p>
+          <p className="text-xs text-[#8A8377] mt-1">Run more than one location under the same ADNAVRA account.</p>
           <PlanGate feature="multiBranch">
             {!businessId ? (
-              <p className="mt-4 text-sm text-[#a89880]">Create your salon profile first, then add branches.</p>
+              <p className="mt-4 text-sm text-[#8A8377]">Create your salon profile first, then add branches.</p>
             ) : branchesLoading ? (
-              <p className="mt-4 flex items-center gap-2 text-sm text-[#a89880]"><Loader2 className="h-4 w-4 animate-spin" /> Loading branches...</p>
+              <p className="mt-4 flex items-center gap-2 text-sm text-[#8A8377]"><Loader2 className="h-4 w-4 animate-spin" /> Loading branches...</p>
             ) : (
               <div className="mt-4 space-y-3">
                 {branchesError && (
-                  <p className="flex items-center gap-2 text-sm text-red-300"><AlertCircle className="h-4 w-4" /> {branchesError}</p>
+                  <p className="flex items-center gap-2 text-sm text-red-700"><AlertCircle className="h-4 w-4" /> {branchesError}</p>
                 )}
                 {branches.length === 0 ? (
-                  <p className="text-sm text-[#a89880]">No extra branches yet. Your main address above is branch #1.</p>
+                  <p className="text-sm text-[#8A8377]">No extra branches yet. Your main address above is branch #1.</p>
                 ) : (
                   <ul className="space-y-2">
                     {branches.map((b, i) => (
-                      <li key={`${b.name}-${i}`} className="flex items-center justify-between gap-2 rounded-lg border border-[#e6dcc8] bg-[#faf6ef] px-3 py-2">
+                      <li key={`${b.name}-${i}`} className="flex items-center justify-between gap-2 rounded-lg border border-[#E9E1D3] bg-[#FAF7F2] px-3 py-2">
                         <div className="min-w-0">
-                          <p className="truncate text-sm font-medium text-[#3a2f22]">{b.name}</p>
-                          {b.address && <p className="truncate text-xs text-[#a89880]">{b.address}</p>}
+                          <p className="truncate text-sm font-medium text-[#1F1E1D]">{b.name}</p>
+                          {b.address && <p className="truncate text-xs text-[#8A8377]">{b.address}</p>}
                         </div>
                         <button
                           aria-label={`Remove ${b.name}`}
                           disabled={branchesSaving}
                           onClick={() => handleSaveBranches(branches.filter((_, j) => j !== i))}
-                          className="rounded-lg border border-[#e6dcc8] p-2 hover:bg-red-500/20 disabled:opacity-50"
+                          className="rounded-lg border border-[#E9E1D3] p-2 hover:bg-red-50 disabled:opacity-50"
                         >
-                          <Trash2 className="h-4 w-4 text-red-300" />
+                          <Trash2 className="h-4 w-4 text-red-700" />
                         </button>
                       </li>
                     ))}
@@ -554,13 +696,13 @@ export default function BusinessSetupPage() {
                     value={newBranchName}
                     onChange={(e) => setNewBranchName(e.target.value)}
                     placeholder="Branch name — e.g. Colombo 03"
-                    className="bg-[#faf6ef] border-[#e6dcc8] text-[#3a2f22] placeholder:text-[#a89880]"
+                    className="bg-[#FAF7F2] border-[#E9E1D3] text-[#1F1E1D] placeholder:text-[#8A8377]"
                   />
                   <Input
                     value={newBranchAddress}
                     onChange={(e) => setNewBranchAddress(e.target.value)}
                     placeholder="Branch address (optional)"
-                    className="bg-[#faf6ef] border-[#e6dcc8] text-[#3a2f22] placeholder:text-[#a89880]"
+                    className="bg-[#FAF7F2] border-[#E9E1D3] text-[#1F1E1D] placeholder:text-[#8A8377]"
                   />
                   <Button
                     disabled={branchesSaving || !newBranchName.trim()}
@@ -569,7 +711,7 @@ export default function BusinessSetupPage() {
                       setNewBranchName("");
                       setNewBranchAddress("");
                     }}
-                    className="bg-[#8a6d4f] text-white hover:bg-white/90 disabled:opacity-50"
+                    className="rounded-full bg-[#1F1B17] text-white hover:bg-[#795831] disabled:opacity-50"
                   >
                     {branchesSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : <><Plus className="h-4 w-4 mr-1" /> Add</>}
                   </Button>
@@ -581,11 +723,11 @@ export default function BusinessSetupPage() {
 
         {businessId && slug && (
           <div className="mt-6 text-center flex flex-col sm:flex-row items-center justify-center gap-3">
-            <Link href="/dashboard/qr-code" className="text-sm font-medium text-[#3a2f22] hover:underline">
+            <Link href="/dashboard/qr-code" className="text-sm font-medium text-[#1F1E1D] hover:underline">
               View and download your booking QR code →
             </Link>
-            <span className="hidden sm:inline text-[#a89880]">·</span>
-            <Link href="/dashboard/settings/scheduling" className="text-sm font-medium text-[#a89880] hover:text-[#3a2f22] hover:underline">
+            <span className="hidden sm:inline text-[#8A8377]">·</span>
+            <Link href="/dashboard/settings/scheduling" className="text-sm font-medium text-[#8A8377] hover:text-[#1F1E1D] hover:underline">
               Edit opening hours →
             </Link>
           </div>

@@ -98,23 +98,24 @@ function ClientsListPageInner() {
     <div>
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <h1 className="text-xl font-semibold text-[#3a2f22]">Clients</h1>
-          <p className="mt-1 text-sm text-[#a89880]">All customers for your business, scoped to your salon.</p>
+          <p className="text-[10px] font-semibold uppercase tracking-[0.22em]" style={{ color: "#9A7B4F" }}>Clients</p>
+          <h1 className="font-[family-name:var(--font-display)] mt-1 text-3xl font-medium tracking-tight text-[#1F1B17]">Clients</h1>
+          <p className="mt-1.5 text-sm text-[#8A8377]">All customers for your business, scoped to your salon.</p>
         </div>
-        <Link href="/dashboard/calendar" className="rounded-lg border border-[#e6dcc8] bg-[#f6efe3] px-3 py-1.5 text-xs font-medium text-[#3a2f22] hover:bg-[#f3ebdd]">
+        <Link href="/dashboard/calendar" className="rounded-full border border-[#E5DDD0] bg-white px-4 py-2 text-xs font-medium text-[#4A4640] hover:bg-[#FBF7EF] hover:text-[#1F1E1D]">
           Open calendar
         </Link>
       </div>
 
       {/* Promotional banner — honest copy, dismissible */}
       {!bannerDismissed && (
-        <div className="mt-6 relative rounded-xl bg-gradient-to-br from-[#4a3620] via-[#8a6d4f] to-[#c9a26d] p-6 text-[#3a2f22] overflow-hidden">
-          <button aria-label="Dismiss" onClick={() => setBannerDismissed(true)} className="absolute right-3 top-3 flex h-7 w-7 items-center justify-center rounded-full bg-white/15 hover:bg-white/25 text-[#3a2f22]">
+        <div className="mt-6 relative rounded-2xl bg-gradient-to-br from-[#4a3620] via-[#795831] to-[#D9BE8C] p-6 text-white overflow-hidden">
+          <button aria-label="Dismiss" onClick={() => setBannerDismissed(true)} className="absolute right-3 top-3 flex h-7 w-7 items-center justify-center rounded-full bg-white/15 hover:bg-white/25 text-white">
             <X className="h-4 w-4" />
           </button>
           <h3 className="text-lg font-semibold pr-8">Get discovered on the ADNAVRA marketplace</h3>
-          <p className="mt-1 max-w-lg text-sm text-[#3a2f22]/85">Your salon already appears in ADNAVRA customer search results. Complete your profile and add photos to stand out.</p>
-          <Link href="/dashboard/settings" className="mt-3 inline-flex rounded-lg bg-white px-4 py-2 text-sm font-semibold text-[#3a2f22] hover:bg-white/90">
+          <p className="mt-1 max-w-lg text-sm text-white/85">Your salon already appears in ADNAVRA customer search results. Complete your profile and add photos to stand out.</p>
+          <Link href="/dashboard/settings" className="mt-3 inline-flex rounded-full bg-white px-4 py-2 text-sm font-semibold text-[#1F1E1D] hover:bg-white/90">
             Complete your profile
           </Link>
         </div>
@@ -123,46 +124,49 @@ function ClientsListPageInner() {
       {/* Search */}
       <div className="mt-6 flex items-center gap-2">
         <div className="relative flex-1 max-w-sm">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#a89880]" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#8A8377]" />
           <input
             value={q}
             onChange={(e) => setQ(e.target.value)}
             placeholder="Search clients..."
-            className="w-full rounded-lg border border-[#e6dcc8] bg-[#f6efe3] pl-9 pr-3 py-2 text-sm text-[#3a2f22] placeholder:text-[#a89880] focus:outline-none focus:ring-2 focus:ring-[var(--color-sidebar-active)]"
+            className="w-full rounded-lg border border-[#E9E1D3] bg-white pl-9 pr-3 py-2 text-sm text-[#1F1E1D] placeholder:text-[#8A8377] focus:outline-none focus:ring-2 focus:ring-[var(--color-sidebar-active)]"
           />
         </div>
         {q && (
-          <button onClick={() => setQ("")} className="rounded-lg border border-[#e6dcc8] bg-[#f6efe3] px-3 py-2 text-xs font-medium text-[#a89880] hover:text-[#3a2f22]">Clear</button>
+          <button onClick={() => setQ("")} className="rounded-lg border border-[#E9E1D3] bg-white px-3 py-2 text-xs font-medium text-[#8A8377] hover:text-[#1F1E1D]">Clear</button>
         )}
       </div>
 
       {(() => {
         if (isNoBusiness) return null;
-        if (error) return <div className="mt-4 flex items-center gap-2 text-sm text-red-300"><AlertCircle className="h-4 w-4" /> {error}</div>;
+        if (error) return <div className="mt-4 flex items-center gap-2 text-sm text-red-500"><AlertCircle className="h-4 w-4" /> {error}</div>;
         return null;
       })()}
 
       {loading ? (
-        <div className="mt-6 flex items-center gap-2 text-sm text-[#a89880]"><Loader2 className="h-4 w-4 animate-spin" /> Loading...</div>
+        <div className="mt-6 flex items-center gap-2 text-sm text-[#8A8377]"><Loader2 className="h-4 w-4 animate-spin" /> Loading...</div>
       ) : isNoBusiness ? (
-        <div className="mt-6 rounded-xl border border-[#e6dcc8] bg-white/[0.04] p-8 text-center">
-          <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-full bg-[#f6efe3] border border-[#e6dcc8]">
-            <Store className="h-5 w-5 text-[#a89880]" />
+        <div className="mt-6 rounded-2xl border border-dashed border-[#E5DDD0] bg-white p-10 text-center">
+          <div
+            className="mx-auto flex h-14 w-14 items-center justify-center rounded-full"
+            style={{ background: "linear-gradient(135deg, #D9BE8C, #C9A467)" }}
+          >
+            <Store className="h-6 w-6 text-[#1B1714]" />
           </div>
-          <h3 className="mt-3 text-sm font-semibold text-[#3a2f22]">Set up your salon to see clients</h3>
-          <p className="mt-1 text-sm text-[#a89880]">You have not created a business profile yet. Create it in Settings and customers will appear after bookings.</p>
-          <Link href="/dashboard/settings" className="mt-4 inline-flex items-center justify-center rounded-lg bg-white px-4 py-2 text-sm font-semibold text-[#3a2f22] hover:bg-[#f6efe3]">Go to Settings</Link>
-          {error && <p className="mt-3 text-xs text-[#a89880]/60">{error}</p>}
+          <h3 className="mt-5 font-[family-name:var(--font-display)] text-xl font-semibold text-[#1F1B17]">Set up your salon to see clients</h3>
+          <p className="mt-1.5 text-sm text-[#8A8377]">You have not created a business profile yet. Create it in Settings and customers will appear after bookings.</p>
+          <Link href="/dashboard/settings" className="mt-6 inline-flex h-11 items-center justify-center rounded-full bg-[#1F1B17] px-7 text-[12px] font-bold uppercase tracking-[0.14em] text-white hover:bg-[#795831]">Go to Settings</Link>
+          {error && <p className="mt-3 text-xs text-[#8A8377]">{error}</p>}
         </div>
       ) : customers.length === 0 ? (
-        <div className="mt-6 rounded-xl border border-[#e6dcc8] bg-white/[0.04] p-8 text-center text-sm text-[#a89880]">No customers yet. They appear after a booking is made.</div>
+        <div className="mt-6 rounded-2xl border border-[#E9E1D3] bg-white p-8 text-center text-sm text-[#8A8377] shadow-[0_4px_20px_rgba(30,28,26,0.05)]">No customers yet. They appear after a booking is made.</div>
       ) : (
         <>
-          <div className="mt-6 overflow-hidden rounded-xl border border-[#e6dcc8] bg-white/[0.04]">
+          <div className="mt-6 overflow-hidden rounded-2xl border border-[#E9E1D3] bg-white shadow-[0_4px_20px_rgba(30,28,26,0.05)]">
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="text-left text-xs uppercase tracking-wide text-[#a89880] border-b border-[#e6dcc8] bg-white/[0.02]">
+                  <tr className="text-left text-xs uppercase tracking-wide text-[#8A8377] border-b border-[#E9E1D3] bg-[#FBF7EF]">
                     <th className="px-4 py-3 font-medium">Client</th>
                     <th className="px-4 py-3 font-medium">Mobile number</th>
                     <th className="px-4 py-3 font-medium">Reviews</th>
@@ -170,33 +174,33 @@ function ClientsListPageInner() {
                     <th className="px-4 py-3 font-medium">Created at</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-white/10">
+                <tbody className="divide-y divide-[#E9E1D3]">
                   {filtered.map((c) => {
                     const sales = salesByCustomer[c.id];
                     const salesText = sales === undefined ? (salesLoading ? "…" : "—") : sales === 0 ? "—" : lkr(sales);
                     return (
-                      <tr key={c.id} className="hover:bg-white/[0.02]">
+                      <tr key={c.id} className="hover:bg-[#FBF7EF]">
                         <td className="px-4 py-3">
                           <div className="flex items-center gap-3">
-                            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#f3ebdd] text-xs font-semibold text-[#3a2f22] ring-1 ring-white/10">{initials(c.name)}</div>
+                            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border-2 border-[#D9BE8C] bg-[#FBF7EF] text-xs font-semibold text-[#1F1E1D]">{initials(c.name)}</div>
                             <div className="min-w-0">
-                              <p className="font-medium text-[#3a2f22] truncate">{c.name}</p>
-                              {c.email && <p className="text-xs text-[#a89880] truncate">{c.email}</p>}
+                              <p className="font-medium text-[#1F1E1D] truncate">{c.name}</p>
+                              {c.email && <p className="text-xs text-[#8A8377] truncate">{c.email}</p>}
                             </div>
                           </div>
                         </td>
-                        <td className="px-4 py-3 text-[#a89880]">{c.phone ?? "—"}</td>
-                        <td className="px-4 py-3 text-[#a89880]">—</td>
-                        <td className="px-4 py-3 text-right text-[#3a2f22]">{salesText}</td>
-                        <td className="px-4 py-3 text-[#a89880] text-xs">{new Date(c.createdAt).toLocaleDateString("en-GB")}</td>
+                        <td className="px-4 py-3 text-[#8A8377]">{c.phone ?? "—"}</td>
+                        <td className="px-4 py-3 text-[#8A8377]">—</td>
+                        <td className="px-4 py-3 text-right text-[#1F1E1D]">{salesText}</td>
+                        <td className="px-4 py-3 text-[#8A8377] text-xs">{new Date(c.createdAt).toLocaleDateString("en-GB")}</td>
                       </tr>
                     );
                   })}
                 </tbody>
               </table>
             </div>
-            {filtered.length === 0 && q && <p className="px-4 py-6 text-center text-sm text-[#a89880]">No clients match &quot;{q}&quot;.</p>}
-            <div className="px-4 py-3 border-t border-[#e6dcc8] bg-white/[0.02] text-xs text-[#a89880] flex items-center justify-between">
+            {filtered.length === 0 && q && <p className="px-4 py-6 text-center text-sm text-[#8A8377]">No clients match &quot;{q}&quot;.</p>}
+            <div className="px-4 py-3 border-t border-[#E9E1D3] bg-[#FBF7EF] text-xs text-[#8A8377] flex items-center justify-between">
               <span>{filtered.length} of {total} client(s){q ? ` matching filter` : ""} · page {page} of {totalPages}</span>
               {salesLoading && <span className="inline-flex items-center gap-1"><Loader2 className="h-3 w-3 animate-spin" /> Calculating sales…</span>}
             </div>
@@ -204,9 +208,9 @@ function ClientsListPageInner() {
 
           {totalPages > 1 && !q && (
             <div className="mt-4 flex items-center gap-2">
-              <button disabled={page <= 1} onClick={() => load(page - 1)} className="rounded-lg border border-[#3a2f22] bg-white px-3 py-1.5 text-sm font-medium text-[#3a2f22] hover:bg-[#f6efe3] disabled:opacity-40 shadow-sm">Prev</button>
-              <span className="text-sm text-[#a89880]">Page {page} of {totalPages}</span>
-              <button disabled={page >= totalPages} onClick={() => load(page + 1)} className="rounded-lg border border-[#3a2f22] bg-white px-3 py-1.5 text-sm font-medium text-[#3a2f22] hover:bg-[#f6efe3] disabled:opacity-40 shadow-sm">Next</button>
+              <button disabled={page <= 1} onClick={() => load(page - 1)} className="rounded-lg border border-[#E5DDD0] bg-white px-3 py-1.5 text-sm font-medium text-[#1F1E1D] hover:bg-[#FBF7EF] disabled:opacity-40 shadow-sm">Prev</button>
+              <span className="text-sm text-[#8A8377]">Page {page} of {totalPages}</span>
+              <button disabled={page >= totalPages} onClick={() => load(page + 1)} className="rounded-lg border border-[#E5DDD0] bg-white px-3 py-1.5 text-sm font-medium text-[#1F1E1D] hover:bg-[#FBF7EF] disabled:opacity-40 shadow-sm">Next</button>
             </div>
           )}
         </>
