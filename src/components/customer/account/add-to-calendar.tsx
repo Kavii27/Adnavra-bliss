@@ -72,9 +72,9 @@ export function AddToCalendarButton({
   return (
     <button
       onClick={handleDownload}
-      className="inline-flex items-center gap-1.5 rounded-md border border-[#E3E8F0] bg-white px-3 py-1.5 text-xs font-medium text-[#3a2f22] hover:bg-[#EFF4FA]"
+      className="inline-flex items-center gap-1.5 rounded-full border border-[#E5DDD0] bg-white px-4 py-2 text-xs font-semibold text-[#1F1E1D] transition-colors hover:bg-[#FBF7EF]"
     >
-      <CalendarPlus className="h-3.5 w-3.5 text-[#8a6d4f]" /> Add to calendar
+      <CalendarPlus className="h-3.5 w-3.5 text-[#9A7B4F]" /> Add to calendar
     </button>
   );
 }

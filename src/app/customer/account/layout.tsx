@@ -1,10 +1,19 @@
 import { redirect } from "next/navigation";
 import { headers } from "next/headers";
 import Link from "next/link";
+import Image from "next/image";
+import { Cormorant_Garamond } from "next/font/google";
 import { LogOut } from "lucide-react";
 import { auth, signOut } from "@/lib/auth";
-import { CustomerHeader } from "@/components/customer/customer-header";
 import { AccountNav } from "@/components/customer/account-nav";
+
+const display = Cormorant_Garamond({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  style: ["normal", "italic"],
+  variable: "--font-display",
+  display: "swap",
+});
 
 export default async function CustomerAccountLayout({ children }: { children: React.ReactNode }) {
   const session = await auth();
@@ -42,24 +51,50 @@ export default async function CustomerAccountLayout({ children }: { children: Re
     .toUpperCase();
 
   return (
-    <div className="min-h-screen bg-[#faf6ef]">
-      <CustomerHeader />
-      <div className="max-w-[1200px] mx-auto px-6 py-8 flex flex-col lg:flex-row gap-6">
-        <aside className="w-full lg:w-[260px] shrink-0">
-          <div className="rounded-xl border border-[#E3E8F0] bg-white p-4">
-            <div className="flex items-center gap-3 pb-4 border-b border-[#EEF2F7]">
-              <div className="h-10 w-10 rounded-full bg-[#f0e6d6] text-[#8a6d4f] flex items-center justify-center text-sm font-semibold">
+    <div className={`${display.variable} min-h-screen bg-[#FAF7F2]`}>
+      {/* `fixed` (not `sticky`) so the header is unconditionally pinned to the viewport and can
+          never move, jump, or drift on scroll — same reasoning as the sidebar below. The spacer
+          right after it reserves its h-16 (64px) in normal flow so content doesn't render underneath. */}
+      <header className="fixed inset-x-0 top-0 z-40 flex h-16 items-center justify-between border-b border-[#E9E1D3] bg-white/90 px-4 backdrop-blur sm:px-6 lg:px-12">
+        <Link href="/" className="flex items-center gap-2" aria-label="ADNAVRA BLISS home">
+          <Image src="/logo.png" alt="ADNAVRA BLISS" width={28} height={28} className="h-7 w-7 shrink-0 rounded-md object-contain" />
+          <span className="text-base font-semibold tracking-tight text-[#1F1E1D] sm:text-lg">
+            ADNAVRA <span className="font-normal text-[#795831]">BLISS</span>
+          </span>
+        </Link>
+        <Link
+          href="/customer/search"
+          className="inline-flex items-center gap-1.5 rounded-full border border-[#E9E1D3] px-4 py-1.5 text-[13px] font-medium text-[#4A4640] transition-colors hover:bg-[#F7F3ED] hover:text-[#1F1E1D]"
+        >
+          Discover salons
+        </Link>
+      </header>
+      <div className="h-16" aria-hidden="true" />
+
+      {/* Sidebar is truly `fixed` at lg+ (not `sticky`) so it is always fully visible while
+          scrolling a long activity list, never drifting or getting cut off at the viewport edge.
+          top-24 clears the sticky header (h-16 + breathing room); bottom-6 + overflow-y-auto is a
+          safety net for short viewports. `main` gets a matching left margin since the fixed
+          sidebar no longer reserves space via flex. On mobile it stays a normal in-flow block. */}
+      <div className="flex w-full flex-col gap-8 px-4 py-8 sm:px-6 lg:px-12 lg:py-12">
+        <aside className="w-full shrink-0 lg:fixed lg:left-12 lg:top-24 lg:bottom-6 lg:w-[340px] lg:overflow-y-auto">
+          <div className="overflow-hidden rounded-3xl border border-[#C9A467]/30 bg-white shadow-[0_12px_40px_rgba(120,88,49,0.18)]">
+            <div
+              className="flex flex-col items-center gap-4 p-8 text-center"
+              style={{ background: "linear-gradient(160deg, #C9A467 0%, #8A6D4F 55%, #6B4F35 100%)" }}
+            >
+              <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-full border-2 border-white/40 bg-white text-2xl font-semibold text-[#8A6D4F] shadow-[0_6px_18px_rgba(0,0,0,0.2)]">
                 {initials}
               </div>
               <div className="min-w-0">
-                <p className="text-sm font-semibold text-[#3a2f22] truncate">{userName}</p>
-                <p className="text-xs text-[#a89880] truncate">{userEmail}</p>
+                <p className="truncate text-xl font-semibold leading-tight text-white">{userName}</p>
+                <p className="mt-1 truncate text-xs text-white/75">{userEmail}</p>
               </div>
             </div>
-            <div className="mt-4">
+            <div className="p-4">
               <AccountNav />
             </div>
-            <div className="mt-4 pt-4 border-t border-[#EEF2F7]">
+            <div className="border-t border-[#F1EDE7] p-4">
               <form
                 action={async () => {
                   "use server";
@@ -68,7 +103,7 @@ export default async function CustomerAccountLayout({ children }: { children: Re
               >
                 <button
                   type="submit"
-                  className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm font-medium text-[#475467] hover:bg-[#EFF4FA] hover:text-[#3a2f22]"
+                  className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-medium text-[#8A8377] transition-colors hover:bg-[#FBF7EF] hover:text-[#1F1E1D]"
                 >
                   <LogOut className="h-4 w-4" /> Sign out
                 </button>
@@ -76,7 +111,7 @@ export default async function CustomerAccountLayout({ children }: { children: Re
             </div>
           </div>
         </aside>
-        <main className="flex-1 min-w-0">{children}</main>
+        <main className="min-w-0 flex-1 lg:ml-[372px]">{children}</main>
       </div>
     </div>
   );
