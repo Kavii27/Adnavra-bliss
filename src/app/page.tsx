@@ -3,14 +3,13 @@ import Image from "next/image";
 import { Suspense } from "react";
 import { HomeHeader } from "@/components/customer/home/home-header";
 import { SiteFooter } from "@/components/marketing/site-footer";
-import { VenueRail } from "@/components/customer/home/venue-rail";
+import { VenueRailRow } from "@/components/customer/home/venue-rail-row";
 import { SearchBar } from "@/components/customer/search/search-bar";
-import { LocationsTeaser } from "@/components/customer/home/locations-teaser";
+import { BrowseByCategory } from "@/components/customer/home/browse-by-category";
 import { HowItWorks } from "@/components/customer/home/how-it-works";
 import { TrustStatsBar } from "@/components/customer/home/trust-stats-bar";
 import { OwnerCtaBanner } from "@/components/customer/home/owner-cta-banner";
 import { db } from "@/lib/db";
-import { SRI_LANKA_LOCATIONS } from "@/lib/sri-lanka-locations";
 
 type Venue = {
   id: string;
@@ -89,13 +88,31 @@ async function fetchVenues(order: "asc" | "desc", take: number, skip = 0): Promi
   }
 }
 
+async function fetchCategoryCounts(): Promise<Record<string, number>> {
+  try {
+    const rows = await db.service.groupBy({
+      by: ["category"],
+      where: { isActive: true, category: { not: null } },
+      _count: { _all: true },
+    });
+    const map: Record<string, number> = {};
+    for (const r of rows) {
+      if (r.category) map[r.category] = r._count._all;
+    }
+    return map;
+  } catch {
+    return {};
+  }
+}
+
 export default async function MarketplaceHome() {
-  const [recommended, newest, nearYou] = await Promise.all([
+  const [recommended, newest, nearYou, categoryCounts] = await Promise.all([
     fetchVenues("asc", 8, 0),
     fetchVenues("desc", 8, 0),
     // "Near you" — client-side re-fetch will replace this once location is known (Phase 4).
     // For now use a different offset so the rail is not literally identical to "New".
     fetchVenues("desc", 8, 8),
+    fetchCategoryCounts(),
   ]);
 
   // Fallback for nearYou when there are not enough rows to offset
@@ -122,15 +139,15 @@ export default async function MarketplaceHome() {
             <div className="grid items-start gap-10 lg:grid-cols-[1.05fr_0.95fr]">
               {/* Left: message */}
               <div className="text-center lg:text-left">
-                <span className="reveal-up inline-flex items-center gap-2 rounded-full border border-[#E5DDD0] bg-white px-4 py-1.5 text-[11px] font-semibold uppercase tracking-[0.15em] text-[#795831] in-view">
-                  <Dot className="h-3 w-3 -ml-1 text-[#795831]" />
+                <span className="reveal-up inline-flex items-center gap-2 rounded-full border border-[#E5DDD0] bg-white px-4 py-1.5 text-[11px] font-semibold uppercase tracking-[0.15em] text-[#2A1D12] in-view">
+                  <Dot className="h-3 w-3 -ml-1 text-[#2A1D12]" />
                   Sri Lanka&apos;s curated salon &amp; spa directory
                 </span>
 
-                <h1 className="mt-5 text-4xl lg:text-[46px] font-semibold tracking-[-1.25px] leading-[1.08] text-[#1F1E1D]">
+                <h1 className="mt-5 text-4xl lg:text-[46px] font-semibold tracking-[-1.25px] leading-[1.08] text-[#2A1D12]">
                   Book your next appointment.
                   <br />
-                  <span className="font-serif italic font-normal text-[#795831]">
+                  <span className="font-serif italic font-normal text-[#2A1D12]">
                     Discover Sri Lanka&apos;s finest salons &amp; spas.
                   </span>
                 </h1>
@@ -150,7 +167,7 @@ export default async function MarketplaceHome() {
                   className="object-cover"
                 />
                 <div className="absolute inset-x-4 bottom-4 flex items-center gap-2 rounded-xl bg-white/90 backdrop-blur px-4 py-3 shadow-sm">
-                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#795831] text-xs font-semibold text-white">
+                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#2A1D12] text-xs font-semibold text-white">
                     4.9
                   </span>
                   <span className="text-xs font-medium text-[#4A4640]">
@@ -175,34 +192,33 @@ export default async function MarketplaceHome() {
           </div>
         </section>
 
-      {/* Recommended salons & spas — featured grid, tabs kept as rails below for New/Near you */}
+      {/* Browse categories & services — moved here from the navbar */}
+      <BrowseByCategory counts={categoryCounts} limit={8} />
+
+      {/* Salons & spas — three stacked rows, each with its own "See all >" link (no filter tabs) */}
       <div id="salons" className="scroll-mt-28 max-w-[1200px] mx-auto">
-        <VenueRail
-          title="Recommended salons & spas"
+        <VenueRailRow
+          title="Recommended near you"
+          href="/recommended"
           businesses={recommended}
-          href="/customer/search"
           emptyText="Recommended salons will appear here once businesses join."
-          layout="grid"
         />
-        <VenueRail
-          title="New to ADNAVRA"
-          businesses={newest}
-          href="/customer/search"
-          emptyText="New arrivals will show here as salons sign up."
-        />
-        <VenueRail
+        <VenueRailRow
           title="Near you"
+          href="/near-you"
           businesses={nearYouDisplay}
-          href="/customer/search"
           emptyText="Salons near you will appear here once you share a location."
+        />
+        <VenueRailRow
+          title="New to Adnavra Bliss"
+          href="/new-to-adnavra-bliss"
+          businesses={newest}
+          emptyText="New arrivals will show here as salons sign up."
         />
       </div>
 
       {/* How does it work — 3-step "Book in three easy steps" */}
       <HowItWorks />
-
-      {/* Browse by city — short teaser, full interactive directory lives at /locations */}
-      <LocationsTeaser locations={SRI_LANKA_LOCATIONS} />
 
       {/* For salon owners — dark CTA banner with metrics */}
       <OwnerCtaBanner />
@@ -212,3 +228,4 @@ export default async function MarketplaceHome() {
     </main>
   );
 }
+

@@ -1,10 +1,10 @@
-import { SiteHeader } from "@/components/marketing/site-header";
+import { HomeHeader } from "@/components/customer/home/home-header";
 import { SiteFooter } from "@/components/marketing/site-footer";
 
 export default function TermsPage() {
   return (
     <main className="min-h-screen bg-[#faf6ef]">
-      <SiteHeader />
+      <HomeHeader />
       <section className="max-w-[800px] mx-auto px-6 py-20">
         <h1 className="text-4xl font-semibold tracking-tight text-[#3a2f22]">Terms of service</h1>
         {/* TODO: replace with reviewed legal copy before launch */}
@@ -43,7 +43,7 @@ export default function TermsPage() {
           <h2 className="text-lg font-semibold text-[#3a2f22] mt-8">Contact</h2>
           <p>
             Questions about these terms can be directed to{" "}
-            <a href="mailto:hello@adnavra.lk" className="text-[#8a6d4f] hover:underline">
+            <a href="mailto:hello@adnavra.lk" className="text-[#2A1D12] hover:underline">
               hello@adnavra.lk
             </a>
             .
@@ -54,3 +54,4 @@ export default function TermsPage() {
     </main>
   );
 }
+

@@ -63,7 +63,7 @@ export function BrowseByCity({
     <section id="locations" className="px-6 lg:px-12 py-10 max-w-[1200px] mx-auto scroll-mt-20">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#795831]">All locations</p>
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#2A1D12]">All locations</p>
           <h2 className="mt-1 text-2xl font-semibold tracking-tight text-[#1F1E1D]">
             Explore salons across Sri Lanka
           </h2>
@@ -85,7 +85,7 @@ export function BrowseByCity({
                 setSearchOpen(true);
               }}
               placeholder="Search any town…"
-              className="w-full rounded-full border border-[#E5DDD0] bg-white pl-9 pr-9 py-2.5 text-sm text-[#1F1E1D] placeholder:text-[#B3ACA0] outline-none focus:border-[#795831] focus:ring-2 focus:ring-[#795831]/15 transition"
+              className="w-full rounded-full border border-[#E5DDD0] bg-white pl-9 pr-9 py-2.5 text-sm text-[#1F1E1D] placeholder:text-[#B3ACA0] outline-none focus:border-[#2A1D12] focus:ring-2 focus:ring-[#2A1D12]/15 transition"
             />
             {query && (
               <button
@@ -138,8 +138,8 @@ export function BrowseByCity({
             onClick={() => setActiveProvince(province)}
             className={`shrink-0 rounded-full px-4 py-2 text-sm font-medium transition border ${
               activeProvince === province
-                ? "bg-[#795831] border-[#795831] text-white"
-                : "bg-white border-[#E5DDD0] text-[#4A4640] hover:border-[#795831] hover:text-[#795831]"
+                ? "bg-[#2A1D12] border-[#2A1D12] text-white"
+                : "bg-white border-[#E5DDD0] text-[#4A4640] hover:border-[#2A1D12] hover:text-[#2A1D12]"
             }`}
           >
             {province}
@@ -158,10 +158,10 @@ export function BrowseByCity({
             <Link
               key={t.name}
               href={cityHref(t)}
-              className="group card-lift rounded-xl border border-[#E5DDD0] bg-white p-4 hover:border-[#795831]"
+              className="group card-lift rounded-xl border border-[#E5DDD0] bg-white p-4 hover:border-[#2A1D12]"
             >
               <div className="flex items-start justify-between">
-                <span className="flex h-9 w-9 items-center justify-center rounded-full bg-[#F7F3ED] text-[#795831] group-hover:bg-[#795831] group-hover:text-white transition">
+                <span className="flex h-9 w-9 items-center justify-center rounded-full bg-[#F7F3ED] text-[#2A1D12] group-hover:bg-[#2A1D12] group-hover:text-white transition">
                   <MapPin className="h-4 w-4" />
                 </span>
               </div>

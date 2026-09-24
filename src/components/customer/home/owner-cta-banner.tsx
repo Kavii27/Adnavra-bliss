@@ -10,7 +10,7 @@ const METRICS = [
 export function OwnerCtaBanner() {
   return (
     <Reveal as="section" className="reveal-up">
-      <div className="bg-[#1F1E1D] text-white">
+      <div className="bg-[#2A1D12] text-white">
         <div className="max-w-[1200px] mx-auto px-6 lg:px-12 py-14">
           <div className="grid gap-10 lg:grid-cols-2 lg:items-center">
             {/* Left: message */}
@@ -29,7 +29,7 @@ export function OwnerCtaBanner() {
               <div className="mt-6 flex flex-col gap-3 sm:flex-row">
                 <Link
                   href="/for-business"
-                  className="card-lift inline-flex items-center justify-center rounded-lg bg-[#C9A063] px-6 py-3 text-sm font-semibold text-[#1F1E1D] hover:bg-[#D8B27A]"
+                  className="card-lift inline-flex items-center justify-center rounded-lg bg-[#C9A063] px-6 py-3 text-sm font-semibold text-[#2A1D12] hover:bg-[#D8B27A]"
                 >
                   Register your salon
                 </Link>
@@ -59,3 +59,4 @@ export function OwnerCtaBanner() {
     </Reveal>
   );
 }
+

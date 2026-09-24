@@ -781,7 +781,7 @@ export function BookingWizard({
                             <div className="mt-3 flex justify-center gap-2">
                               <Link
                                 href={`/customer/login?callbackUrl=${encodeURIComponent(currentUrlWithSelection)}`}
-                                className="rounded-lg bg-[#1F1E1D] px-4 py-2 text-sm font-medium text-white hover:bg-[#4A4640] transition-colors"
+                                className="rounded-lg bg-[#795831] px-4 py-2 text-sm font-medium text-white hover:bg-[#5C4326] transition-colors"
                               >
                                 Log in
                               </Link>
@@ -808,7 +808,7 @@ export function BookingWizard({
                     ) : !isCustomer ? (
                       <Link
                         href={`/customer/login?callbackUrl=${encodeURIComponent(currentUrlWithSelection)}`}
-                        className="inline-flex h-10 min-w-[160px] items-center justify-center rounded-md bg-[#1F1E1D] px-4 text-sm font-medium text-white hover:bg-[#4A4640] transition-colors"
+                        className="inline-flex h-10 min-w-[160px] items-center justify-center rounded-md bg-[#795831] px-4 text-sm font-medium text-white hover:bg-[#5C4326] transition-colors"
                       >
                         Sign in to confirm
                       </Link>

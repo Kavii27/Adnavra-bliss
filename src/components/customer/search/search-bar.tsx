@@ -181,7 +181,7 @@ export function SearchBar({ variant }: SearchBarProps) {
       <div className="p-2 lg:p-2 border-t lg:border-t-0 border-[#E5DDD0]">
         <button
           type="submit"
-          className="flex h-full w-full items-center justify-center gap-2 rounded-xl bg-[#1F1E1D] px-8 py-3.5 text-sm font-semibold text-white transition-colors hover:bg-[#795831]"
+          className="flex h-full w-full items-center justify-center gap-2 rounded-xl bg-[#795831] px-8 py-3.5 text-sm font-semibold text-white transition-colors hover:bg-[#5C4326]"
         >
           <Search className="h-4 w-4" />
           Search
