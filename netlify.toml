@@ -1,0 +1,21 @@
+# ADNAVRA — Netlify build configuration
+# Note: the build command is set in the Netlify UI (`npm run build`) and is
+# intentionally not overridden here.
+
+[build.environment]
+  # --- Secrets scanning ---
+  # Scanning stays ENABLED. These three variables are server-only secrets: they
+  # are never prefixed NEXT_PUBLIC_ and are never referenced from a client
+  # component, so they cannot reach the browser bundle. They do, however, get
+  # embedded in Next.js' server-side output (the server handler and the Edge
+  # middleware bundle generated from src/middleware.ts, which reads
+  # process.env.NEXTAUTH_SECRET), which is what the scanner was flagging.
+  #
+  # They are set as Netlify environment variables and must never be hardcoded in
+  # a committed file. If a new secret is added, add it to the Netlify UI — do not
+  # extend this list unless it is likewise server-only.
+  SECRETS_SCAN_OMIT_KEYS = "DATABASE_URL,DIRECT_URL,NEXTAUTH_SECRET"
+
+  # Placeholder-only files. These contain example connection strings and dummy
+  # secret values for local setup, never real credentials.
+  SECRETS_SCAN_OMIT_PATHS = ".env.example,docs/**,*.md"
