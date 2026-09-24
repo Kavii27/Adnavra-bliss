@@ -8,6 +8,7 @@ export const createServiceSchema = z.object({
   businessId: z.string().cuid(),
   isActive: z.boolean().optional().default(true),
   category: z.string().optional().nullable(),
+  imageUrl: z.string().url().optional().nullable().or(z.literal("")),
 });
 
 export const updateServiceSchema = z.object({
@@ -17,6 +18,7 @@ export const updateServiceSchema = z.object({
   price: z.number().min(0).max(1_000_000).optional(),
   isActive: z.boolean().optional(),
   category: z.string().optional().nullable(),
+  imageUrl: z.string().url().optional().nullable().or(z.literal("")),
 });
 
 export type CreateServiceInput = z.infer<typeof createServiceSchema>;

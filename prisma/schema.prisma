@@ -227,6 +227,7 @@ model Service {
   duration    Int // minutes (e.g. 30, 60, 90)
   isActive    Boolean @default(true)
   category    String? // one of the CATEGORY_SLUGS values in src/lib/categories.ts, nullable for legacy rows
+  imageUrl    String? // photo shown on the service menu / public booking page
 
   bookings Booking[]
 

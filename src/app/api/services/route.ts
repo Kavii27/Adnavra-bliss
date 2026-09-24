@@ -73,7 +73,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Invalid input", details: parsed.error.flatten() }, { status: 400 });
   }
 
-  const { businessId, name, description, durationMin, price, category } = parsed.data;
+  const { businessId, name, description, durationMin, price, category, imageUrl } = parsed.data;
 
   // Ownership: non-ADMIN must create only for their own business. Ignore client-supplied businessId if it does not match.
   let effectiveBusinessId = businessId;
@@ -95,6 +95,7 @@ export async function POST(request: NextRequest) {
       duration: durationMin,
       price: Math.round(price * 100), // store cents
       category: category ?? null,
+      imageUrl: imageUrl || null,
     },
   });
 

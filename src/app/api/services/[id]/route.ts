@@ -54,6 +54,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
   if (parsed.data.price !== undefined) data.price = Math.round(parsed.data.price * 100);
   if (parsed.data.isActive !== undefined) data.isActive = parsed.data.isActive;
   if (parsed.data.category !== undefined) data.category = parsed.data.category ?? null;
+  if (parsed.data.imageUrl !== undefined) data.imageUrl = parsed.data.imageUrl || null;
 
   const updated = await db.service.update({ where: { id }, data });
   await auditLog({
