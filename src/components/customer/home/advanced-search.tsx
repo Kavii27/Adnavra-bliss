@@ -33,7 +33,7 @@ export function AdvancedSearch() {
   }
 
   return (
-    <section className="px-6 lg:px-12 max-w-[1200px] mx-auto">
+    <section className="px-6 lg:px-10 max-w-[1600px] mx-auto">
       <div className="rounded-2xl border border-[#E5DDD0] bg-white">
         <button
           type="button"

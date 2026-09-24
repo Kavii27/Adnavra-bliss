@@ -37,7 +37,7 @@ export function VenueRailRow({
 }) {
   return (
     <section className="py-8">
-      <div className="flex flex-wrap items-center justify-between gap-3 px-6 lg:px-12 max-w-[1200px] mx-auto">
+      <div className="flex flex-wrap items-center justify-between gap-3 px-6 lg:px-12 max-w-[1400px] mx-auto">
         <h2 className="text-lg font-semibold tracking-tight text-[#1F1E1D]">{title}</h2>
 
         {href ? (
@@ -51,7 +51,7 @@ export function VenueRailRow({
       </div>
 
       {businesses.length === 0 ? (
-        <div className="px-6 lg:px-12 max-w-[1200px] mx-auto mt-4">
+        <div className="px-6 lg:px-12 max-w-[1400px] mx-auto mt-4">
           <div className="rounded-xl border border-dashed border-[#E5DDD0] bg-white p-8 text-center">
             <p className="text-sm text-[#8A8377]">{emptyText}</p>
             <p className="mt-1 text-xs text-[#C9C1B4]">
@@ -60,9 +60,9 @@ export function VenueRailRow({
           </div>
         </div>
       ) : (
-        <Reveal className="mt-4 flex gap-5 overflow-x-auto px-6 pb-2 lg:px-12 max-w-[1200px] mx-auto reveal-stagger [scrollbar-width:thin] snap-x snap-mandatory">
-          {businesses.slice(0, 8).map((b) => (
-            <div key={b.id} className="shrink-0 snap-start">
+        <Reveal className="mt-4 grid grid-cols-2 gap-5 px-6 pb-2 sm:grid-cols-3 lg:grid-cols-5 lg:px-12 max-w-[1400px] mx-auto reveal-stagger">
+          {businesses.slice(0, 5).map((b) => (
+            <div key={b.id}>
               <VenueCard
                 id={b.id}
                 name={b.name}

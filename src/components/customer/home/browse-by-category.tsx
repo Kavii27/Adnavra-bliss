@@ -18,7 +18,7 @@ export function BrowseByCategory({
   const showViewAll = typeof limit === "number" && limit < SERVICE_CATEGORIES.length;
 
   return (
-    <section id="categories" className="scroll-mt-28 px-6 lg:px-12 pt-20 pb-10 max-w-[1200px] mx-auto">
+    <section id="categories" className="scroll-mt-28 px-6 lg:px-12 pt-20 pb-10 max-w-[1400px] mx-auto">
       <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#795831]">
         Services &amp; specialties
       </p>

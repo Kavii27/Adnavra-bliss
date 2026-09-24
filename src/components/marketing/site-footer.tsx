@@ -31,7 +31,7 @@ const COLUMNS = [
 export function SiteFooter() {
   return (
     <footer className="bg-[#f7f3ed] text-[#4a4640] px-6 lg:px-12 py-16 mt-16">
-      <div className="max-w-[1200px] mx-auto grid gap-10 md:grid-cols-[1.4fr_1fr_1fr_1fr]">
+      <div className="max-w-[1400px] mx-auto grid gap-10 md:grid-cols-[1.4fr_1fr_1fr_1fr]">
         <div>
           <Link href="/" className="flex items-center gap-2">
             <Image src="/logo.png" alt="ADNAVRA BLISS logo" width={32} height={32} className="h-8 w-8 object-contain" />
@@ -60,7 +60,7 @@ export function SiteFooter() {
             <p className="text-[#050504] text-sm font-semibold">{col.title}</p>
             <ul className="mt-3 space-y-2">
               {col.links.map((l) => (
-                <li key={l.label}>
+                <li key={l.href}>
                   <Link href={l.href} className="text-sm hover:text-[#050504] transition-colors">
                     {l.label}
                   </Link>
@@ -70,7 +70,7 @@ export function SiteFooter() {
           </div>
         ))}
       </div>
-      <div className="max-w-[1200px] mx-auto border-t border-[#ccc6bd]/40 mt-10 pt-6 text-xs text-[#7b766f] flex items-center justify-between">
+      <div className="max-w-[1400px] mx-auto border-t border-[#ccc6bd]/40 mt-10 pt-6 text-xs text-[#7b766f] flex items-center justify-between">
         <span>© {new Date().getFullYear()} ADNAVRA. All rights reserved. Colombo, Sri Lanka.</span>
         <Link href="/login?callbackUrl=/admin" className="hover:text-[#050504] transition-colors">
           Admin

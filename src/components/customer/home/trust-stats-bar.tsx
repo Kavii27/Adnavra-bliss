@@ -24,7 +24,7 @@ export function TrustStatsBar({ businessCount }: { businessCount: number }) {
     <section className="relative bg-transparent">
       <Reveal
         as="div"
-        className="max-w-[1200px] mx-auto px-6 lg:px-12 py-6 grid gap-6 sm:grid-cols-3 reveal-stagger"
+        className="max-w-[1400px] mx-auto px-6 lg:px-12 py-6 grid gap-6 sm:grid-cols-3 reveal-stagger"
       >
         {STATS.map((s) => (
           <div key={s.title} className="flex items-center gap-3">

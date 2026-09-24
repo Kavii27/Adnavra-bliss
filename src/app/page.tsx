@@ -16,7 +16,6 @@ type Venue = {
   name: string;
   slug: string;
   logoUrl: string | null;
-  coverUrl: string | null;
   address: string | null;
   city: string | null;
   category: string | null;
@@ -59,11 +58,6 @@ async function fetchVenues(order: "asc" | "desc", take: number, skip = 0): Promi
         categories: true,
         salonTypes: true,
         marketplacePriority: true,
-        images: {
-          where: { kind: "cover" },
-          take: 1,
-          select: { url: true },
-        },
         services: {
           where: { isActive: true },
           select: { category: true, price: true },
@@ -80,7 +74,6 @@ async function fetchVenues(order: "asc" | "desc", take: number, skip = 0): Promi
         name: b.name,
         slug: b.slug,
         logoUrl: b.logoUrl,
-        coverUrl: b.images[0]?.url ?? null,
         address: b.address,
         city: b.city,
         category: primary,
@@ -142,7 +135,7 @@ export default async function MarketplaceHome() {
 
         {/* Hero — headline + search on the left, photo on the right, tops aligned */}
         <section className="relative border-b border-[#E5DDD0]">
-          <div className="relative px-6 lg:px-12 pt-12 lg:pt-16 pb-10 max-w-[1200px] mx-auto">
+          <div className="relative px-6 lg:px-12 pt-12 lg:pt-16 pb-10 max-w-[1400px] mx-auto">
             <div className="grid items-start gap-10 lg:grid-cols-[1.05fr_0.95fr]">
               {/* Left: message */}
               <div className="text-center lg:text-left">
@@ -203,9 +196,9 @@ export default async function MarketplaceHome() {
       <BrowseByCategory counts={categoryCounts} limit={8} />
 
       {/* Salons & spas — three stacked rows, each with its own "See all >" link (no filter tabs) */}
-      <div id="salons" className="scroll-mt-28 max-w-[1200px] mx-auto">
+      <div id="salons" className="scroll-mt-28 max-w-[1400px] mx-auto">
         <VenueRailRow
-          title="Recommended near you"
+          title="Recommended"
           href="/recommended"
           businesses={recommended}
           emptyText="Recommended salons will appear here once businesses join."

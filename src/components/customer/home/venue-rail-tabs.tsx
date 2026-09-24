@@ -39,7 +39,7 @@ export function VenueRailTabs({
 
   return (
     <section className="py-8">
-      <div className="flex flex-wrap items-center justify-between gap-3 px-6 lg:px-12 max-w-[1200px] mx-auto">
+      <div className="flex flex-wrap items-center justify-between gap-3 px-6 lg:px-10 max-w-[1600px] mx-auto">
         <h2 className="text-lg font-semibold tracking-tight text-[#1F1E1D]">
           Salons &amp; spas
         </h2>
@@ -75,7 +75,7 @@ export function VenueRailTabs({
       </div>
 
       {!current || current.businesses.length === 0 ? (
-        <div className="px-6 lg:px-12 max-w-[1200px] mx-auto mt-4">
+        <div className="px-6 lg:px-10 max-w-[1600px] mx-auto mt-4">
           <div className="rounded-xl border border-dashed border-[#E5DDD0] bg-white p-8 text-center">
             <p className="text-sm text-[#8A8377]">
               {current?.emptyText ?? "No venues to show yet."}
@@ -88,7 +88,7 @@ export function VenueRailTabs({
       ) : (
         <Reveal
           key={current.key}
-          className="mt-4 px-6 lg:px-12 max-w-[1200px] mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 reveal-stagger"
+          className="mt-4 px-6 lg:px-10 max-w-[1600px] mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 reveal-stagger"
         >
           {current.businesses.slice(0, 12).map((b) => (
             <div key={b.id} className="w-full [&>a]:w-full">

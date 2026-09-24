@@ -17,7 +17,7 @@ export default async function NewToAdnavraBlissPage() {
     <main className="relative min-h-screen bg-[#FDF9F3]">
       <HomeHeader />
 
-      <section className="px-6 lg:px-12 pt-10 pb-16 max-w-[1200px] mx-auto">
+      <section className="px-6 lg:px-12 pt-10 pb-16 max-w-[1400px] mx-auto">
         <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#2A1D12]">
           Just joined
         </p>
