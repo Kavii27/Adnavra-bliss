@@ -15,7 +15,7 @@ const COLUMNS = [
     title: "For business",
     links: [
       { href: "/for-business", label: "For salons" },
-      { href: "/about#features", label: "Features" },
+      { href: "/features", label: "Features" },
       { href: "/signup", label: "Get started" },
     ],
   },

@@ -67,7 +67,7 @@ export function ManualBoostForm({ businesses }: { businesses: { id: string; name
         </button>
       </div>
       <p className="mt-2 text-xs text-[#a89880]">
-        Manual boosts bypass the plan's weekly limit — use for one-off promotions.
+        Manual boosts bypass the plan&apos;s weekly limit — use for one-off promotions.
       </p>
       {error && (
         <p className="mt-2 inline-flex items-center gap-1.5 text-xs font-medium text-[#B91C1C]">
