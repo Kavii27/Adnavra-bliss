@@ -16,6 +16,7 @@ type Result = {
   name: string;
   slug: string;
   logoUrl: string | null;
+  coverUrl: string | null;
   address: string | null;
   city: string | null;
   latitude: number;
@@ -55,6 +56,51 @@ function formatPillLabel(d: Date): string {
   const day = d.getDate();
   const month = d.toLocaleDateString("en-GB", { month: "short" });
   return `${weekday} ${day} ${month}`;
+}
+
+/** Result card photo + logo badge — each falls back quietly if its URL 404s. */
+function ResultPhoto({ name, coverUrl, logoUrl }: { name: string; coverUrl: string | null; logoUrl: string | null }) {
+  const [coverFailed, setCoverFailed] = useState(false);
+  const [logoFailed, setLogoFailed] = useState(false);
+
+  return (
+    <div className="h-[128px] w-full overflow-hidden bg-[#F7F3ED] relative">
+      {coverUrl && !coverFailed ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={coverUrl}
+          alt={name}
+          className="h-full w-full object-cover group-hover:scale-[1.02] transition"
+          loading="lazy"
+          onError={() => setCoverFailed(true)}
+        />
+      ) : (
+        <div className="flex h-full w-full items-center justify-center">
+          <span className="flex h-12 w-12 items-center justify-center rounded-full bg-white text-sm font-semibold tracking-tight text-[#795831] border border-[#E5DDD0]">
+            {name.slice(0, 2).toUpperCase()}
+          </span>
+        </div>
+      )}
+      <button
+        type="button"
+        aria-label="Save"
+        onClick={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+        }}
+        className="absolute right-3 top-3 inline-flex h-8 w-8 items-center justify-center rounded-full bg-white/90 backdrop-blur border border-white shadow-sm hover:bg-white transition"
+      >
+        <Heart className="h-4 w-4 text-[#4A4640]" />
+      </button>
+      {/* Salon logo badge, bottom-left of the photo */}
+      {logoUrl && !logoFailed && (
+        <span className="absolute bottom-3 left-3 flex h-10 w-10 items-center justify-center overflow-hidden rounded-full border-2 border-white bg-white shadow-[0_2px_8px_rgba(30,28,26,0.25)]">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={logoUrl} alt={`${name} logo`} className="h-full w-full object-cover" loading="lazy" onError={() => setLogoFailed(true)} />
+        </span>
+      )}
+    </div>
+  );
 }
 
 function SearchInner() {
@@ -113,6 +159,7 @@ function SearchInner() {
             name: String(row.name ?? "Salon"),
             slug: String(row.slug ?? ""),
             logoUrl: (row.logoUrl as string | null) ?? null,
+            coverUrl: (row.coverUrl as string | null) ?? null,
             address: (row.address as string | null) ?? null,
             city: (row.city as string | null) ?? null,
             latitude: Number(row.latitude ?? 0),
@@ -314,30 +361,8 @@ function SearchInner() {
                   href={`/${r.slug}`}
                   className="group relative block overflow-hidden rounded-xl border border-[#E5DDD0] bg-white hover:border-[#CCC6BD] hover:shadow-[0_4px_16px_rgba(16,24,40,0.08)] transition"
                 >
-                  {/* Photo / placeholder — Task 5.2: use logoUrl if present, else neutral block, heart/save inert, no rating */}
-                  <div className="h-[128px] w-full overflow-hidden bg-[#F7F3ED] relative">
-                    {r.logoUrl ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img src={r.logoUrl} alt={r.name} className="h-full w-full object-cover group-hover:scale-[1.02] transition" loading="lazy" />
-                    ) : (
-                      <div className="flex h-full w-full items-center justify-center">
-                        <span className="flex h-12 w-12 items-center justify-center rounded-full bg-white text-sm font-semibold tracking-tight text-[#795831] border border-[#E5DDD0]">
-                          {r.name.slice(0, 2).toUpperCase()}
-                        </span>
-                      </div>
-                    )}
-                    <button
-                      type="button"
-                      aria-label="Save"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                      }}
-                      className="absolute right-3 top-3 inline-flex h-8 w-8 items-center justify-center rounded-full bg-white/90 backdrop-blur border border-white shadow-sm hover:bg-white transition"
-                    >
-                      <Heart className="h-4 w-4 text-[#4A4640]" />
-                    </button>
-                  </div>
+                  {/* Photo / placeholder — cover photo if present, else neutral block, heart/save inert, no rating */}
+                  <ResultPhoto name={r.name} coverUrl={r.coverUrl} logoUrl={r.logoUrl} />
                   <div className="p-4">
                     {r.marketplacePriority && (
                       <span className="mb-1.5 inline-flex items-center rounded-full bg-[#795831] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-white">

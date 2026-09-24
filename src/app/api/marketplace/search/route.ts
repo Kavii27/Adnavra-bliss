@@ -60,6 +60,11 @@ export async function GET(request: NextRequest) {
       longitude: true,
       marketplacePriority: true,
       subscription: { select: { plan: true } },
+      images: {
+        where: { kind: "cover" },
+        take: 1,
+        select: { url: true },
+      },
     },
     take: 200,
   });
@@ -69,8 +74,9 @@ export async function GET(request: NextRequest) {
   // real ranking below now comes from the new BusinessSubscription/SalonBoost
   // system via lib/ranking-service.ts, not from this boolean.
   const withDistance = businesses
-    .map(({ subscription, marketplacePriority, ...b }) => ({
+    .map(({ subscription, marketplacePriority, images, ...b }) => ({
       ...b,
+      coverUrl: images[0]?.url ?? null,
       marketplacePriority: marketplacePriority && subscription?.plan === "PREMIUM",
       distanceKm: hasCoords ? distanceKm(lat, lng, b.latitude!, b.longitude!) : null,
     }))

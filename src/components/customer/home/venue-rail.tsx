@@ -8,6 +8,7 @@ type Venue = {
   name: string;
   slug: string;
   logoUrl: string | null;
+  coverUrl?: string | null;
   address: string | null;
   city: string | null;
   category?: string | null;
@@ -61,6 +62,7 @@ export function VenueRail({ title, businesses, href, emptyText, layout = "rail" 
                 name={b.name}
                 slug={b.slug}
                 logoUrl={b.logoUrl}
+                coverUrl={b.coverUrl}
                 address={b.address}
                 city={b.city}
                 category={b.category}
@@ -82,6 +84,7 @@ export function VenueRail({ title, businesses, href, emptyText, layout = "rail" 
                 name={b.name}
                 slug={b.slug}
                 logoUrl={b.logoUrl}
+                coverUrl={b.coverUrl}
                 address={b.address}
                 city={b.city}
                 category={b.category}
