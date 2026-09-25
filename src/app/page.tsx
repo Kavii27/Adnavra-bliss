@@ -1,5 +1,3 @@
-import { Dot } from "lucide-react";
-import Image from "next/image";
 import { Suspense } from "react";
 import { HomeHeader } from "@/components/customer/home/home-header";
 import { AdBanner } from "@/components/customer/home/ad-banner";
@@ -135,53 +133,11 @@ export default async function MarketplaceHome() {
         <HomeHeader />
         <AdBanner />
 
-        {/* Hero — headline + search on the left, photo on the right, tops aligned */}
+        {/* Hero — search + trust stats */}
         <section className="relative border-b border-[#E5DDD0]">
           <div className="relative px-6 lg:px-12 pt-12 lg:pt-16 pb-10 max-w-[1400px] mx-auto">
-            <div className="grid items-start gap-10 lg:grid-cols-[1.05fr_0.95fr]">
-              {/* Left: message */}
-              <div className="text-center lg:text-left">
-                <span className="reveal-up inline-flex items-center gap-2 rounded-full border border-[#E5DDD0] bg-white px-4 py-1.5 text-[11px] font-semibold uppercase tracking-[0.15em] text-[#2A1D12] in-view">
-                  <Dot className="h-3 w-3 -ml-1 text-[#2A1D12]" />
-                  Sri Lanka&apos;s curated salon &amp; spa directory
-                </span>
-
-                <h1 className="mt-5 text-4xl lg:text-[46px] font-semibold tracking-[-1.25px] leading-[1.08] text-[#2A1D12]">
-                  Book your next appointment.
-                  <br />
-                  <span className="font-serif italic font-normal text-[#2A1D12]">
-                    Discover Sri Lanka&apos;s finest salons &amp; spas.
-                  </span>
-                </h1>
-                <p className="mt-4 text-[15px] leading-relaxed text-[#4A4640] max-w-md mx-auto lg:mx-0">
-                  Instantly explore and reserve verified hairstylists, skin clinics, luxury
-                  wellness spas, and beauty suites across the island.
-                </p>
-              </div>
-
-              {/* Right: hero photo — top-aligned with the badge on the left */}
-              <div className="relative mx-auto hidden aspect-[16/11] w-full max-w-[460px] overflow-hidden rounded-3xl border border-[#E5DDD0] shadow-[0_20px_50px_rgba(31,30,29,0.12)] lg:block">
-                <Image
-                  src="/hero-salon.png"
-                  alt="A stylist at work inside a premium Sri Lankan salon"
-                  fill
-                  priority
-                  className="object-cover"
-                />
-                <div className="absolute inset-x-4 bottom-4 flex items-center gap-2 rounded-xl bg-white/90 backdrop-blur px-4 py-3 shadow-sm">
-                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#2A1D12] text-xs font-semibold text-white">
-                    4.9
-                  </span>
-                  <span className="text-xs font-medium text-[#4A4640]">
-                    Rated by customers across Sri Lanka
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            {/* Search bar — full width, sits under both columns so it stays
-                balanced instead of trailing off under only the left column. */}
-            <div id="search" className="mt-10 relative z-10 scroll-mt-24">
+            {/* Search bar — full width */}
+            <div id="search" className="relative z-10 scroll-mt-24">
               <Suspense fallback={<div className="h-[76px] rounded-2xl bg-white border border-[#E5DDD0] animate-pulse" />}>
                 <SearchBar variant="hero" />
               </Suspense>

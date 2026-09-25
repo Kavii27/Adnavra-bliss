@@ -17,12 +17,19 @@ export function AdBanner({
         href={href}
         className="block overflow-hidden rounded-xl border border-[#E5DDD0] shadow-[0_4px_16px_rgba(31,30,29,0.08)] sm:rounded-2xl"
       >
-        {/* CarMarket's banner is ~1800x420 (≈4.3:1) on desktop; on mobile it
-            needs a taller crop (≈2:1) or the text inside the banner image
-            becomes unreadable — request 2 image sizes from whoever designs
-            banner.jpg, or crop with object-position as done below. */}
-        <div className="relative aspect-[2/1] w-full bg-[#F1E9DC] sm:aspect-[16/9] lg:aspect-[21/5]">
-          <Image src={imageUrl} alt={alt} fill priority className="object-cover" sizes="100vw" />
+        {/* Mobile: natural aspect ratio, uncropped (banner.jpg is 2752x1420).
+            Tablet/desktop: cropped banner strip. */}
+        <Image
+          src={imageUrl}
+          alt={alt}
+          width={2752}
+          height={1420}
+          priority
+          sizes="100vw"
+          className="h-auto w-full sm:hidden"
+        />
+        <div className="relative hidden w-full bg-[#F1E9DC] sm:block sm:aspect-[17/9] lg:aspect-[14/3]">
+          <Image src={imageUrl} alt={alt} fill priority className="object-cover [object-position:center_calc(50%+10px)]" sizes="100vw" />
         </div>
       </Link>
     </section>
