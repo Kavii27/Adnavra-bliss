@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { Store, X } from "lucide-react";
+import { useLocale } from "@/lib/i18n/locale-context";
 
 type Suggestion = {
   id: string;
@@ -19,6 +20,7 @@ type SalonAutocompleteProps = {
 const MIN_LETTERS = 2;
 
 export function SalonAutocomplete({ value, onChange }: SalonAutocompleteProps) {
+  const { t } = useLocale();
   const [open, setOpen] = useState(false);
   const [suggestions, setSuggestions] = useState<Suggestion[] | null>(null);
   const [loading, setLoading] = useState(false);
@@ -28,6 +30,8 @@ export function SalonAutocomplete({ value, onChange }: SalonAutocompleteProps) {
 
   const trimmed = value.trim();
   const showLive = trimmed.length >= MIN_LETTERS;
+  // Hoisted so effects can depend on the resolved string, not the `t` closure.
+  const salonFallback = t("search.salonFallback");
 
   // Full A–Z salon list, fetched once when the panel first opens — shown
   // whenever fewer than MIN_LETTERS are typed.
@@ -43,7 +47,7 @@ export function SalonAutocomplete({ value, onChange }: SalonAutocompleteProps) {
         const mapped: Suggestion[] = rows
           .map((row: Record<string, unknown>) => ({
             id: String(row.id ?? ""),
-            name: String(row.name ?? "Salon"),
+            name: String(row.name ?? salonFallback),
             slug: String(row.slug ?? ""),
             city: row.city ? String(row.city) : null,
           }))
@@ -56,7 +60,7 @@ export function SalonAutocomplete({ value, onChange }: SalonAutocompleteProps) {
       }
     })();
     return () => ctrl.abort();
-  }, [open, allSalons, allLoading]);
+  }, [open, allSalons, allLoading, salonFallback]);
 
   // Locally filter the A–Z list while fewer than MIN_LETTERS are typed
   // (e.g. a single letter narrows it without hitting the API).
@@ -86,7 +90,7 @@ export function SalonAutocomplete({ value, onChange }: SalonAutocompleteProps) {
         setSuggestions(
           rows.slice(0, 6).map((row: Record<string, unknown>) => ({
             id: String(row.id ?? ""),
-            name: String(row.name ?? "Salon"),
+            name: String(row.name ?? salonFallback),
             slug: String(row.slug ?? ""),
             city: row.city ? String(row.city) : null,
           }))
@@ -101,7 +105,7 @@ export function SalonAutocomplete({ value, onChange }: SalonAutocompleteProps) {
       clearTimeout(t);
       ctrl.abort();
     };
-  }, [trimmed]);
+  }, [trimmed, salonFallback]);
 
   useEffect(() => {
     function onClick(e: MouseEvent) {
@@ -143,15 +147,15 @@ export function SalonAutocomplete({ value, onChange }: SalonAutocompleteProps) {
             setOpen(true);
           }}
           onFocus={() => setOpen(true)}
-          placeholder="Search salons"
-          aria-label="Search salons"
+          placeholder={t("search.salonsPlaceholder")}
+          aria-label={t("search.salonsPlaceholder")}
           className="min-w-0 flex-1 truncate bg-transparent text-sm text-[#1F1E1D] outline-none placeholder:text-[#8A8377]"
         />
         {value ? (
           <span
             role="button"
             tabIndex={0}
-            aria-label="Clear salon search"
+            aria-label={t("search.clearSalonSearch")}
             onMouseDown={(e) => {
               e.preventDefault();
               e.stopPropagation();
@@ -180,12 +184,12 @@ export function SalonAutocomplete({ value, onChange }: SalonAutocompleteProps) {
           <div className="max-h-[340px] overflow-y-auto p-2">
             {showLive ? (
               <>
-                <p className="px-3 pb-1 pt-2 text-xs font-semibold uppercase tracking-wide text-[#8A8377]">Salons</p>
+                <p className="px-3 pb-1 pt-2 text-xs font-semibold uppercase tracking-wide text-[#8A8377]">{t("search.salonsHeading")}</p>
                 {loading && suggestions === null ? (
-                  <p className="px-3 py-6 text-center text-sm text-[#8A8377]">Searching salons…</p>
+                  <p className="px-3 py-6 text-center text-sm text-[#8A8377]">{t("search.searchingSalons")}</p>
                 ) : suggestions !== null && suggestions.length === 0 ? (
                   <p className="px-3 py-6 text-center text-sm text-[#8A8377]">
-                    No salons match &ldquo;{trimmed}&rdquo;.
+                    {t("search.noSalonsMatch")} &ldquo;{trimmed}&rdquo;.
                   </p>
                 ) : (
                   (suggestions ?? []).map((s) => (
@@ -211,12 +215,12 @@ export function SalonAutocomplete({ value, onChange }: SalonAutocompleteProps) {
             ) : (
               <>
                 <p className="px-3 pb-1 pt-2 text-xs font-semibold uppercase tracking-wide text-[#8A8377]">
-                  All salons A–Z
+                  {t("search.allSalonsAZ")}
                 </p>
                 {allLoading ? (
-                  <p className="px-3 py-6 text-center text-sm text-[#8A8377]">Loading salons…</p>
+                  <p className="px-3 py-6 text-center text-sm text-[#8A8377]">{t("search.loadingSalons")}</p>
                 ) : visibleAll.length === 0 ? (
-                  <p className="px-3 py-6 text-center text-sm text-[#8A8377]">No salons found.</p>
+                  <p className="px-3 py-6 text-center text-sm text-[#8A8377]">{t("search.noSalonsFound")}</p>
                 ) : (
                   visibleAll.map((s) => (
                     <button

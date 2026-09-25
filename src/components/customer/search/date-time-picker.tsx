@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Calendar as CalendarIcon, ChevronLeft, ChevronRight, Clock, X } from "lucide-react";
+import { useLocale } from "@/lib/i18n/locale-context";
 
 export type TimeBand = "any" | "morning" | "afternoon" | "evening" | "custom";
 
@@ -45,15 +46,16 @@ function monthLabel(d: Date): string {
   return d.toLocaleDateString("en-GB", { month: "long", year: "numeric" });
 }
 
-const BANDS: { id: TimeBand; label: string; hint?: string }[] = [
-  { id: "any", label: "Any time" },
-  { id: "morning", label: "Morning", hint: "9am–12pm" },
-  { id: "afternoon", label: "Afternoon", hint: "12pm–6pm" },
-  { id: "evening", label: "Evening", hint: "6pm–12am" },
-  { id: "custom", label: "Custom" },
+const BANDS: { id: TimeBand; labelKey: string; hint?: string }[] = [
+  { id: "any", labelKey: "search.anyTime" },
+  { id: "morning", labelKey: "search.morning", hint: "9am–12pm" },
+  { id: "afternoon", labelKey: "search.afternoon", hint: "12pm–6pm" },
+  { id: "evening", labelKey: "search.evening", hint: "6pm–12am" },
+  { id: "custom", labelKey: "search.custom" },
 ];
 
 export function DateTimePicker({ value, onChange }: DateTimePickerProps) {
+  const { t } = useLocale();
   const [open, setOpen] = useState(false);
   const today = useMemo(() => {
     const d = new Date();
@@ -101,13 +103,13 @@ export function DateTimePicker({ value, onChange }: DateTimePickerProps) {
   const band: TimeBand = value?.band ?? "any";
 
   function displayLabel(): string {
-    if (!value?.date) return "Any time";
+    if (!value?.date) return t("search.anyTime");
     const d = fromISO(value.date);
     const isToday = isSameDay(d, today);
     const isTomorrow = isSameDay(d, tomorrow);
-    const dateLabel = isToday ? "Today" : isTomorrow ? "Tomorrow" : d.toLocaleDateString("en-GB", { day: "numeric", month: "short" });
+    const dateLabel = isToday ? t("search.today") : isTomorrow ? t("search.tomorrow") : d.toLocaleDateString("en-GB", { day: "numeric", month: "short" });
     const bandObj = BANDS.find((b) => b.id === band);
-    const bandLabel = band && band !== "any" ? ` · ${bandObj?.label ?? band}` : "";
+    const bandLabel = band && band !== "any" ? ` · ${bandObj ? t(bandObj.labelKey) : band}` : "";
     if (band === "custom" && value?.from && value?.to) return `${dateLabel}, ${value.from}–${value.to}`;
     return `${dateLabel}${bandLabel}`;
   }
@@ -171,7 +173,7 @@ export function DateTimePicker({ value, onChange }: DateTimePickerProps) {
           <span
             role="button"
             tabIndex={0}
-            aria-label="Clear date filter"
+            aria-label={t("search.clearDateFilter")}
             onClick={(e) => {
               e.stopPropagation();
               onChange(null);
@@ -195,23 +197,23 @@ export function DateTimePicker({ value, onChange }: DateTimePickerProps) {
           <div className="grid md:grid-cols-[160px_1fr] gap-0">
             {/* Left: Today / Tomorrow */}
             <div className="border-b md:border-b-0 md:border-r border-[#F1EDE7] p-3 space-y-2 bg-[#FDF9F3]/50">
-              <p className="px-1 pb-1 text-xs font-semibold uppercase tracking-wide text-[#8A8377]">Quick pick</p>
+              <p className="px-1 pb-1 text-xs font-semibold uppercase tracking-wide text-[#8A8377]">{t("search.quickPick")}</p>
               {[
-                { date: today, label: "Today" },
-                { date: tomorrow, label: "Tomorrow" },
-              ].map(({ date, label }) => {
+                { date: today, labelKey: "search.today" },
+                { date: tomorrow, labelKey: "search.tomorrow" },
+              ].map(({ date, labelKey }) => {
                 const iso = toISODate(date);
                 const isSelected = value?.date === iso;
                 return (
                   <button
-                    key={label}
+                    key={iso}
                     type="button"
                     onClick={() => setDate(iso)}
                     className={`flex w-full flex-col rounded-lg border px-3 py-3 text-left transition ${
                       isSelected ? "border-[#795831] bg-white shadow-sm" : "border-[#E5DDD0] bg-white hover:border-[#CCC6BD]"
                     }`}
                   >
-                    <span className={`text-sm font-semibold ${isSelected ? "text-[#795831]" : "text-[#1F1E1D]"}`}>{label}</span>
+                    <span className={`text-sm font-semibold ${isSelected ? "text-[#795831]" : "text-[#1F1E1D]"}`}>{t(labelKey)}</span>
                     <span className="text-xs text-[#8A8377]">
                       {date.toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short" })}
                     </span>
@@ -223,7 +225,7 @@ export function DateTimePicker({ value, onChange }: DateTimePickerProps) {
                 onClick={() => setDate(null)}
                 className="w-full rounded-lg px-3 py-2 text-left text-xs font-medium text-[#4A4640] hover:bg-white hover:shadow-sm border border-transparent hover:border-[#E5DDD0]"
               >
-                Clear date
+                {t("search.clearDate")}
               </button>
             </div>
 
@@ -233,7 +235,7 @@ export function DateTimePicker({ value, onChange }: DateTimePickerProps) {
                 <button
                   type="button"
                   onClick={() => setCursor(new Date(cursor.getFullYear(), cursor.getMonth() - 1, 1))}
-                  aria-label="Previous month"
+                  aria-label={t("search.prevMonth")}
                   className="inline-flex h-8 w-8 items-center justify-center rounded-full hover:bg-[#F7F3ED]"
                 >
                   <ChevronLeft className="h-4 w-4 text-[#4A4640]" />
@@ -242,7 +244,7 @@ export function DateTimePicker({ value, onChange }: DateTimePickerProps) {
                 <button
                   type="button"
                   onClick={() => setCursor(new Date(cursor.getFullYear(), cursor.getMonth() + 1, 1))}
-                  aria-label="Next month"
+                  aria-label={t("search.nextMonth")}
                   className="inline-flex h-8 w-8 items-center justify-center rounded-full hover:bg-[#F7F3ED]"
                 >
                   <ChevronRight className="h-4 w-4 text-[#4A4640]" />
@@ -250,9 +252,17 @@ export function DateTimePicker({ value, onChange }: DateTimePickerProps) {
               </div>
 
               <div className="mt-3 grid grid-cols-7 gap-1 text-center">
-                {["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map((w) => (
-                  <span key={w} className="py-1 text-[11px] font-medium text-[#8A8377]">
-                    {w}
+                {[
+                  "search.wdMon",
+                  "search.wdTue",
+                  "search.wdWed",
+                  "search.wdThu",
+                  "search.wdFri",
+                  "search.wdSat",
+                  "search.wdSun",
+                ].map((k) => (
+                  <span key={k} className="py-1 text-[11px] font-medium text-[#8A8377]">
+                    {t(k)}
                   </span>
                 ))}
                 {calendar.map((cell, idx) => {
@@ -282,7 +292,7 @@ export function DateTimePicker({ value, onChange }: DateTimePickerProps) {
               {/* Time bands */}
               <div className="mt-5 border-t border-[#F1EDE7] pt-4">
                 <p className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-[#8A8377]">
-                  <Clock className="h-3.5 w-3.5" /> Time
+                  <Clock className="h-3.5 w-3.5" /> {t("search.timeLabel")}
                 </p>
                 <div className="mt-2 flex flex-wrap gap-1.5">
                   {BANDS.map((b) => {
@@ -297,7 +307,7 @@ export function DateTimePicker({ value, onChange }: DateTimePickerProps) {
                           isActive ? "border-[#795831] bg-[#795831] text-white" : "border-[#E5DDD0] bg-white text-[#4A4640] hover:bg-[#F7F3ED]"
                         }`}
                       >
-                        {b.label}
+                        {t(b.labelKey)}
                         {b.hint ? <span className={`ml-1 ${isActive ? "text-white/80" : "text-[#8A8377]"}`}>{b.hint}</span> : null}
                       </button>
                     );
@@ -307,7 +317,7 @@ export function DateTimePicker({ value, onChange }: DateTimePickerProps) {
                 {band === "custom" ? (
                   <div className="mt-3 flex items-center gap-2">
                     <label className="flex-1">
-                      <span className="sr-only">From</span>
+                      <span className="sr-only">{t("search.fromLabel")}</span>
                       <input
                         type="time"
                         value={customFrom}
@@ -316,9 +326,9 @@ export function DateTimePicker({ value, onChange }: DateTimePickerProps) {
                         className="w-full rounded-md border border-[#E5DDD0] bg-white px-2 py-2 text-sm outline-none focus:border-[#795831] focus:ring-1 focus:ring-[#795831]"
                       />
                     </label>
-                    <span className="text-xs text-[#8A8377]">to</span>
+                    <span className="text-xs text-[#8A8377]">{t("search.toSep")}</span>
                     <label className="flex-1">
-                      <span className="sr-only">To</span>
+                      <span className="sr-only">{t("search.toLabel")}</span>
                       <input
                         type="time"
                         value={customTo}
@@ -332,7 +342,7 @@ export function DateTimePicker({ value, onChange }: DateTimePickerProps) {
                       onClick={handleCustomTimeChange}
                       className="rounded-md bg-[#795831] px-3 py-2 text-xs font-semibold text-white hover:bg-[#5F4426]"
                     >
-                      Apply
+                      {t("search.apply")}
                     </button>
                   </div>
                 ) : null}

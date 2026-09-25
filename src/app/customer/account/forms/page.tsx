@@ -1,16 +1,18 @@
 import { ClipboardList } from "lucide-react";
+import { getServerT } from "@/lib/i18n/server";
 
 const SERIF = "font-[family-name:var(--font-display)]";
 
-export default function FormsPage() {
+export default async function FormsPage() {
+  const t = await getServerT();
   return (
     <div className="space-y-8">
       <div>
         <p className="text-[10px] font-semibold uppercase tracking-[0.22em]" style={{ color: "#9A7B4F" }}>
-          Your account
+          {t("account.yourAccount")}
         </p>
-        <h1 className={`${SERIF} mt-1 text-3xl font-medium tracking-tight text-[#1F1B17]`}>Forms</h1>
-        <p className="mt-1.5 text-sm text-[#8A8377]">Intake and consent forms from salons you book with.</p>
+        <h1 className={`${SERIF} mt-1 text-3xl font-medium tracking-tight text-[#1F1B17]`}>{t("account.forms")}</h1>
+        <p className="mt-1.5 text-sm text-[#8A8377]">{t("account.formsSub")}</p>
       </div>
       <div className="rounded-2xl border border-dashed border-[#E5DDD0] bg-white p-12 text-center">
         <div
@@ -19,10 +21,9 @@ export default function FormsPage() {
         >
           <ClipboardList className="h-6 w-6 text-[#1B1714]" />
         </div>
-        <p className={`${SERIF} mt-5 text-xl font-semibold text-[#1F1B17]`}>No forms yet</p>
+        <p className={`${SERIF} mt-5 text-xl font-semibold text-[#1F1B17]`}>{t("account.noForms")}</p>
         <p className="mx-auto mt-1.5 max-w-md text-sm text-[#8A8377]">
-          Salons you book with may ask you to fill out forms before your appointment. When a salon sends you one, it will show up
-          here.
+          {t("account.noFormsSub")}
         </p>
       </div>
     </div>

@@ -1,5 +1,6 @@
 "use client";
 import { CalendarPlus } from "lucide-react";
+import { useLocale } from "@/lib/i18n/locale-context";
 
 function formatIcsDate(date: Date): string {
   const pad = (n: number) => String(n).padStart(2, "0");
@@ -32,6 +33,7 @@ export function AddToCalendarButton({
   startTime: string;
   endTime: string;
 }) {
+  const { t } = useLocale();
   function handleDownload() {
     const start = new Date(startTime);
     const end = new Date(endTime);
@@ -74,7 +76,7 @@ export function AddToCalendarButton({
       onClick={handleDownload}
       className="inline-flex items-center gap-1.5 rounded-full border border-[#E5DDD0] bg-white px-4 py-2 text-xs font-semibold text-[#1F1E1D] transition-colors hover:bg-[#FBF7EF]"
     >
-      <CalendarPlus className="h-3.5 w-3.5 text-[#9A7B4F]" /> Add to calendar
+      <CalendarPlus className="h-3.5 w-3.5 text-[#9A7B4F]" /> {t("booking.calendar.add")}
     </button>
   );
 }

@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { MapPin, Navigation, X, LocateFixed } from "lucide-react";
 import { SRI_LANKA_LOCATIONS, type SriLankaLocation } from "@/lib/sri-lanka-locations";
+import { useLocale } from "@/lib/i18n/locale-context";
 
 export type LocationValue = {
   label: string;
@@ -39,6 +40,7 @@ function nearestLocation(lat: number, lng: number): SriLankaLocation {
 }
 
 export function LocationAutocomplete({ value, onChange }: LocationAutocompleteProps) {
+  const { t } = useLocale();
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [debounced, setDebounced] = useState("");
@@ -110,7 +112,7 @@ export function LocationAutocomplete({ value, onChange }: LocationAutocompletePr
 
   function handleUseCurrentLocation() {
     if (!navigator.geolocation) {
-      setGeoError("Geolocation is not supported in this browser.");
+      setGeoError(t("search.geoNotSupported"));
       return;
     }
     setGeoLoading(true);
@@ -124,14 +126,14 @@ export function LocationAutocomplete({ value, onChange }: LocationAutocompletePr
         setGeoLoading(false);
       },
       () => {
-        setGeoError("Unable to get your location. Please pick a town below.");
+        setGeoError(t("search.geoFailed"));
         setGeoLoading(false);
       },
       { enableHighAccuracy: false, timeout: 8000, maximumAge: 60000 }
     );
   }
 
-  const displayPlaceholder = "Current location";
+  const displayPlaceholder = t("search.locationPlaceholder");
 
   return (
     <div ref={ref} className="relative flex-1 min-w-0 overflow-visible">
@@ -152,13 +154,13 @@ export function LocationAutocomplete({ value, onChange }: LocationAutocompletePr
           }}
           onFocus={() => setOpen(true)}
           placeholder={displayPlaceholder}
-          aria-label="Location"
+          aria-label={t("search.locationLabel")}
           className="w-full bg-transparent py-2.5 text-sm outline-none placeholder:text-[#8A8377] text-[#1F1E1D]"
         />
         {query || value ? (
           <button
             type="button"
-            aria-label="Clear location"
+            aria-label={t("search.clearLocation")}
             onClick={handleClear}
             className="inline-flex h-6 w-6 items-center justify-center rounded-full hover:bg-[#F7F3ED]"
           >
@@ -180,8 +182,8 @@ export function LocationAutocomplete({ value, onChange }: LocationAutocompletePr
               <LocateFixed className="h-4 w-4 text-[#795831]" />
             </span>
             <span className="flex-1">
-              <span className="block text-sm font-medium text-[#795831]">{geoLoading ? "Locating…" : "Current location"}</span>
-              <span className="block text-xs text-[#8A8377]">Use your device location</span>
+              <span className="block text-sm font-medium text-[#795831]">{geoLoading ? t("search.locating") : t("search.locationPlaceholder")}</span>
+              <span className="block text-xs text-[#8A8377]">{t("search.useDeviceLocation")}</span>
             </span>
             <Navigation className="h-4 w-4 text-[#8A8377]" />
           </button>
@@ -193,11 +195,11 @@ export function LocationAutocomplete({ value, onChange }: LocationAutocompletePr
           <div className="max-h-[280px] overflow-y-auto p-2">
             {!debounced ? (
               <p className="px-3 pb-1 pt-2 text-xs font-semibold uppercase tracking-wide text-[#8A8377]">
-                All locations A–Z
+                {t("search.allLocationsAZ")}
               </p>
             ) : null}
             {filtered.length === 0 ? (
-              <p className="px-3 py-6 text-center text-sm text-[#8A8377]">No towns match &ldquo;{debounced}&rdquo;.</p>
+              <p className="px-3 py-6 text-center text-sm text-[#8A8377]">{t("search.noTownsMatch")} &ldquo;{debounced}&rdquo;.</p>
             ) : (
               filtered.map((loc) => (
                 <button
@@ -218,7 +220,7 @@ export function LocationAutocomplete({ value, onChange }: LocationAutocompletePr
             )}
           </div>
           <div className="border-t border-[#F1EDE7] px-3 py-2">
-            <p className="text-[11px] leading-relaxed text-[#8A8377]">Locations are approximate centres for Sri Lankan towns.</p>
+            <p className="text-[11px] leading-relaxed text-[#8A8377]">{t("search.locationsNote")}</p>
           </div>
         </div>
       ) : null}

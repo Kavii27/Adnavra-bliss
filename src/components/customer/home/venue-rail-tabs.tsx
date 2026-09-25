@@ -5,6 +5,7 @@ import Link from "next/link";
 import { ChevronRight } from "lucide-react";
 import { VenueCard } from "./venue-card";
 import { Reveal } from "./reveal";
+import { useLocale } from "@/lib/i18n/locale-context";
 
 type Venue = {
   id: string;
@@ -35,30 +36,31 @@ export function VenueRailTabs({
   href?: string;
 }) {
   const [active, setActive] = useState(tabs[0]?.key ?? "");
-  const current = tabs.find((t) => t.key === active) ?? tabs[0];
+  const { t } = useLocale();
+  const current = tabs.find((tab) => tab.key === active) ?? tabs[0];
 
   return (
     <section className="py-8">
       <div className="flex flex-wrap items-center justify-between gap-3 px-6 lg:px-10 max-w-[1600px] mx-auto">
         <h2 className="text-lg font-semibold tracking-tight text-[#1F1E1D]">
-          Salons &amp; spas
+          {t("venue.spasTitle")}
         </h2>
 
         <div className="flex items-center gap-3">
           {/* Filter tabs — top right of the row */}
           <div className="flex items-center gap-1 rounded-full border border-[#E5DDD0] bg-white p-1">
-            {tabs.map((t) => (
+            {tabs.map((tab) => (
               <button
-                key={t.key}
+                key={tab.key}
                 type="button"
-                onClick={() => setActive(t.key)}
+                onClick={() => setActive(tab.key)}
                 className={`rounded-full px-3.5 py-1.5 text-[13px] font-medium transition-colors ${
-                  active === t.key
+                  active === tab.key
                     ? "bg-[#2A1D12] text-white shadow-sm"
                     : "text-[#4A4640] hover:text-[#1F1E1D]"
                 }`}
               >
-                {t.label}
+                {tab.label}
               </button>
             ))}
           </div>
@@ -68,7 +70,7 @@ export function VenueRailTabs({
               href={href}
               className="hidden sm:inline-flex items-center gap-1 text-sm font-medium text-[#795831] hover:underline"
             >
-              See all <ChevronRight className="h-4 w-4" />
+              {t("home.seeAll")} <ChevronRight className="h-4 w-4" />
             </Link>
           ) : null}
         </div>
@@ -78,10 +80,10 @@ export function VenueRailTabs({
         <div className="px-6 lg:px-10 max-w-[1600px] mx-auto mt-4">
           <div className="rounded-xl border border-dashed border-[#E5DDD0] bg-white p-8 text-center">
             <p className="text-sm text-[#8A8377]">
-              {current?.emptyText ?? "No venues to show yet."}
+              {current?.emptyText ?? t("venue.noVenues")}
             </p>
             <p className="mt-1 text-xs text-[#C9C1B4]">
-              Salons will appear here as soon as they join ADNAVRA.
+              {t("venue.defaultEmptySub")}
             </p>
           </div>
         </div>

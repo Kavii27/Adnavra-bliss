@@ -1,5 +1,8 @@
+"use client";
+
 import Link from "next/link";
-import { SERVICE_CATEGORIES } from "@/lib/categories";
+import { SERVICE_CATEGORIES, taxonomyLabelKey } from "@/lib/categories";
+import { useLocale } from "@/lib/i18n/locale-context";
 import { Reveal } from "./reveal";
 
 /** Numbered category grid, styled after the reference "Browse categories & services" section. */
@@ -16,6 +19,7 @@ export function BrowseByCategory({
 }) {
   const categories = typeof limit === "number" ? SERVICE_CATEGORIES.slice(0, limit) : SERVICE_CATEGORIES;
   const showViewAll = typeof limit === "number" && limit < SERVICE_CATEGORIES.length;
+  const { t } = useLocale();
 
   return (
     <section id="categories" className="scroll-mt-28 px-6 lg:px-12 pt-20 pb-10 max-w-[1400px] mx-auto">
@@ -24,13 +28,13 @@ export function BrowseByCategory({
       </p>
       <div className="mt-1 flex items-end justify-between gap-4">
         <h2 className="text-2xl font-semibold tracking-tight text-[#1F1E1D]">
-          Browse categories &amp; services
+          {t("home.browseCategory")}
         </h2>
         <Link
           href={showViewAll ? viewAllHref : "/customer/search"}
           className="shrink-0 text-sm font-medium text-[#795831] hover:underline"
         >
-          {showViewAll ? "View all" : `${SERVICE_CATEGORIES.length} Main`} categories
+          {showViewAll ? t("home.seeAll") : `${SERVICE_CATEGORIES.length} Main`} categories
         </Link>
       </div>
 
@@ -52,7 +56,7 @@ export function BrowseByCategory({
                 </span>
               </div>
               <div>
-                <p className="text-[15px] font-semibold text-[#1F1E1D]">{c.label}</p>
+                <p className="text-[15px] font-semibold text-[#1F1E1D]">{t(taxonomyLabelKey(c.slug))}</p>
                 {count > 0 && (
                   <p className="mt-1 text-[11px] font-semibold uppercase tracking-wide text-[#795831]">
                     {count} {count === 1 ? "Service" : "Services"}

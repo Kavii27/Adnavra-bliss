@@ -8,8 +8,10 @@ import Image from "next/image";
 import { Loader2, AlertCircle, Eye, EyeOff } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { useLocale } from "@/lib/i18n/locale-context";
 
 function CustomerLoginForm() {
+  const { t } = useLocale();
   const router = useRouter();
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get("callbackUrl") ?? "/customer/account/activity";
@@ -32,7 +34,7 @@ function CustomerLoginForm() {
         redirect: false,
       });
       if (!res) {
-        setError("Invalid email or password");
+        setError(t("auth.errInvalid"));
         return;
       }
       if (res.error) {
@@ -41,9 +43,9 @@ function CustomerLoginForm() {
           res.error.includes("Too many") ||
           (res as unknown as { code?: string }).code?.includes("Too many")
         ) {
-          setError("Too many login attempts. Please try again in 15 minutes.");
+          setError(t("auth.errTooMany"));
         } else {
-          setError("Invalid email or password");
+          setError(t("auth.errInvalid"));
         }
         return;
       }
@@ -59,7 +61,7 @@ function CustomerLoginForm() {
           if (role && role !== "CUSTOMER") {
             await signOut({ redirect: false });
             setWrongAudience({ role });
-            setError("This looks like a business account. Log in at the business login instead.");
+            setError(t("auth.errBusiness"));
             return;
           }
         } catch {
@@ -77,10 +79,10 @@ function CustomerLoginForm() {
         <div className="w-full max-w-md">
           <Link href="/" className="inline-flex items-center gap-2 text-lg font-semibold tracking-tight text-[#1F1E1D]">
             <Image src="/logo.png" alt="ADNAVRA logo" width={28} height={28} className="h-7 w-7 rounded-md object-contain" />
-            ADNAVRA <span className="text-[#8A7F6E] font-normal ml-2 text-sm">for customers</span>
+            ADNAVRA <span className="text-[#8A7F6E] font-normal ml-2 text-sm">{t("auth.forCustomers")}</span>
           </Link>
-          <h1 className="mt-6 text-2xl font-semibold text-[#1F1E1D]">Welcome back</h1>
-          <p className="mt-1 text-sm text-[#4A4640]">Sign in to book your next appointment</p>
+          <h1 className="mt-6 text-2xl font-semibold text-[#1F1E1D]">{t("auth.welcomeBack")}</h1>
+          <p className="mt-1 text-sm text-[#4A4640]">{t("auth.signInSub")}</p>
 
           <form onSubmit={handleSubmit} className="mt-8 space-y-4">
             {error && (
@@ -90,7 +92,7 @@ function CustomerLoginForm() {
                   {error}{" "}
                   {wrongAudience.role && wrongAudience.role !== "CUSTOMER" && (
                     <Link href="/login" className="font-medium text-[#795831] hover:underline">
-                      Go to business login
+                      {t("auth.goBusinessLogin")}
                     </Link>
                   )}
                 </span>
@@ -99,7 +101,7 @@ function CustomerLoginForm() {
 
             <div>
               <label htmlFor="email" className="text-sm font-medium text-[#1F1E1D]">
-                Email
+                {t("auth.email")}
               </label>
               <Input
                 id="email"
@@ -117,10 +119,10 @@ function CustomerLoginForm() {
             <div>
               <div className="flex items-center justify-between">
                 <label htmlFor="password" className="text-sm font-medium text-[#1F1E1D]">
-                  Password
+                  {t("auth.password")}
                 </label>
                 <Link href="/reset-password" className="text-xs font-medium text-[#795831] hover:underline">
-                  Forgot password?
+                  {t("auth.forgot")}
                 </Link>
               </div>
               <div className="relative mt-1.5">
@@ -139,7 +141,7 @@ function CustomerLoginForm() {
                   type="button"
                   onClick={() => setShowPw((v) => !v)}
                   className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-[#8A7F6E] hover:text-[#1F1E1D]"
-                  aria-label={showPw ? "Hide password" : "Show password"}
+                  aria-label={showPw ? t("auth.hidePw") : t("auth.showPw")}
                 >
                   {showPw ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </button>
@@ -149,24 +151,24 @@ function CustomerLoginForm() {
             <Button type="submit" disabled={isPending} variant="gradient" className="w-full">
               {isPending ? (
                 <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Signing in...
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" /> {t("auth.signingIn")}
                 </>
               ) : (
-                "Sign in"
+                t("auth.signIn")
               )}
             </Button>
           </form>
 
           <p className="mt-8 text-center text-sm text-[#4A4640]">
-            No account?{" "}
+            {t("auth.noAccount")}{" "}
             <Link href={`/customer/signup?callbackUrl=${encodeURIComponent(callbackUrl)}`} className="font-medium text-[#795831] hover:underline">
-              Create one
+              {t("auth.createOne")}
             </Link>
           </p>
           <p className="mt-3 text-center text-sm text-[#4A4640]">
-            Own a salon?{" "}
+            {t("auth.ownSalon")}{" "}
             <Link href="/login" className="font-medium text-[#1F1E1D] hover:underline">
-              Go to ADNAVRA for business
+              {t("auth.goBusiness")}
             </Link>
           </p>
         </div>
@@ -178,9 +180,9 @@ function CustomerLoginForm() {
         <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/25 to-black/5" />
         <div className="relative h-full flex items-end p-14">
           <div className="text-white max-w-sm">
-            <p className="text-2xl font-semibold leading-snug">Your next appointment, booked.</p>
+            <p className="text-2xl font-semibold leading-snug">{t("auth.heroTitle")}</p>
             <p className="mt-3 text-white/85 text-sm">
-              Discover top-rated salons near you and book in seconds. Beauty and care made simple.
+              {t("auth.heroSub")}
             </p>
           </div>
         </div>

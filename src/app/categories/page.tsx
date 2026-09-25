@@ -2,11 +2,15 @@ import { HomeHeader } from "@/components/customer/home/home-header";
 import { SiteFooter } from "@/components/marketing/site-footer";
 import { BrowseByCategory } from "@/components/customer/home/browse-by-category";
 import { db } from "@/lib/db";
+import { getServerT } from "@/lib/i18n/server";
 
-export const metadata = {
-  title: "Browse categories & services | ADNAVRA BLISS",
-  description: "Explore every salon and spa category available on ADNAVRA — hair, nails, skincare, massage, and more.",
-};
+export async function generateMetadata() {
+  const t = await getServerT();
+  return {
+    title: t("cat.metaCategoriesTitle"),
+    description: t("cat.metaCategoriesDesc"),
+  };
+}
 
 async function fetchCategoryCounts(): Promise<Record<string, number>> {
   try {

@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { Clock, Calendar, Loader2, AlertCircle, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useLocale } from "@/lib/i18n/locale-context";
 
 type Slot = { start: string; end: string };
 type Service = { id: string; name: string; duration: number; price: number };
@@ -14,6 +15,7 @@ export function SlotPicker({
   businessSlug: string;
   initialServiceId?: string;
 }) {
+  const { t } = useLocale();
   const [businessId, setBusinessId] = useState<string | null>(null);
   const [services, setServices] = useState<Service[]>([]);
   const [selectedService, setSelectedService] = useState<string>(initialServiceId ?? "");
@@ -81,26 +83,28 @@ export function SlotPicker({
         const r = await fetch(url);
         const j = await r.json();
         if (!r.ok) {
-          setSlotError(j.error ?? "Unable to load slots");
+          setSlotError(j.error ?? t("booking.error.slots"));
           setSlots([]);
           return;
         }
         setSlots(j.data.slots ?? []);
-        if ((j.data.slots ?? []).length === 0) setSlotError("No slots available on this day. Try another date.");
+        if ((j.data.slots ?? []).length === 0) setSlotError(t("booking.error.noSlots"));
       } catch {
-        setSlotError("Network error loading slots");
+        setSlotError(t("booking.error.slotsNetwork"));
       } finally {
         setLoadingSlots(false);
       }
     }
     fetchSlots();
+    // t() omitted: error fallback text does not need a refetch on locale switch
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [businessId, selectedService, date]);
 
   async function handleBook() {
     if (!selectedSlot || !businessId) return;
     setError(null);
     if (!name.trim() || !phone.trim()) {
-      setError("Name and phone are required.");
+      setError(t("booking.error.namePhone"));
       return;
     }
     setSubmitting(true);
@@ -119,12 +123,12 @@ export function SlotPicker({
       });
       const j = await r.json();
       if (!r.ok) {
-        setError(j.error ?? "Booking failed");
+        setError(j.error ?? t("booking.error.failedShort"));
         return;
       }
       setResult({ reference: j.reference ?? j.data?.reference });
     } catch {
-      setError("Network error. Please try again.");
+      setError(t("booking.error.network"));
     } finally {
       setSubmitting(false);
     }
@@ -133,7 +137,7 @@ export function SlotPicker({
   if (businessLoading) {
     return (
       <div className="flex items-center gap-2 text-sm text-[#8A8377] py-6">
-        <Loader2 className="h-4 w-4 animate-spin" /> Loading services...
+        <Loader2 className="h-4 w-4 animate-spin" /> {t("booking.loading.services")}
       </div>
     );
   }
@@ -144,10 +148,10 @@ export function SlotPicker({
         <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-full bg-white">
           <Check className="h-5 w-5 text-[#15803D]" />
         </div>
-        <h3 className="mt-3 text-lg font-semibold text-[#1F1E1D]">Booking confirmed</h3>
-        <p className="mt-1 text-sm text-[#4A4640]">Your reference:</p>
+        <h3 className="mt-3 text-lg font-semibold text-[#1F1E1D]">{t("booking.booked.title")}</h3>
+        <p className="mt-1 text-sm text-[#4A4640]">{t("booking.reference.yourRef")}</p>
         <p className="mt-2 inline-flex rounded-md bg-white px-4 py-2 font-mono text-lg font-bold tracking-widest text-[#1F1E1D]">{result.reference}</p>
-        <p className="mt-3 text-xs text-[#4A4640]">Show this reference at the salon. You can also take a screenshot of this page.</p>
+        <p className="mt-3 text-xs text-[#4A4640]">{t("booking.reference.hint")}</p>
       </div>
     );
   }
@@ -156,9 +160,9 @@ export function SlotPicker({
     <div className="space-y-6">
       {/* Service select */}
       <div>
-        <label className="text-sm font-medium text-[#1F1E1D]">Service</label>
+        <label className="text-sm font-medium text-[#1F1E1D]">{t("booking.summary.service")}</label>
         {services.length === 0 ? (
-          <p className="mt-2 text-sm text-[#8A8377]">No services available for this salon.</p>
+          <p className="mt-2 text-sm text-[#8A8377]">{t("booking.services.none")}</p>
         ) : (
           <select
             value={selectedService}
@@ -176,7 +180,7 @@ export function SlotPicker({
 
       {/* Date pick */}
       <div>
-        <label className="text-sm font-medium text-[#1F1E1D]">Date</label>
+        <label className="text-sm font-medium text-[#1F1E1D]">{t("booking.date.label")}</label>
         <div className="mt-2 flex items-center gap-2">
           <Calendar className="h-4 w-4 text-[#8A8377]" />
           <Input type="date" value={date} onChange={(e) => setDate(e.target.value)} className="max-w-[200px]" />
@@ -186,11 +190,11 @@ export function SlotPicker({
       {/* Slots */}
       <div>
         <p className="text-sm font-medium text-[#1F1E1D] flex items-center gap-2">
-          <Clock className="h-4 w-4 text-[#795831]" /> Available times
+          <Clock className="h-4 w-4 text-[#795831]" /> {t("booking.slots.title")}
         </p>
         {loadingSlots && (
           <div className="mt-3 flex items-center gap-2 text-sm text-[#8A8377]">
-            <Loader2 className="h-4 w-4 animate-spin" /> Loading slots...
+            <Loader2 className="h-4 w-4 animate-spin" /> {t("booking.loading.slots")}
           </div>
         )}
         {slotError && !loadingSlots && <p className="mt-2 text-sm text-[#B91C1C] flex items-center gap-1.5"><AlertCircle className="h-4 w-4" /> {slotError}</p>}
@@ -216,24 +220,24 @@ export function SlotPicker({
       {/* Customer form */}
       {selectedSlot && (
         <div className="rounded-lg border border-[#E5DDD0] bg-[#F7F3ED] p-5 space-y-4">
-          <p className="text-sm font-semibold text-[#1F1E1D]">Your details</p>
+          <p className="text-sm font-semibold text-[#1F1E1D]">{t("booking.yourDetails")}</p>
           <p className="text-xs text-[#8A8377]">
-            Selected: {new Date(selectedSlot.start).toLocaleString()} to {new Date(selectedSlot.end).toLocaleTimeString()}
+            {t("booking.selected.label")} {new Date(selectedSlot.start).toLocaleString()} to {new Date(selectedSlot.end).toLocaleTimeString()}
           </p>
-          <Input placeholder="Your name *" value={name} onChange={(e) => setName(e.target.value)} />
-          <Input placeholder="Phone *" value={phone} onChange={(e) => setPhone(e.target.value)} />
-          <Input placeholder="Email (optional)" value={email} onChange={(e) => setEmail(e.target.value)} type="email" />
+          <Input placeholder={t("booking.form.namePh")} value={name} onChange={(e) => setName(e.target.value)} />
+          <Input placeholder={t("booking.form.phonePh")} value={phone} onChange={(e) => setPhone(e.target.value)} />
+          <Input placeholder={t("booking.email")} value={email} onChange={(e) => setEmail(e.target.value)} type="email" />
           {error && <p className="text-sm text-[#B91C1C] flex items-center gap-1"><AlertCircle className="h-4 w-4" /> {error}</p>}
           <Button onClick={handleBook} disabled={submitting} className="w-full">
             {submitting ? (
               <>
-                <Loader2 className="h-4 w-4 animate-spin mr-2" /> Confirming...
+                <Loader2 className="h-4 w-4 animate-spin mr-2" /> {t("booking.confirming")}
               </>
             ) : (
-              "Confirm booking"
+              t("booking.confirm")
             )}
           </Button>
-          <p className="text-xs text-[#8A8377] text-center">You will receive a booking reference after confirmation.</p>
+          <p className="text-xs text-[#8A8377] text-center">{t("booking.reference.after")}</p>
         </div>
       )}
     </div>

@@ -58,3 +58,15 @@ export function getCategoryLabel(slug: string): string {
 export function isBusinessTypeSlug(slug: string): boolean {
   return slug in BUSINESS_TYPE_LABELS;
 }
+
+/**
+ * Dictionary key for a localized taxonomy label: `type.<slug>` for salon
+ * types, `cat.<slug>` for service categories. Use with `t()` from
+ * `@/lib/i18n/locale-context` (client) or `@/lib/i18n/server` (server) —
+ * the en dictionary carries the current English labels, so English output
+ * is unchanged. Unknown slugs fall back to `cat.<slug>` and then to the
+ * title-cased slug via `t()`'s own fallback chain.
+ */
+export function taxonomyLabelKey(slug: string): string {
+  return isBusinessTypeSlug(slug) ? `type.${slug}` : `cat.${slug}`;
+}

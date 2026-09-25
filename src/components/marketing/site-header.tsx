@@ -5,10 +5,12 @@ import Image from "next/image";
 import { useEffect, useState } from "react";
 import { Menu, X, ArrowRight } from "lucide-react";
 import { MenuDropdown } from "./menu-dropdown";
+import { useLocale } from "@/lib/i18n/locale-context";
 
-const NAV_LINKS = [{ href: "/about", label: "About" }];
+const NAV_LINKS = [{ href: "/about", labelKey: "mkt.header.about" }];
 
 export function SiteHeader() {
+  const { t } = useLocale();
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
@@ -58,7 +60,7 @@ export function SiteHeader() {
               href={l.href}
               className="relative text-[13px] font-medium text-[#4a4640] transition-colors hover:text-[#171514]"
             >
-              {l.label}
+              {t(l.labelKey)}
             </Link>
           ))}
         </div>
@@ -76,13 +78,13 @@ export function SiteHeader() {
             href="/"
             className="rounded-full bg-white/90 px-4 py-2 text-[13px] font-medium text-[#171514] shadow-sm backdrop-blur hover:bg-white"
           >
-            Marketplace
+            {t("mkt.header.marketplace")}
           </Link>
           <Link
             href="/signup"
             className="inline-flex h-10 items-center rounded-full bg-[#2A1D12] px-5 text-[13px] font-semibold text-white shadow-[0_10px_24px_rgba(0,0,0,0.18)] transition-colors hover:bg-[#17100A]"
           >
-            Sign up
+            {t("mkt.header.signup")}
           </Link>
           <MenuDropdown audience="business" />
         </div>
@@ -90,7 +92,7 @@ export function SiteHeader() {
         <button
           className="relative z-10 rounded-full bg-white/90 p-3 text-[#171514] shadow-sm backdrop-blur md:hidden"
           onClick={() => setOpen((v) => !v)}
-          aria-label="Toggle menu"
+          aria-label={t("mkt.header.toggleMenu")}
           aria-expanded={open}
         >
           {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
@@ -107,7 +109,7 @@ export function SiteHeader() {
                 className="block text-sm font-medium text-[#4a4640]"
                 onClick={() => setOpen(false)}
               >
-                {l.label}
+                {t(l.labelKey)}
               </Link>
             ))}
           </div>
@@ -118,21 +120,21 @@ export function SiteHeader() {
               className="block text-sm font-medium text-[#171514]"
               onClick={() => setOpen(false)}
             >
-              Log in or sign up
+              {t("mkt.header.loginSignup")}
             </Link>
             <Link
               href="/"
               className="block text-sm font-medium text-[#171514]"
               onClick={() => setOpen(false)}
             >
-              Marketplace
+              {t("mkt.header.marketplace")}
             </Link>
             <Link
               href="/"
               className="flex items-center justify-between text-sm font-semibold text-[#171514]"
               onClick={() => setOpen(false)}
             >
-              For customers
+              {t("mkt.header.forCustomers")}
               <ArrowRight className="h-4 w-4" />
             </Link>
           </div>

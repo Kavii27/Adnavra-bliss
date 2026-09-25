@@ -1,7 +1,11 @@
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono, Inter } from "next/font/google";
+import { cookies } from "next/headers";
 import "./globals.css";
 import { AppSessionProvider } from "@/components/providers/session-provider";
+import { LocaleProvider } from "@/lib/i18n/locale-context";
+import { LOCALE_COOKIE } from "@/lib/i18n/locale-cookie";
+import type { Locale } from "@/lib/i18n/dictionary";
 
 const geist = Geist({ subsets: ["latin"], weight: ["300", "400", "500", "600"], variable: "--font-geist" });
 const geistMono = Geist_Mono({ subsets: ["latin"], variable: "--font-geist-mono" });
@@ -27,15 +31,19 @@ export const viewport: Viewport = {
   maximumScale: 5,
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const store = await cookies();
+  const locale: Locale = store.get(LOCALE_COOKIE)?.value === "si" ? "si" : "en";
   return (
-    <html lang="en" className={`${geist.variable} ${geistMono.variable} ${inter.variable}`}>
+    <html lang={locale} className={`${geist.variable} ${geistMono.variable} ${inter.variable}`}>
       <body className="antialiased bg-[#faf6ef] text-[#3a2f22]">
-        <AppSessionProvider>{children}</AppSessionProvider>
+        <AppSessionProvider>
+          <LocaleProvider initialLocale={locale}>{children}</LocaleProvider>
+        </AppSessionProvider>
       </body>
     </html>
   );

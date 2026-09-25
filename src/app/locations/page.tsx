@@ -2,11 +2,15 @@ import { HomeHeader } from "@/components/customer/home/home-header";
 import { SiteFooter } from "@/components/marketing/site-footer";
 import { BrowseByCity } from "@/components/customer/home/browse-by-city";
 import { SRI_LANKA_LOCATIONS } from "@/lib/sri-lanka-locations";
+import { getServerT } from "@/lib/i18n/server";
 
-export const metadata = {
-  title: "Salon & spa locations across Sri Lanka | ADNAVRA BLISS",
-  description: "Find trusted salons and spas in your town — browse every district and city on ADNAVRA.",
-};
+export async function generateMetadata() {
+  const t = await getServerT();
+  return {
+    title: t("locations.metaTitle"),
+    description: t("locations.metaDesc"),
+  };
+}
 
 export default function LocationsPage() {
   return (

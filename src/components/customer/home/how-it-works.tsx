@@ -1,44 +1,46 @@
 import Link from "next/link";
 import { UserRoundPlus, Store, CalendarCheck } from "lucide-react";
+import { getServerT } from "@/lib/i18n/server";
 import { Reveal } from "./reveal";
 
 const STEPS = [
   {
     icon: UserRoundPlus,
     n: "01",
-    title: "Browse & Compare",
-    desc: "Explore verified salons, transparent pricing, stylist portfolios, and genuine client reviews.",
+    titleKey: "home.how.step1.title",
+    descKey: "home.how.step1.desc",
     href: "/customer/search",
-    cta: "Search directory",
+    ctaKey: "home.how.step1.cta",
   },
   {
     icon: Store,
     n: "02",
-    title: "Choose Service & Time",
-    desc: "Pick your preferred stylist or therapist, select your service, and choose a time that fits your schedule.",
+    titleKey: "home.how.step2.title",
+    descKey: "home.how.step2.desc",
     href: "/customer/search",
-    cta: "Explore calendars",
+    ctaKey: "home.how.step2.cta",
   },
   {
     icon: CalendarCheck,
     n: "03",
-    title: "Instant Confirmation",
-    desc: "Receive instant booking confirmation on WhatsApp and SMS. Pay in person when your appointment is done.",
+    titleKey: "home.how.step3.title",
+    descKey: "home.how.step3.desc",
     href: "/customer/signup",
-    cta: "Instant booking",
+    ctaKey: "home.how.step3.cta",
   },
 ] as const;
 
 /** Explainer over flows that already exist — no new booking logic. */
-export function HowItWorks() {
+export async function HowItWorks() {
+  const t = await getServerT();
   return (
     <section id="how-it-works" className="px-6 lg:px-12 py-14 max-w-[1400px] mx-auto text-center scroll-mt-20">
-      <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#795831]">How to book</p>
+      <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#795831]">{t("home.how.eyebrow")}</p>
       <h2 className="mt-2 text-2xl lg:text-3xl font-semibold tracking-tight text-[#1F1E1D]">
-        Book in three easy steps
+        {t("home.how.title")}
       </h2>
       <p className="mt-2 text-sm text-[#8A8377] max-w-lg mx-auto">
-        No advance payment required. Instant confirmation straight to your phone.
+        {t("home.how.sub")}
       </p>
 
       <Reveal className="mt-8 grid gap-6 md:grid-cols-3 text-left reveal-stagger">
@@ -53,13 +55,13 @@ export function HowItWorks() {
               </span>
               <span className="num-ghost text-3xl font-semibold text-[#E5DDD0]">{s.n}</span>
             </div>
-            <h3 className="mt-4 text-base font-semibold text-[#1F1E1D]">{s.title}</h3>
-            <p className="mt-1 text-sm leading-relaxed text-[#4A4640]">{s.desc}</p>
+            <h3 className="mt-4 text-base font-semibold text-[#1F1E1D]">{t(s.titleKey)}</h3>
+            <p className="mt-1 text-sm leading-relaxed text-[#4A4640]">{t(s.descKey)}</p>
             <Link
               href={s.href}
               className="mt-4 inline-block text-sm font-medium text-[#795831] hover:underline"
             >
-              {s.cta} →
+              {t(s.ctaKey)} →
             </Link>
           </div>
         ))}

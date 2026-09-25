@@ -1,11 +1,15 @@
 import { HomeHeader } from "@/components/customer/home/home-header";
 import { SiteFooter } from "@/components/marketing/site-footer";
 import { BrowseBySalonType } from "@/components/customer/home/browse-by-salon-type";
+import { getServerT } from "@/lib/i18n/server";
 
-export const metadata = {
-  title: "Browse by salon type | ADNAVRA BLISS",
-  description: "Explore salons by type — gents, ladies, unisex, bridal, home visits, spa & resort, and kids friendly.",
-};
+export async function generateMetadata() {
+  const t = await getServerT();
+  return {
+    title: t("cat.metaTypesTitle"),
+    description: t("cat.metaTypesDesc"),
+  };
+}
 
 export default function SalonTypesPage() {
   return (

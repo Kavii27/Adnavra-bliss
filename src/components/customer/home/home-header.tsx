@@ -4,12 +4,14 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Menu, X } from "lucide-react";
+import { LanguageSwitcher } from "@/components/customer/language-switcher";
+import { useLocale } from "@/lib/i18n/locale-context";
 
 const NAV_LINKS = [
-  { href: "/", label: "Home" },
-  { href: "/about", label: "About" },
-  { href: "/locations", label: "Locations" },
-  { href: "/contact", label: "Contact" },
+  { href: "/", key: "nav.home" },
+  { href: "/about", key: "nav.about" },
+  { href: "/locations", key: "nav.locations" },
+  { href: "/contact", key: "nav.contact" },
 ] as const;
 
 /**
@@ -19,6 +21,7 @@ const NAV_LINKS = [
 export function HomeHeader() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const { t } = useLocale();
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 8);
@@ -62,17 +65,18 @@ export function HomeHeader() {
         <nav className="hidden items-center gap-1 lg:flex">
           {NAV_LINKS.map((l) => (
             <Link
-              key={l.label}
+              key={l.key}
               href={l.href}
               className="rounded-full px-4 py-2 text-[13px] font-medium tracking-wide text-white/75 transition-colors hover:bg-white/10 hover:text-white"
             >
-              {l.label}
+              {t(l.key)}
             </Link>
           ))}
         </nav>
 
         {/* Right cluster */}
         <div className="hidden items-center gap-3 lg:flex">
+          <LanguageSwitcher dark />
           <Link
             href="/login"
             className="card-lift inline-flex items-center rounded-full bg-[#C9A063] px-4 py-2 text-[13px] font-semibold text-[#2A1D12] hover:bg-[#D8B27A]"
@@ -99,12 +103,12 @@ export function HomeHeader() {
           <nav className="flex flex-col divide-y divide-white/10">
             {NAV_LINKS.map((l) => (
               <Link
-                key={l.label}
+                key={l.key}
                 href={l.href}
                 onClick={() => setMobileOpen(false)}
                 className="px-4 py-3.5 text-center text-[15px] font-medium text-white/90 hover:bg-white/5"
               >
-                {l.label}
+                {t(l.key)}
               </Link>
             ))}
           </nav>
@@ -114,16 +118,18 @@ export function HomeHeader() {
               onClick={() => setMobileOpen(false)}
               className="inline-flex h-11 items-center justify-center rounded-full border border-white/20 text-sm font-semibold text-white"
             >
-              Log in
+              {t("nav.login")}
             </Link>
             <Link
               href="/login"
               onClick={() => setMobileOpen(false)}
               className="inline-flex h-11 items-center justify-center rounded-full bg-[#C9A063] text-sm font-semibold text-[#2A1D12]"
             >
-              For business — Access Portal
+              {t("nav.forBusiness")} — Access Portal
             </Link>
-            {/* LanguageSwitcher goes here — see Phase 3.3 */}
+            <div className="flex justify-center py-2">
+              <LanguageSwitcher dark />
+            </div>
           </div>
         </div>
         )}

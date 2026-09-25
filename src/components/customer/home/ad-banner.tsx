@@ -1,15 +1,18 @@
 import Image from "next/image";
 import Link from "next/link";
+import { getServerT } from "@/lib/i18n/server";
 
-export function AdBanner({
+export async function AdBanner({
   imageUrl = "/banner.jpg",
   href = "/for-business",
-  alt = "ADNAVRA BLISS promotion",
+  alt,
 }: {
   imageUrl?: string | null;
   href?: string;
   alt?: string;
 }) {
+  const t = await getServerT();
+  const resolvedAlt = alt ?? t("venue.adAlt");
   if (!imageUrl) return null;
   return (
     <section className="mx-auto max-w-[1400px] px-4 pt-4 sm:px-6 lg:px-12">
@@ -21,7 +24,7 @@ export function AdBanner({
             Tablet/desktop: cropped banner strip. */}
         <Image
           src={imageUrl}
-          alt={alt}
+          alt={resolvedAlt}
           width={2752}
           height={1420}
           priority
@@ -29,7 +32,7 @@ export function AdBanner({
           className="h-auto w-full sm:hidden"
         />
         <div className="relative hidden w-full bg-[#F1E9DC] sm:block sm:aspect-[17/9] lg:aspect-[14/3]">
-          <Image src={imageUrl} alt={alt} fill priority className="object-cover [object-position:center_calc(50%+10px)]" sizes="100vw" />
+          <Image src={imageUrl} alt={resolvedAlt} fill priority className="object-cover [object-position:center_calc(50%+10px)]" sizes="100vw" />
         </div>
       </Link>
     </section>

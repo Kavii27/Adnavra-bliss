@@ -1,7 +1,10 @@
+"use client";
+
 import Link from "next/link";
 import { ChevronRight } from "lucide-react";
 import { VenueCard } from "./venue-card";
 import { Reveal } from "./reveal";
+import { useLocale } from "@/lib/i18n/locale-context";
 
 type Venue = {
   id: string;
@@ -27,6 +30,8 @@ type VenueRailProps = {
 };
 
 export function VenueRail({ title, businesses, href, emptyText, layout = "rail" }: VenueRailProps) {
+  const { t } = useLocale();
+  const resolvedEmpty = emptyText ?? t("venue.noVenues");
   return (
     <section className="py-8">
       <div className="flex items-center justify-between px-6 lg:px-10 max-w-[1600px] mx-auto">
@@ -36,7 +41,7 @@ export function VenueRail({ title, businesses, href, emptyText, layout = "rail" 
             href={href}
             className="inline-flex items-center gap-1 text-sm font-medium text-[#795831] hover:underline"
           >
-            See all <ChevronRight className="h-4 w-4" />
+            {t("home.seeAll")} <ChevronRight className="h-4 w-4" />
           </Link>
         ) : null}
       </div>
@@ -44,9 +49,9 @@ export function VenueRail({ title, businesses, href, emptyText, layout = "rail" 
       {businesses.length === 0 ? (
         <div className="px-6 lg:px-10 max-w-[1600px] mx-auto mt-4">
           <div className="rounded-xl border border-dashed border-[#E5DDD0] bg-white p-8 text-center">
-            <p className="text-sm text-[#8A8377]">{emptyText ?? "No venues to show yet."}</p>
+            <p className="text-sm text-[#8A8377]">{resolvedEmpty}</p>
             <p className="mt-1 text-xs text-[#C9C1B4]">
-              Salons will appear here as soon as they join ADNAVRA.
+              {t("venue.defaultEmptySub")}
             </p>
           </div>
         </div>

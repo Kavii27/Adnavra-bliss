@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Search, MapPin, Building2, X } from "lucide-react";
 import type { SriLankaLocation } from "@/lib/sri-lanka-locations";
 import { DISTRICT_TO_PROVINCE, PROVINCE_ORDER } from "@/lib/district-province";
+import { useLocale } from "@/lib/i18n/locale-context";
 import { Reveal } from "./reveal";
 
 // Town -> live business count, e.g. { Colombo: 42, Kandy: 11 }. Pass {} if not available yet.
@@ -34,6 +35,7 @@ export function BrowseByCity({
   counts?: CityCounts;
 }) {
   const grouped = useMemo(() => groupByProvince(locations), [locations]);
+  const { t } = useLocale();
   const [activeProvince, setActiveProvince] = useState(grouped[0]?.[0] ?? "");
   const [searchOpen, setSearchOpen] = useState(false);
   const [query, setQuery] = useState("");
@@ -63,12 +65,12 @@ export function BrowseByCity({
     <section id="locations" className="px-6 lg:px-12 py-10 max-w-[1400px] mx-auto scroll-mt-20">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#2A1D12]">All locations</p>
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#2A1D12]">{t("search.allLocations")}</p>
           <h2 className="mt-1 text-2xl font-semibold tracking-tight text-[#1F1E1D]">
-            Explore salons across Sri Lanka
+            {t("search.exploreTitle")}
           </h2>
           <p className="mt-1 text-sm text-[#8A8377]">
-            Find trusted salons and spas across your favorite towns and neighborhoods.
+            {t("search.exploreSub")}
           </p>
         </div>
 
@@ -84,7 +86,7 @@ export function BrowseByCity({
                 setQuery(e.target.value);
                 setSearchOpen(true);
               }}
-              placeholder="Search any town…"
+              placeholder={t("search.searchTownPlaceholder")}
               className="w-full rounded-full border border-[#E5DDD0] bg-white pl-9 pr-9 py-2.5 text-sm text-[#1F1E1D] placeholder:text-[#B3ACA0] outline-none focus:border-[#2A1D12] focus:ring-2 focus:ring-[#2A1D12]/15 transition"
             />
             {query && (
@@ -95,7 +97,7 @@ export function BrowseByCity({
                   setSearchOpen(false);
                 }}
                 className="absolute right-3 top-1/2 -translate-y-1/2 text-[#B3ACA0] hover:text-[#4A4640]"
-                aria-label="Clear search"
+                aria-label={t("search.clearSearch")}
               >
                 <X className="h-4 w-4" />
               </button>
@@ -122,7 +124,7 @@ export function BrowseByCity({
                   ))}
                 </ul>
               ) : (
-                <p className="px-4 py-3 text-sm text-[#8A8377]">No towns match &ldquo;{query}&rdquo;.</p>
+                <p className="px-4 py-3 text-sm text-[#8A8377]">{t("search.noTownsMatch")} &ldquo;{query}&rdquo;.</p>
               )}
             </div>
           )}
@@ -152,12 +154,12 @@ export function BrowseByCity({
 
       {/* City card grid for the active province */}
       <Reveal className="mt-6 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 reveal-stagger">
-        {activeTowns.map((t) => {
-          const count = counts[t.name];
+        {activeTowns.map((town) => {
+          const count = counts[town.name];
           return (
             <Link
-              key={t.name}
-              href={cityHref(t)}
+              key={town.name}
+              href={cityHref(town)}
               className="group card-lift rounded-xl border border-[#E5DDD0] bg-white p-4 hover:border-[#2A1D12]"
             >
               <div className="flex items-start justify-between">
@@ -165,10 +167,10 @@ export function BrowseByCity({
                   <MapPin className="h-4 w-4" />
                 </span>
               </div>
-              <p className="mt-3 text-sm font-semibold text-[#1F1E1D]">{t.name}</p>
+              <p className="mt-3 text-sm font-semibold text-[#1F1E1D]">{town.name}</p>
               <p className="mt-0.5 flex items-center gap-1 text-xs text-[#8A8377]">
                 <Building2 className="h-3 w-3" />
-                {typeof count === "number" ? `${count} salon${count === 1 ? "" : "s"}` : t.district}
+                {typeof count === "number" ? `${count} ${t(count === 1 ? "search.salonOne" : "search.salonMany")}` : town.district}
               </p>
             </Link>
           );

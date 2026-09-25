@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { ChevronRight } from "lucide-react";
 import { VenueCard } from "./venue-card";
+import { useLocale } from "@/lib/i18n/locale-context";
 import { Reveal } from "./reveal";
 
 type Venue = {
@@ -35,6 +36,7 @@ export function VenueRailRow({
   emptyText?: string;
   href?: string;
 }) {
+  const { t } = useLocale();
   return (
     <section className="py-8">
       <div className="flex flex-wrap items-center justify-between gap-3 px-6 lg:px-12 max-w-[1400px] mx-auto">
@@ -45,7 +47,7 @@ export function VenueRailRow({
             href={href}
             className="inline-flex items-center gap-1 text-sm font-medium text-[#795831] hover:underline"
           >
-            See all <ChevronRight className="h-4 w-4" />
+            {t("home.seeAll")} <ChevronRight className="h-4 w-4" />
           </Link>
         ) : null}
       </div>

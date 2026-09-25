@@ -4,6 +4,7 @@ import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { AddToCalendarButton } from "@/components/customer/account/add-to-calendar";
 import { SalonAvatar } from "@/components/customer/account/salon-avatar";
+import { getServerT } from "@/lib/i18n/server";
 
 const SERIF = "font-[family-name:var(--font-display)]";
 const GOLD = "#D9BE8C";
@@ -36,6 +37,7 @@ function statusBadge(status: string) {
 }
 
 export default async function ActivityPage() {
+  const t = await getServerT();
   const session = await auth();
   const userId = (session?.user as unknown as { id: string } | undefined)?.id;
   if (!userId) return null;
@@ -54,10 +56,10 @@ export default async function ActivityPage() {
     <div className="space-y-8">
       <div>
         <p className="text-[10px] font-semibold uppercase tracking-[0.22em]" style={{ color: "#9A7B4F" }}>
-          Your bookings
+          {t("account.bookingsEyebrow")}
         </p>
-        <h1 className={`${SERIF} mt-1 text-3xl font-medium tracking-tight text-[#1F1B17]`}>Activity</h1>
-        <p className="mt-1.5 text-sm text-[#8A8377]">Your appointments across every salon you have booked with.</p>
+        <h1 className={`${SERIF} mt-1 text-3xl font-medium tracking-tight text-[#1F1B17]`}>{t("account.activity")}</h1>
+        <p className="mt-1.5 text-sm text-[#8A8377]">{t("account.activitySub")}</p>
       </div>
 
       {bookings.length === 0 ? (
@@ -68,25 +70,25 @@ export default async function ActivityPage() {
           >
             <CalendarCheck className="h-6 w-6 text-[#1B1714]" />
           </div>
-          <p className={`${SERIF} mt-5 text-xl font-semibold text-[#1F1B17]`}>No appointments yet</p>
+          <p className={`${SERIF} mt-5 text-xl font-semibold text-[#1F1B17]`}>{t("account.noAppts")}</p>
           <p className="mx-auto mt-1.5 max-w-md text-sm text-[#8A8377]">
-            When you book a service at any salon on ADNAVRA BLISS, it will appear here.
+            {t("account.noApptsSub")}
           </p>
           <Link
             href="/customer/search"
             className="mt-6 inline-flex h-12 items-center gap-2 rounded-full bg-[#1F1B17] px-7 text-[12px] font-bold uppercase tracking-[0.14em] text-white shadow-[0_4px_14px_rgba(30,28,26,0.25)] transition-all hover:scale-[1.02] hover:bg-[#795831]"
           >
-            Discover salons <ArrowRight className="h-3.5 w-3.5" />
+            {t("account.discover")} <ArrowRight className="h-3.5 w-3.5" />
           </Link>
         </div>
       ) : (
         <>
           <section>
             <h2 className="text-xs font-semibold uppercase tracking-[0.18em]" style={{ color: "#9A7B4F" }}>
-              Upcoming
+              {t("account.upcoming")}
             </h2>
             {upcoming.length === 0 ? (
-              <p className="mt-3 text-sm text-[#8A8377]">No upcoming appointments.</p>
+              <p className="mt-3 text-sm text-[#8A8377]">{t("account.noUpcoming")}</p>
             ) : (
               <div className="mt-3 space-y-4">
                 {upcoming.map((b) => (
@@ -97,9 +99,9 @@ export default async function ActivityPage() {
           </section>
 
           <section>
-            <h2 className="text-xs font-semibold uppercase tracking-[0.18em] text-[#B4AC9E]">Past</h2>
+            <h2 className="text-xs font-semibold uppercase tracking-[0.18em] text-[#B4AC9E]">{t("account.past")}</h2>
             {past.length === 0 ? (
-              <p className="mt-3 text-sm text-[#8A8377]">No past appointments.</p>
+              <p className="mt-3 text-sm text-[#8A8377]">{t("account.noPast")}</p>
             ) : (
               <div className="mt-3 space-y-4">
                 {past.map((b) => (
@@ -114,7 +116,7 @@ export default async function ActivityPage() {
   );
 }
 
-function BookingCard({
+async function BookingCard({
   booking,
 }: {
   booking: {
@@ -130,6 +132,7 @@ function BookingCard({
   };
 }) {
   const b = booking.business;
+  const t = await getServerT();
   const hasCoords = typeof b.latitude === "number" && typeof b.longitude === "number";
   const locationLabel = [b.address, b.city].filter(Boolean).join(", ") || b.name;
 
@@ -143,7 +146,7 @@ function BookingCard({
             {b.name}
           </Link>
           <p className="mt-0.5 flex items-center gap-1 text-xs text-[#8A8377]">
-            <MapPin className="h-3 w-3" /> {b.city ?? b.address ?? "Salon"}
+            <MapPin className="h-3 w-3" /> {b.city ?? b.address ?? t("account.salonWord")}
           </p>
         </div>
         <span className={`inline-flex shrink-0 rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-wide ${statusBadge(booking.status)}`}>
@@ -157,10 +160,10 @@ function BookingCard({
             <Clock className="h-4 w-4 shrink-0 text-[#9A7B4F]" /> {formatDateTime(booking.startTime)}
           </p>
           <p className="mt-1.5 text-xs text-[#4A4640]">
-            {booking.service.name} · {booking.service.duration} min
-            {booking.staffMember ? ` · with ${booking.staffMember.name}` : " · Any professional"}
+            {booking.service.name} · {booking.service.duration} {t("account.min")}
+            {booking.staffMember ? ` · ${t("account.with")} ${booking.staffMember.name}` : ` · ${t("account.anyPro")}`}
           </p>
-          <p className="mt-1 text-xs text-[#8A8377]">Ref: {booking.reference}</p>
+          <p className="mt-1 text-xs text-[#8A8377]">{t("account.ref")} {booking.reference}</p>
         </div>
         <span className={`${SERIF} shrink-0 text-lg font-semibold text-[#1F1B17]`}>{formatPrice(booking.service.price)}</span>
       </div>
@@ -180,14 +183,14 @@ function BookingCard({
             rel="noreferrer"
             className="inline-flex items-center gap-1.5 rounded-full border border-[#E5DDD0] bg-white px-4 py-2 text-xs font-semibold text-[#1F1E1D] transition-colors hover:bg-[#FBF7EF]"
           >
-            <Navigation className="h-3.5 w-3.5 text-[#9A7B4F]" /> Get directions
+            <Navigation className="h-3.5 w-3.5 text-[#9A7B4F]" /> {t("account.directions")}
           </a>
         )}
         <Link
           href={`/${b.slug}`}
           className="inline-flex items-center gap-1.5 rounded-full border border-[#E5DDD0] bg-white px-4 py-2 text-xs font-semibold text-[#1F1E1D] transition-colors hover:bg-[#FBF7EF]"
         >
-          View venue
+          {t("account.viewVenue")}
         </Link>
       </div>
     </div>

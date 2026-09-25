@@ -4,6 +4,8 @@ import { useMemo, useState } from "react";
 import Link from "next/link";
 import { Clock } from "lucide-react";
 import { ServiceImage } from "@/components/business/service-image";
+import { taxonomyLabelKey } from "@/lib/categories";
+import { useLocale } from "@/lib/i18n/locale-context";
 
 export type TabbedService = {
   id: string;
@@ -16,13 +18,6 @@ export type TabbedService = {
 };
 
 const SERIF = { fontFamily: "var(--font-display, Georgia, 'Times New Roman', serif)" } as const;
-
-function categoryLabel(slug: string): string {
-  return slug
-    .split("-")
-    .map((w) => (w ? w.charAt(0).toUpperCase() + w.slice(1) : w))
-    .join(" ");
-}
 
 function formatPrice(priceMinor: number): string {
   return (priceMinor / 100).toLocaleString("en-LK", {
@@ -42,20 +37,21 @@ export function ServiceTabs({
   services: TabbedService[];
   businessSlug: string;
 }) {
+  const { t } = useLocale();
   const tabs = useMemo(() => {
     const seen = new Map<string, string>();
     for (const s of services) {
-      if (s.category && !seen.has(s.category)) seen.set(s.category, categoryLabel(s.category));
+      if (s.category && !seen.has(s.category)) seen.set(s.category, s.category);
     }
     return [
-      { key: "all", label: "All", count: services.length },
-      ...[...seen.entries()].map(([key, label]) => ({
+      { key: "all", label: t("salon.svc.all"), count: services.length },
+      ...[...seen.entries()].map(([key]) => ({
         key,
-        label,
+        label: t(taxonomyLabelKey(key)),
         count: services.filter((s) => s.category === key).length,
       })),
     ];
-  }, [services]);
+  }, [services, t]);
 
   const [active, setActive] = useState("all");
   const visible = active === "all" ? services : services.filter((s) => s.category === active);
@@ -64,14 +60,14 @@ export function ServiceTabs({
     <div>
       <div className="flex flex-wrap items-end justify-between gap-x-6 gap-y-3">
         <div>
-          <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-[#9A7B4F]">Rituals &amp; experiences</p>
+          <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-[#9A7B4F]">{t("salon.svc.eyebrow")}</p>
           <h2 className="mt-1 text-3xl font-medium leading-tight text-[#1F1B17] sm:text-4xl" style={SERIF}>
-            Services &amp; Pricing
+            {t("salon.svc.title")}
           </h2>
         </div>
 
         {services.length > 0 && tabs.length > 2 && (
-          <div className="-mx-4 flex max-w-[100vw] gap-2 overflow-x-auto px-4 pb-1 sm:mx-0 sm:max-w-full sm:flex-wrap sm:px-0" role="tablist" aria-label="Service categories">
+          <div className="-mx-4 flex max-w-[100vw] gap-2 overflow-x-auto px-4 pb-1 sm:mx-0 sm:max-w-full sm:flex-wrap sm:px-0" role="tablist" aria-label={t("salon.svc.aria")}>
             {tabs.map((t) => {
               const selected = t.key === active;
               return (
@@ -97,9 +93,9 @@ export function ServiceTabs({
 
       {services.length === 0 ? (
         <div className="mt-5 rounded-2xl border border-dashed border-[#D9CFBE] bg-white p-8 text-center">
-          <p className="text-sm font-medium text-[#1F1E1D]">No services listed yet</p>
+          <p className="text-sm font-medium text-[#1F1E1D]">{t("salon.svc.empty")}</p>
           <p className="mt-1 text-sm text-[#8A8377]">
-            This venue has not published its service menu yet. Check back soon.
+            {t("salon.svc.emptySub")}
           </p>
         </div>
       ) : (
@@ -118,9 +114,9 @@ export function ServiceTabs({
                     imageUrl={s.imageUrl}
                     className="h-full w-full transition-transform duration-500 group-hover:scale-105"
                   />
-                  {s.category && (
+                    {s.category && (
                     <span className="absolute left-2.5 top-2.5 rounded-full bg-white/95 px-2.5 py-1 text-[9px] font-semibold uppercase tracking-[0.14em] text-[#5F4426] shadow-sm">
-                      {categoryLabel(s.category)}
+                      {t(taxonomyLabelKey(s.category))}
                     </span>
                   )}
                 </Link>
@@ -136,7 +132,7 @@ export function ServiceTabs({
                   <div className="mt-auto flex items-end justify-between gap-2 pt-4">
                     <div className="min-w-0">
                       <p className="flex items-center gap-1 text-[11px] text-[#8A8377]">
-                        <Clock className="h-3 w-3" /> {s.duration} min
+                        <Clock className="h-3 w-3" /> {s.duration} {t("salon.svc.min")}
                       </p>
                       <p className="mt-0.5 text-sm font-semibold text-[#1F1B17] sm:text-base">{formatPrice(s.price)}</p>
                     </div>
@@ -144,7 +140,7 @@ export function ServiceTabs({
                       href={href}
                       className="inline-flex h-8 shrink-0 items-center rounded-full bg-[#F3EEE4] px-4 text-[10px] font-bold uppercase tracking-[0.16em] text-[#5F4426] transition-colors hover:bg-[#1F1B17] hover:text-white"
                     >
-                      Book
+                      {t("salon.svc.book")}
                     </Link>
                   </div>
                 </div>

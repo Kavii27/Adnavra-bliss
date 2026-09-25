@@ -25,6 +25,7 @@ import {
 } from "lucide-react";
 import { HomeHeader } from "@/components/customer/home/home-header";
 import { SiteFooter } from "@/components/marketing/site-footer";
+import { useLocale } from "@/lib/i18n/locale-context";
 
 const playfair = Playfair_Display({
   subsets: ["latin"],
@@ -94,97 +95,98 @@ function Eyebrow({
 const pillars = [
   {
     n: "01",
-    tag: "ATTRACT",
-    title: "Get Discovered & Accept Bookings",
-    blurb:
-      "A branded storefront linked to Instagram, Google Maps, and your website — open for bookings around the clock.",
+    tagKey: "about.pillar1.tag",
+    titleKey: "about.pillar1.title",
+    blurbKey: "about.pillar1.blurb",
     img: colorLabImg,
-    badge: "LIVE & BOOKABLE",
-    kicker: "Client Acquisition",
-    heading: "Get Discovered & Accept Bookings",
-    detail:
-      "Your salon appears exactly where guests are already looking — Instagram bio, Google listing, WhatsApp link. Every visitor can check real availability and lock a slot in under a minute, with zero calls or DMs required.",
-    stat1: ["Booking Channels:", "IG, Google & Web"],
-    stat2: ["Availability:", "24/7 Live"],
-    footNote: "No Missed Enquiries",
-    footSub: "Every guest can book instantly",
+    badgeKey: "about.pillar1.badge",
+    kickerKey: "about.pillar1.kicker",
+    headingKey: "about.pillar1.heading",
+    detailKey: "about.pillar1.detail",
+    stat1LabelKey: "about.pillar1.stat1label",
+    stat1ValueKey: "about.pillar1.stat1value",
+    stat2LabelKey: "about.pillar1.stat2label",
+    stat2ValueKey: "about.pillar1.stat2value",
+    footNoteKey: "about.pillar1.footnote",
+    footSubKey: "about.pillar1.footsub",
   },
   {
     n: "02",
-    tag: "SCHEDULE",
-    title: "Manage Staff, Chairs & Availability",
-    blurb:
-      "One master roster keeps every stylist, chair, and appointment perfectly in sync — with zero double-bookings.",
+    tagKey: "about.pillar2.tag",
+    titleKey: "about.pillar2.title",
+    blurbKey: "about.pillar2.blurb",
     img: stylingImg,
-    badge: "ROSTER SYNCED",
-    kicker: "Operations Control",
-    heading: "Manage Staff, Chairs & Availability",
-    detail:
-      "Assign stylists, block chair time, and balance the day's schedule from one live view. Buffer windows, shift hours, and treatment durations are all handled automatically, so nothing overlaps.",
-    stat1: ["Chair Conflicts:", "0.00%"],
-    stat2: ["Schedule Updates:", "Real-Time"],
-    footNote: "Zero Double-Books",
-    footSub: "Smart buffer windows",
+    badgeKey: "about.pillar2.badge",
+    kickerKey: "about.pillar2.kicker",
+    headingKey: "about.pillar2.heading",
+    detailKey: "about.pillar2.detail",
+    stat1LabelKey: "about.pillar2.stat1label",
+    stat1ValueKey: "about.pillar2.stat1value",
+    stat2LabelKey: "about.pillar2.stat2label",
+    stat2ValueKey: "about.pillar2.stat2value",
+    footNoteKey: "about.pillar2.footnote",
+    footSubKey: "about.pillar2.footsub",
   },
   {
     n: "03",
-    tag: "SERVE",
-    title: "Remember Every Client's Preferences",
-    blurb:
-      "Colour formulas, allergies, and favourite little details — saved and ready before the guest even sits down.",
+    tagKey: "about.pillar3.tag",
+    titleKey: "about.pillar3.title",
+    blurbKey: "about.pillar3.blurb",
     img: chairImg,
-    badge: "GUEST PROFILE",
-    kicker: "Client Experience",
-    heading: "Remember Every Client's Preferences",
-    detail:
-      "Every visit builds a richer client profile: toner ratios, scalp sensitivities, preferred stylist, even their go-to tea. Stylists open the guest card and know exactly how to deliver the same experience, every time.",
-    stat1: ["Client Notes:", "Securely Archived"],
-    stat2: ["Recall Time:", "Instant"],
-    footNote: "Consistently Personal",
-    footSub: "Nothing forgotten, ever",
+    badgeKey: "about.pillar3.badge",
+    kickerKey: "about.pillar3.kicker",
+    headingKey: "about.pillar3.heading",
+    detailKey: "about.pillar3.detail",
+    stat1LabelKey: "about.pillar3.stat1label",
+    stat1ValueKey: "about.pillar3.stat1value",
+    stat2LabelKey: "about.pillar3.stat2label",
+    stat2ValueKey: "about.pillar3.stat2value",
+    footNoteKey: "about.pillar3.footnote",
+    footSubKey: "about.pillar3.footsub",
   },
   {
     n: "04",
-    tag: "GROW",
-    title: "Track Revenue & Performance",
-    blurb:
-      "See takings, rebooking rates, and your busiest hours at a glance — and make confident calls on where to grow.",
+    tagKey: "about.pillar4.tag",
+    titleKey: "about.pillar4.title",
+    blurbKey: "about.pillar4.blurb",
     img: revenueImg,
-    badge: "LIVE ANALYTICS",
-    kicker: "Business Intelligence",
-    heading: "Track Revenue & Performance",
-    detail:
-      "Watch daily revenue, stylist commissions, and chair utilisation update in real time. Spot your peak hours and most profitable services in LKR, so every decision — from pricing to staffing — is backed by real numbers.",
-    stat1: ["Revenue Tracking:", "Real-Time LKR"],
-    stat2: ["Rebooking Rate:", "97% Avg."],
-    footNote: "Data-Driven Growth",
-    footSub: "Know what's working",
+    badgeKey: "about.pillar4.badge",
+    kickerKey: "about.pillar4.kicker",
+    headingKey: "about.pillar4.heading",
+    detailKey: "about.pillar4.detail",
+    stat1LabelKey: "about.pillar4.stat1label",
+    stat1ValueKey: "about.pillar4.stat1value",
+    stat2LabelKey: "about.pillar4.stat2label",
+    stat2ValueKey: "about.pillar4.stat2value",
+    footNoteKey: "about.pillar4.footnote",
+    footSubKey: "about.pillar4.footsub",
   },
 ];
 
 const journeySteps = [
-  { n: "01", tag: "DISCOVER", title: "Locate Sanctuary", desc: "Guests explore verified aesthetic salons across Colombo 03, 07, Galle, & Kandy." },
-  { n: "02", tag: "CURATE", title: "Select Rituals", desc: "Transparent LKR menu pricing, exact durations, and dedicated stylist bios." },
-  { n: "03", tag: "RESERVE", title: "Single-Tap Lock", desc: "No phone tag. Live chair confirmation locked directly in the salon master schedule." },
-  { n: "04", tag: "SYNC", title: "Calm Reminders", desc: "Gentle WhatsApp reminders with appointment notes, directions, and valet access." },
-  { n: "05", tag: "NURTURE", title: "Client Memory", desc: "Toner ratios, favorite herbal teas, and single-scan mirror rebooking ready for next visit." },
+  { n: "01", tagKey: "about.journey.s1.tag", titleKey: "about.journey.s1.title", descKey: "about.journey.s1.desc" },
+  { n: "02", tagKey: "about.journey.s2.tag", titleKey: "about.journey.s2.title", descKey: "about.journey.s2.desc" },
+  { n: "03", tagKey: "about.journey.s3.tag", titleKey: "about.journey.s3.title", descKey: "about.journey.s3.desc" },
+  { n: "04", tagKey: "about.journey.s4.tag", titleKey: "about.journey.s4.title", descKey: "about.journey.s4.desc" },
+  { n: "05", tagKey: "about.journey.s5.tag", titleKey: "about.journey.s5.title", descKey: "about.journey.s5.desc" },
 ];
 
 const features = [
-  { icon: Store, title: "Dedicated Booking Storefront", desc: "Your custom link (e.g. bliss.lk/your-salon) crafted with high-fashion aesthetics for your Instagram bio.", tag: "Zero Coding Needed" },
-  { icon: Users, title: "Staff & Roster Control", desc: "Individual calendars for senior stylists, therapists, and shampoo technicians with auto commission tallying.", tag: "Smart Roster Sync" },
-  { icon: Palette, title: "Digital Client Formulations", desc: "Document exact toner ratios, foil placements, scalp sensitivities, and preferred tea choices securely in the cloud.", tag: "Encrypted Profiles" },
-  { icon: BarChart3, title: "Peak Hour & Chair Analytics", desc: "Visual heatmaps showing Saturday rushes, dead weekday periods, and most profitable aesthetic rituals in LKR.", tag: "LKR Profit Intel" },
+  { icon: Store, titleKey: "about.feat.f1.title", descKey: "about.feat.f1.desc", tagKey: "about.feat.f1.tag" },
+  { icon: Users, titleKey: "about.feat.f2.title", descKey: "about.feat.f2.desc", tagKey: "about.feat.f2.tag" },
+  { icon: Palette, titleKey: "about.feat.f3.title", descKey: "about.feat.f3.desc", tagKey: "about.feat.f3.tag" },
+  { icon: BarChart3, titleKey: "about.feat.f4.title", descKey: "about.feat.f4.desc", tagKey: "about.feat.f4.tag" },
 ];
 
 const faqs = [
-  { q: "Does ADNAVRA Bliss take a percentage of our booking revenue?", a: "Never. You retain 100% of every Sri Lankan Rupee your salon earns. We operate on a straightforward, predictable monthly tier with zero transaction cuts or hidden card fees." },
-  { q: "How difficult is it to migrate our current client book and formulas?", a: "Our dedicated Sri Lankan hospitality concierge team assists you in Colombo or remotely. We import your client numbers, active appointment sheets, and stylist rosters in less than 24 hours." },
-  { q: "Can stylists view each other's earnings or private clients?", a: "No. Our granular role-based permissions ensure stylists only see their own assigned appointments, daily schedule, and individual commissions. Salon-wide financial totals remain strictly restricted to proprietors." },
-  { q: "Do clients need to install an app to book an appointment?", a: "No download is required. The booking portal opens instantaneously in any mobile browser via Instagram Bio links, Google Maps, or your mirror QR codes, eliminating friction completely." },
+  { qKey: "about.faq.q1", aKey: "about.faq.a1" },
+  { qKey: "about.faq.q2", aKey: "about.faq.a2" },
+  { qKey: "about.faq.q3", aKey: "about.faq.a3" },
+  { qKey: "about.faq.q4", aKey: "about.faq.a4" },
 ];
 
 export default function AboutPage() {
+  const { t } = useLocale();
   const [slot, setSlot] = useState(1);
   const [engine, setEngine] = useState<"client" | "owner">("client");
   const [openFaq, setOpenFaq] = useState<number | null>(0);
@@ -237,7 +239,7 @@ export default function AboutPage() {
 
             {/* CSS fallback for tablets/mobile */}
             <div className="lg:hidden absolute right-0 top-[330px] w-[92%] h-[430px] rounded-[48%_0_0_48%/55%_0_0_55%] overflow-hidden">
-              <img src={heroImg} alt="Luxury salon interior" className="w-full h-full object-cover" />
+              <img src={heroImg} alt={t("about.alt.hero")} className="w-full h-full object-cover" />
             </div>
           </div>
 
@@ -248,22 +250,20 @@ export default function AboutPage() {
                 <div className="inline-flex items-center gap-3 text-[#795831]">
                   <span className="text-xl leading-none">✦</span>
                   <span className="text-[11px] uppercase tracking-[0.25em] font-semibold">
-                    The Smarter Way to Run a Salon
+                    {t("about.hero.eyebrow")}
                   </span>
                 </div>
 
                 <h1 className="font-[family-name:var(--font-playfair)] text-[48px] leading-[0.98] sm:text-[64px] sm:leading-[1.02] lg:text-[72px] lg:leading-[0.98] text-[#171514] tracking-[-0.035em] font-medium">
-                  Your salon,
+                  {t("about.hero.t1")}
                   <br />
-                  <span className="italic font-normal text-[#795831]">beautifully</span>
+                  <span className="italic font-normal text-[#795831]">{t("about.hero.t2")}</span>
                   <br />
-                  in sync.
+                  {t("about.hero.t3")}
                 </h1>
 
                 <p className="text-[16px] leading-[27px] text-[#4a4640] max-w-[520px]">
-                  From effortless online bookings to real-time staff schedules
-                  and client insights, ADNAVRA Bliss brings your entire salon
-                  operation into one bespoke hospitality operating architecture.
+                  {t("about.hero.sub")}
                 </p>
 
                 <div className="flex flex-wrap items-center gap-4 pt-1">
@@ -271,7 +271,7 @@ export default function AboutPage() {
                     href="/signup"
                     className="group inline-flex items-center gap-5 pl-6 pr-2 py-2 rounded-full bg-[#2A1D12] text-white text-[15px] font-semibold hover:bg-[#17100A] transition-all shadow-[0_14px_32px_rgba(42,29,18,0.16)]"
                   >
-                    Start Free
+                    {t("about.hero.start")}
                     <span className="w-10 h-10 rounded-full bg-white text-[#795831] flex items-center justify-center group-hover:translate-x-0.5 transition-transform">
                       <ArrowRight className="h-4 w-4" />
                     </span>
@@ -283,16 +283,16 @@ export default function AboutPage() {
                     <span className="w-10 h-10 rounded-full border border-[#4a4640] flex items-center justify-center">
                       <ArrowRight className="h-4 w-4 -rotate-45" />
                     </span>
-                    Explore Platform
+                    {t("about.hero.explore")}
                   </Link>
                 </div>
 
                 <div className="pt-2 flex flex-wrap items-center gap-x-4 gap-y-2 text-[12px] text-[#6b625c]">
-                  <span className="font-medium">No booking fees</span>
+                  <span className="font-medium">{t("about.hero.badge1")}</span>
                   <span className="text-[#b5a9a1]">•</span>
-                  <span className="font-medium">24/7 instant booking</span>
+                  <span className="font-medium">{t("about.hero.badge2")}</span>
                   <span className="text-[#b5a9a1]">•</span>
-                  <span className="font-medium">Live Sri Lanka sync</span>
+                  <span className="font-medium">{t("about.hero.badge3")}</span>
                 </div>
               </div>
 
@@ -304,11 +304,11 @@ export default function AboutPage() {
                   </div>
                   <div className="flex-1">
                     <div className="flex items-center justify-between">
-                      <span className="text-[11px] uppercase tracking-[0.18em] text-[#795831] font-bold">Live booking</span>
-                      <span className="text-[11px] text-[#7b766f]">Today</span>
+                      <span className="text-[11px] uppercase tracking-[0.18em] text-[#795831] font-bold">{t("about.card.live")}</span>
+                      <span className="text-[11px] text-[#7b766f]">{t("about.card.today")}</span>
                     </div>
-                    <h3 className="font-[family-name:var(--font-playfair)] text-[23px] text-[#171514] mt-1">Book your next ritual</h3>
-                    <p className="text-[12px] text-[#6b625c] mt-1">Choose a stylist, service and available time in seconds.</p>
+                    <h3 className="font-[family-name:var(--font-playfair)] text-[23px] text-[#171514] mt-1">{t("about.card.title")}</h3>
+                    <p className="text-[12px] text-[#6b625c] mt-1">{t("about.card.sub")}</p>
                   </div>
                 </div>
                 <div className="grid grid-cols-3 gap-2 mt-5">
@@ -319,7 +319,7 @@ export default function AboutPage() {
                   ))}
                 </div>
                 <Link href="/signup" className="mt-4 w-full py-3 rounded-xl bg-[#2A1D12] text-white text-[13px] font-semibold flex items-center justify-center gap-2 hover:bg-[#17100A] transition-colors">
-                  Choose Date &amp; Time <ArrowRight className="h-4 w-4" />
+                  {t("about.card.cta")} <ArrowRight className="h-4 w-4" />
                 </Link>
               </div>
             </div>
@@ -341,20 +341,18 @@ export default function AboutPage() {
           </div>
 
           <div className="relative z-10 max-w-6xl mx-auto px-5 md:px-8 lg:px-14 text-center space-y-4">
-            <Eyebrow>The Aesthetic Operating System</Eyebrow>
+            <Eyebrow>{t("about.banner.eyebrow")}</Eyebrow>
 
             <h2 className="font-[family-name:var(--font-playfair)] text-[36px] sm:text-[54px] md:text-[68px] lg:text-[80px] leading-[1.04] text-[#2A1D12] font-bold tracking-tight uppercase">
-              EFFORTLESS PRESTIGE. <br className="hidden sm:inline" />
+              {t("about.banner.t1")} <br className="hidden sm:inline" />
               <span className="italic font-normal text-[#795831]">
-                ZERO CHAOS.
+                {t("about.banner.t2")}
               </span>
             </h2>
             <div className="w-20 h-0.5 bg-[#795831]/60 mx-auto mt-2" />
 
-            <p className="text-[16px] md:text-[19px] leading-relaxed text-[#4a4640] max-w-3xl mx-auto font-normal pt-1">
-              ADNAVRA Bliss rearchitects the modern salon experience—replacing
-              friction, frantic WhatsApp messages, and double-bookings with
-              quiet digital precision.
+            <p className="text-[16px] md:text-[19px] leading-relaxed text-[#4A4640] max-w-3xl mx-auto font-normal pt-1">
+              {t("about.banner.sub")}
             </p>
           </div>
         </section>
@@ -367,34 +365,34 @@ export default function AboutPage() {
             {[
               {
                 stat: "24/7",
-                title: "Online Self-Book",
-                desc: "Zero phone interruptions during treatments",
+                titleKey: "about.stats.s1.title",
+                descKey: "about.stats.s1.desc",
               },
               {
                 stat: "100%",
-                title: "Realtime Roster Sync",
-                desc: "Eliminate accidental double-booking entirely",
+                titleKey: "about.stats.s2.title",
+                descKey: "about.stats.s2.desc",
               },
               {
                 stat: "0%",
-                title: "Booking Commissions",
-                desc: "Retain 100% of your guest and ritual revenue",
+                titleKey: "about.stats.s3.title",
+                descKey: "about.stats.s3.desc",
               },
               {
                 stat: "< 3 min",
-                title: "Booking Speed",
-                desc: "Frictionless digital concierge checkout",
+                titleKey: "about.stats.s4.title",
+                descKey: "about.stats.s4.desc",
               },
             ].map((s) => (
-              <div key={s.title} className="py-10 px-0 lg:px-8 first:pl-0">
+              <div key={s.titleKey} className="py-10 px-0 lg:px-8 first:pl-0">
                 <div className="font-[family-name:var(--font-playfair)] text-[34px] sm:text-[40px] text-[#171514] font-bold tracking-tight leading-none">
                   {s.stat}
                 </div>
                 <div className="mt-3 text-[14px] text-[#795831] font-semibold">
-                  {s.title}
+                  {t(s.titleKey)}
                 </div>
                 <p className="mt-1 text-[13px] text-[#6b625c] leading-relaxed max-w-[220px]">
-                  {s.desc}
+                  {t(s.descKey)}
                 </p>
               </div>
             ))}
@@ -407,17 +405,17 @@ export default function AboutPage() {
         <section className="relative w-full bg-[#2A1D12] border-y border-[#ccc6bd]/30 overflow-hidden scroll-mt-24" id="features">
           <div className="w-full bg-[#f7f3ed] border-b border-[#ccc6bd]/20 py-6 px-5 md:px-8 lg:px-14 flex flex-col md:flex-row md:items-end justify-between gap-4">
             <div className="space-y-1 max-w-2xl">
-              <Eyebrow>The Salon, Orchestrated</Eyebrow>
+              <Eyebrow>{t("about.pillars.eyebrow")}</Eyebrow>
               <h2 className="font-[family-name:var(--font-playfair)] text-[26px] sm:text-[30px] text-[#2A1D12] font-semibold tracking-tight">
-                THE SALON, ORCHESTRATED.{" "}
+                {t("about.pillars.title")}{" "}
                 <span className="italic font-normal text-[#795831] block sm:inline">
-                  Four systems. One beautiful operating flow.
+                  {t("about.pillars.sub")}
                 </span>
               </h2>
             </div>
             <div className="flex items-center gap-2 text-[13px] text-[#4a4640] font-medium">
               <MousePointerClick className="h-4 w-4 text-[#795831]" />
-              <span>Hover any column to see it in action</span>
+              <span>{t("about.pillars.hint")}</span>
             </div>
           </div>
 
@@ -432,7 +430,7 @@ export default function AboutPage() {
                   className="group relative h-[520px] lg:h-full overflow-hidden cursor-pointer select-none bg-[#2A1D12]"
                 >
                   <img
-                    alt={p.title}
+                    alt={t(p.titleKey)}
                     className={`absolute inset-0 w-full h-full object-cover object-center transition-transform duration-700 ease-out ${hovered ? "scale-110" : ""}`}
                     src={p.img}
                   />
@@ -449,14 +447,14 @@ export default function AboutPage() {
                     <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/90 backdrop-blur-md">
                       <span className="w-1.5 h-1.5 rounded-full bg-[#795831]" />
                       <span className="text-[11px] text-[#795831] font-bold uppercase tracking-wider">
-                        {p.n} / {p.tag}
+                        {p.n} / {t(p.tagKey)}
                       </span>
                     </div>
                     <h3 className="font-[family-name:var(--font-playfair)] text-[22px] text-white font-semibold leading-tight">
-                      {p.title}
+                      {t(p.titleKey)}
                     </h3>
                     <p className="text-[13px] text-stone-300 line-clamp-2">
-                      {p.blurb}
+                      {t(p.blurbKey)}
                     </p>
                   </div>
 
@@ -472,28 +470,28 @@ export default function AboutPage() {
                       </span>
                       <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#795831]/20 border border-[#795831]/40 text-[#ffddba] text-[11px] font-semibold tracking-wide uppercase">
                         <span className="w-2 h-2 rounded-full bg-[#795831] animate-ping" />
-                        {p.badge}
+                        {t(p.badgeKey)}
                       </span>
                     </div>
 
                     <div className="space-y-4 my-auto">
                       <span className="text-[11px] text-[#795831] uppercase tracking-widest font-bold">
-                        {p.kicker}
+                        {t(p.kickerKey)}
                       </span>
                       <h4 className="font-[family-name:var(--font-playfair)] text-2xl text-white font-semibold leading-snug">
-                        {p.heading}
+                        {t(p.headingKey)}
                       </h4>
                       <p className="text-[13px] text-stone-300 leading-relaxed">
-                        {p.detail}
+                        {t(p.detailKey)}
                       </p>
                       <div className="space-y-2 pt-2">
                         <div className="p-2.5 rounded-lg bg-[#f6efe3] border border-[#e6dcc8] flex items-center justify-between text-[13px]">
-                          <span className="text-stone-400">{p.stat1[0]}</span>
-                          <span className="font-semibold text-[#ffddba]">{p.stat1[1]}</span>
+                          <span className="text-stone-400">{t(p.stat1LabelKey)}</span>
+                          <span className="font-semibold text-[#ffddba]">{t(p.stat1ValueKey)}</span>
                         </div>
                         <div className="p-2.5 rounded-lg bg-[#f6efe3] border border-[#e6dcc8] flex items-center justify-between text-[13px]">
-                          <span className="text-stone-400">{p.stat2[0]}</span>
-                          <span className="font-semibold text-white">{p.stat2[1]}</span>
+                          <span className="text-stone-400">{t(p.stat2LabelKey)}</span>
+                          <span className="font-semibold text-white">{t(p.stat2ValueKey)}</span>
                         </div>
                       </div>
                     </div>
@@ -501,15 +499,15 @@ export default function AboutPage() {
                     <div className="pt-4 border-t border-[#e6dcc8] space-y-3">
                       <div className="flex items-center justify-between">
                         <span className="text-[11px] text-[#ffddba] font-bold tracking-wider uppercase">
-                          {p.footNote}
+                          {t(p.footNoteKey)}
                         </span>
-                        <span className="text-[13px] text-stone-400">{p.footSub}</span>
+                        <span className="text-[13px] text-stone-400">{t(p.footSubKey)}</span>
                       </div>
                       <Link
                         href="#dual-engine"
                         className="w-full py-3 rounded-lg bg-[#2A1D12] text-white text-[15px] font-semibold hover:bg-[#17100A] transition-colors flex items-center justify-center gap-2 shadow-lg"
                       >
-                        <span>Explore Feature</span>
+                        <span>{t("about.pillars.explore")}</span>
                         <ArrowRight className="h-[18px] w-[18px]" />
                       </Link>
                     </div>
@@ -525,13 +523,12 @@ export default function AboutPage() {
         {/* ============================================================ */}
         <section className="w-full max-w-7xl mx-auto px-5 md:px-8 lg:px-14 py-24 space-y-10">
           <div className="text-center max-w-2xl mx-auto space-y-2">
-            <Eyebrow>Hospitality Evolution</Eyebrow>
+            <Eyebrow>{t("about.compare.eyebrow")}</Eyebrow>
             <h2 className="font-[family-name:var(--font-playfair)] text-[28px] sm:text-[38px] text-[#2A1D12] font-semibold leading-tight">
-              The Old Manual Grind vs. The ADNAVRA Bliss Standard
+              {t("about.compare.title")}
             </h2>
             <p className="text-[16px] text-[#4a4640]">
-              Elevate your salon past brittle paper registers and endless
-              WhatsApp voice notes.
+              {t("about.compare.sub")}
             </p>
           </div>
 
@@ -540,10 +537,10 @@ export default function AboutPage() {
               <div className="flex items-center justify-between">
                 <div className="space-y-1">
                   <span className="text-[11px] uppercase tracking-wider text-[#7b766f] font-semibold">
-                    Yesterday&apos;s Friction
+                    {t("about.compare.oldEyebrow")}
                   </span>
                   <h3 className="font-[family-name:var(--font-playfair)] text-[22px] text-[#1c1c18] font-medium">
-                    The Manual Routine
+                    {t("about.compare.oldTitle")}
                   </h3>
                 </div>
                 <div className="w-10 h-10 rounded-full bg-[#ebe8e2] flex items-center justify-center text-[#7b766f]">
@@ -552,14 +549,14 @@ export default function AboutPage() {
               </div>
               <ul className="space-y-4 text-[14px] text-[#4a4640]">
                 {[
-                  "Unanswered WhatsApp DMs after 8:00 PM causing high-value clients to book elsewhere",
-                  "Rushed front-desk phone calls echoing over tranquil blow-dry and styling suites",
-                  "Faded handwritten register books leading to awkward duplicate chair bookings",
-                  "Lost client color formulas, scalp allergies, and forgotten beverage preferences",
-                ].map((t) => (
-                  <li key={t} className="flex items-start gap-3">
+                  "about.compare.old1",
+                  "about.compare.old2",
+                  "about.compare.old3",
+                  "about.compare.old4",
+                ].map((k) => (
+                  <li key={k} className="flex items-start gap-3">
                     <Circle className="h-5 w-5 mt-0.5 shrink-0 text-[#7b766f]" />
-                    <span>{t}</span>
+                    <span>{t(k)}</span>
                   </li>
                 ))}
               </ul>
@@ -570,10 +567,10 @@ export default function AboutPage() {
               <div className="flex items-center justify-between">
                 <div className="space-y-1">
                   <span className="text-[11px] uppercase tracking-wider text-[#795831] font-semibold">
-                    The Modern Atelier
+                    {t("about.compare.newEyebrow")}
                   </span>
                   <h3 className="font-[family-name:var(--font-playfair)] text-[22px] text-[#2A1D12] font-semibold">
-                    The ADNAVRA Bliss Standard
+                    {t("about.compare.newTitle")}
                   </h3>
                 </div>
                 <div className="w-10 h-10 rounded-full bg-[#fdcf9e] flex items-center justify-center text-[#785730]">
@@ -582,15 +579,15 @@ export default function AboutPage() {
               </div>
               <ul className="space-y-4 text-[14px] text-[#1c1c18]">
                 {[
-                  ["24/7 Branded Booking Storefront", "natively linked to your Instagram Bio, Google Maps, and salon web presence"],
-                  ["Instant Slot Locking", "with automated WhatsApp & SMS confirmations, reducing salon no-shows by 97%"],
-                  ["Digital Guest Cards", "securely archiving exact toner mixes, hair porosity notes, and previous visits"],
-                  ["Real-time Sri Lanka Rupee Analytics", "calculating stylist commissions, chair occupancy, and retail sales"],
-                ].map(([strong, rest]) => (
-                  <li key={strong} className="flex items-start gap-3">
+                  ["about.compare.new1s", "about.compare.new1r"],
+                  ["about.compare.new2s", "about.compare.new2r"],
+                  ["about.compare.new3s", "about.compare.new3r"],
+                  ["about.compare.new4s", "about.compare.new4r"],
+                ].map(([sk, rk]) => (
+                  <li key={sk} className="flex items-start gap-3">
                     <CheckCircle2 className="h-5 w-5 mt-0.5 shrink-0 text-[#795831]" />
                     <span>
-                      <strong className="font-semibold">{strong}</strong> {rest}
+                      <strong className="font-semibold">{t(sk)}</strong> {t(rk)}
                     </span>
                   </li>
                 ))}
@@ -606,14 +603,12 @@ export default function AboutPage() {
           <div className="max-w-7xl mx-auto px-5 md:px-8 lg:px-14 space-y-12">
             <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
               <div className="space-y-2 max-w-xl">
-                <Eyebrow>Dual Engine Architecture</Eyebrow>
+                <Eyebrow>{t("about.dual.eyebrow")}</Eyebrow>
                 <h2 className="font-[family-name:var(--font-playfair)] text-[28px] sm:text-[38px] text-[#2A1D12] font-semibold">
-                  Designed for clients. Built for owners.
+                  {t("about.dual.title")}
                 </h2>
                 <p className="text-[15px] text-[#4a4640]">
-                  A seamless visual harmony between the guest&apos;s serene
-                  ritual booking and the salon proprietor&apos;s commanding
-                  control suite.
+                  {t("about.dual.sub")}
                 </p>
               </div>
 
@@ -624,7 +619,7 @@ export default function AboutPage() {
                     engine === "client" ? "bg-[#2A1D12] text-white shadow-sm" : "text-[#4a4640]"
                   }`}
                 >
-                  Client Experience
+                  {t("about.dual.clientBtn")}
                 </button>
                 <button
                   onClick={() => setEngine("owner")}
@@ -632,7 +627,7 @@ export default function AboutPage() {
                     engine === "owner" ? "bg-[#2A1D12] text-white shadow-sm" : "text-[#4a4640]"
                   }`}
                 >
-                  Salon Command
+                  {t("about.dual.ownerBtn")}
                 </button>
               </div>
             </div>
@@ -648,10 +643,10 @@ export default function AboutPage() {
                   <div className="flex items-center justify-between">
                     <div>
                       <span className="text-[11px] uppercase tracking-wider text-[#795831] font-semibold">
-                        Aura Luxury Salon • Colombo 07
+                        {t("about.dual.salon")}
                       </span>
                       <h3 className="font-[family-name:var(--font-playfair)] text-[20px] text-[#2A1D12]">
-                        Hydrating Keratin Hair Spa
+                        {t("about.dual.service")}
                       </h3>
                     </div>
                     <div className="text-right">
@@ -659,7 +654,7 @@ export default function AboutPage() {
                         LKR 4,500
                       </span>
                       <span className="block text-[11px] text-[#7b766f]">
-                        45 Minutes
+                        {t("about.dual.duration")}
                       </span>
                     </div>
                   </div>
@@ -670,20 +665,20 @@ export default function AboutPage() {
                     </div>
                     <div className="flex-1">
                       <div className="text-[15px] font-semibold text-[#2A1D12]">
-                        Senior Stylist Nimali
+                        {t("about.dual.stylist")}
                       </div>
                       <div className="text-[12px] text-[#4a4640]">
-                        Master Colorist &amp; Scalp Specialist • 98% Rating
+                        {t("about.dual.stylistRole")}
                       </div>
                     </div>
                     <span className="px-2 py-1 rounded bg-white text-[11px] text-[#795831] font-semibold">
-                      Available Today
+                      {t("about.dual.available")}
                     </span>
                   </div>
 
                   <div className="space-y-2">
                     <label className="text-[11px] uppercase tracking-wider text-[#4a4640] font-semibold">
-                      Select Arrival Slot
+                      {t("about.dual.slotLabel")}
                     </label>
                     <div className="grid grid-cols-3 gap-2">
                       {["10:30 AM", "11:15 AM", "02:00 PM"].map((s, i) => (
@@ -706,10 +701,10 @@ export default function AboutPage() {
                 <div className="pt-2">
                   <button className="w-full py-3.5 rounded-lg bg-[#2A1D12] text-white text-[15px] font-semibold hover:bg-[#4a4640] transition-colors shadow-md flex items-center justify-center gap-2">
                     <Lock className="h-[18px] w-[18px]" />
-                    <span>Instant Confirm Reservation</span>
+                    <span>{t("about.dual.confirm")}</span>
                   </button>
                   <p className="text-center text-[11px] text-[#7b766f] pt-2">
-                    Cardless booking • Pay at sanctuary upon completion
+                    {t("about.dual.cardless")}
                   </p>
                 </div>
               </div>
@@ -724,53 +719,52 @@ export default function AboutPage() {
                   <div className="flex items-center justify-between pb-1">
                     <div>
                       <span className="text-[11px] uppercase tracking-wider text-[#795831] font-semibold">
-                        Executive Cockpit
+                        {t("about.dual.cockpit")}
                       </span>
                       <h3 className="font-[family-name:var(--font-playfair)] text-[20px] text-[#2A1D12]">
-                        Today&apos;s Salon Velocity
+                        {t("about.dual.velocity")}
                       </h3>
                     </div>
                     <span className="px-3 py-1 rounded-full bg-[#fdcf9e] text-[#785730] text-[11px] font-semibold flex items-center gap-1">
-                      <span className="w-2 h-2 rounded-full bg-[#795831]" /> 94%
-                      Capacity
+                      <span className="w-2 h-2 rounded-full bg-[#795831]" /> {t("about.dual.capacity")}
                     </span>
                   </div>
 
                   <div className="grid grid-cols-2 gap-4">
                     <div className="p-4 rounded-xl bg-[#f7f3ed] space-y-1">
                       <span className="text-[12px] text-[#4a4640]">
-                        Scheduled Appointments
+                        {t("about.dual.scheduled")}
                       </span>
                       <div className="font-[family-name:var(--font-playfair)] text-[24px] text-[#2A1D12] font-bold">
-                        18 Slots
+                        {t("about.dual.slots")}
                       </div>
                       <span className="text-[11px] text-[#795831] font-medium">
-                        +4 vs yesterday
+                        {t("about.dual.vsYesterday")}
                       </span>
                     </div>
                     <div className="p-4 rounded-xl bg-[#f7f3ed] space-y-1">
                       <span className="text-[12px] text-[#4a4640]">
-                        Projected Revenue
+                        {t("about.dual.revenue")}
                       </span>
                       <div className="font-[family-name:var(--font-playfair)] text-[24px] text-[#2A1D12] font-bold">
                         LKR 148,500
                       </div>
                       <span className="text-[11px] text-[#795831] font-medium">
-                        92% target attained
+                        {t("about.dual.target")}
                       </span>
                     </div>
                   </div>
 
                   <div className="space-y-1">
                     <span className="text-[11px] uppercase tracking-wider text-[#4a4640] font-semibold">
-                      Active Roster &amp; Chair Occupancy
+                      {t("about.dual.roster")}
                     </span>
                     <div className="space-y-2 pt-1">
                       {[
-                        ["Nimali P. (Chair 1)", "Keratin Spa • Ends in 18 min", true],
-                        ["Dinesh K. (Chair 2)", "Balayage Foil • In Progress", true],
-                        ["Sanduni F. (Chair 3)", "Open Slot (Next: 14:00)", false],
-                      ].map(([name, status, active]) => (
+                        ["Nimali P. (Chair 1)", "about.dual.r1", true],
+                        ["Dinesh K. (Chair 2)", "about.dual.r2", true],
+                        ["Sanduni F. (Chair 3)", "about.dual.r3", false],
+                      ].map(([name, statusKey, active]) => (
                         <div
                           key={name as string}
                           className="p-2.5 rounded-lg bg-[#f7f3ed] flex items-center justify-between text-[13px]"
@@ -784,7 +778,7 @@ export default function AboutPage() {
                             <span className="font-medium text-[#2A1D12]">{name}</span>
                           </div>
                           <span className={active ? "text-[#4a4640]" : "text-[#795831] font-medium"}>
-                            {status}
+                            {t(statusKey as string)}
                           </span>
                         </div>
                       ))}
@@ -794,13 +788,13 @@ export default function AboutPage() {
 
                 <div className="pt-2 flex items-center justify-between text-[13px]">
                   <span className="text-[#4a4640]">
-                    Live sync to Colombo POS terminals
+                    {t("about.dual.sync")}
                   </span>
                   <Link
                     href="/dashboard"
                     className="text-[#2A1D12] font-semibold flex items-center gap-1 hover:underline"
                   >
-                    Open Master Agenda <ArrowRight className="h-4 w-4" />
+                    {t("about.dual.agenda")} <ArrowRight className="h-4 w-4" />
                   </Link>
                 </div>
               </div>
@@ -813,13 +807,12 @@ export default function AboutPage() {
         {/* ============================================================ */}
         <section className="w-full max-w-7xl mx-auto px-5 md:px-8 lg:px-14 py-24 space-y-12">
           <div className="text-center max-w-2xl mx-auto space-y-2">
-            <Eyebrow>The Unbroken Experience</Eyebrow>
+            <Eyebrow>{t("about.journey.eyebrow")}</Eyebrow>
             <h2 className="font-[family-name:var(--font-playfair)] text-[28px] sm:text-[38px] text-[#2A1D12] font-semibold">
-              5 Serene Moments from Discovery to Rebooking
+              {t("about.journey.title")}
             </h2>
             <p className="text-[16px] text-[#4a4640]">
-              Crafting an elevated ritual where technology dissolves into
-              pure hospitality.
+              {t("about.journey.sub")}
             </p>
           </div>
 
@@ -830,12 +823,12 @@ export default function AboutPage() {
                 className="p-6 rounded-xl bg-[#f7f3ed] space-y-2 hover:shadow-md transition-shadow"
               >
                 <span className="text-[11px] text-[#795831] font-semibold">
-                  {s.n} • {s.tag}
+                  {s.n} • {t(s.tagKey)}
                 </span>
                 <h4 className="text-[16px] text-[#2A1D12] font-semibold">
-                  {s.title}
+                  {t(s.titleKey)}
                 </h4>
-                <p className="text-[13px] text-[#4a4640]">{s.desc}</p>
+                <p className="text-[13px] text-[#4a4640]">{t(s.descKey)}</p>
               </div>
             ))}
           </div>
@@ -851,38 +844,32 @@ export default function AboutPage() {
                 <div className="inline-flex items-center gap-2 px-4 py-1 rounded-full bg-white shadow-sm">
                   <QrCode className="h-4 w-4 text-[#795831]" />
                   <span className="text-[11px] uppercase tracking-[0.2em] font-semibold text-[#795831]">
-                    Physical Meets Digital Concierge
+                    {t("about.qr.eyebrow")}
                   </span>
                 </div>
                 <h2 className="font-[family-name:var(--font-playfair)] text-[28px] sm:text-[38px] text-[#2A1D12] font-semibold leading-tight">
-                  Turn every physical touchpoint into a perpetual rebooking
-                  engine.
+                  {t("about.qr.title")}
                 </h2>
                 <p className="text-[16px] text-[#4a4640] leading-relaxed">
-                  Empower your stylists without awkward front-desk sales
-                  pressure. Place luxury foil-embossed QR cards on styling
-                  station mirrors, reception counters, and luxury product
-                  gift sets. Clients scan and lock their next 6-week
-                  maintenance ritual while still seated in pure bliss.
+                  {t("about.qr.desc")}
                 </p>
                 <div className="space-y-3 pt-1">
                   <div className="flex items-center gap-3 text-[14px] text-[#1c1c18]">
                     <Sparkles className="h-5 w-5 text-[#795831] shrink-0" />
                     <span>
                       <strong className="font-semibold">
-                        8-Second Rebook Flow:
+                        {t("about.qr.f1title")}
                       </strong>{" "}
-                      Identifies returning client phone number instantly
+                      {t("about.qr.f1desc")}
                     </span>
                   </div>
                   <div className="flex items-center gap-3 text-[14px] text-[#1c1c18]">
                     <Wand2 className="h-5 w-5 text-[#795831] shrink-0" />
                     <span>
                       <strong className="font-semibold">
-                        Bespoke Printed Kits:
+                        {t("about.qr.f2title")}
                       </strong>{" "}
-                      Complimentary gold-embossed counter displays shipped to
-                      your salon
+                      {t("about.qr.f2desc")}
                     </span>
                   </div>
                 </div>
@@ -891,7 +878,7 @@ export default function AboutPage() {
                     href="/signup"
                     className="inline-flex items-center gap-2 px-6 py-3 rounded-lg bg-[#2A1D12] text-white text-[15px] font-semibold hover:bg-[#17100A] transition-all shadow-md"
                   >
-                    <span>Generate Salon QR Kit</span>
+                    <span>{t("about.qr.cta")}</span>
                     <ArrowRight className="h-[18px] w-[18px]" />
                   </Link>
                 </div>
@@ -900,7 +887,7 @@ export default function AboutPage() {
               <div className="lg:col-span-6 relative flex justify-center">
                 <div className="relative w-full max-w-[480px] rounded-2xl overflow-hidden shadow-[0_20px_48px_rgba(74,72,69,0.12)]">
                   <img
-                    alt="Luxury foil-pressed QR rebooking card displayed on travertine counter with pampas grass"
+                    alt={t("about.qr.alt")}
                     className="w-full h-[380px] sm:h-[440px] object-cover object-center"
                     src={qrCardImg}
                   />
@@ -909,15 +896,15 @@ export default function AboutPage() {
                       <Nfc className="h-6 w-6 text-[#795831]" />
                       <div>
                         <div className="text-[15px] text-[#2A1D12] font-semibold">
-                          Your Salon QR
+                          {t("about.qr.cardTitle")}
                         </div>
                         <div className="text-[12px] text-[#4a4640]">
-                          Tap or scan to lock next visit
+                          {t("about.qr.cardSub")}
                         </div>
                       </div>
                     </div>
                     <span className="px-3 py-1 rounded-full bg-[#ffddba] text-[#2b1700] text-[11px] font-bold">
-                      8s Average
+                      {t("about.qr.badge")}
                     </span>
                   </div>
                 </div>
@@ -931,20 +918,19 @@ export default function AboutPage() {
         {/* ============================================================ */}
         <section className="w-full max-w-7xl mx-auto px-5 md:px-8 lg:px-14 py-24 space-y-12 scroll-mt-24">
           <div className="text-center max-w-2xl mx-auto space-y-2">
-            <Eyebrow>Complete Salon Architecture</Eyebrow>
+            <Eyebrow>{t("about.feat.eyebrow")}</Eyebrow>
             <h2 className="font-[family-name:var(--font-playfair)] text-[28px] sm:text-[38px] text-[#2A1D12] font-semibold">
-              Everything your salon needs to run beautifully.
+              {t("about.feat.title")}
             </h2>
             <p className="text-[16px] text-[#4a4640]">
-              Engineered specifically to solve the distinct operational
-              bottlenecks of Sri Lankan beauty businesses.
+              {t("about.feat.sub")}
             </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {features.map((f) => (
               <div
-                key={f.title}
+                key={f.titleKey}
                 className="p-8 rounded-2xl bg-[#f1ede7] space-y-4 hover:bg-[#ebe8e2] transition-colors flex flex-col justify-between"
               >
                 <div className="space-y-3">
@@ -952,12 +938,12 @@ export default function AboutPage() {
                     <f.icon className="h-6 w-6" />
                   </div>
                   <h3 className="text-[17px] text-[#2A1D12] font-semibold">
-                    {f.title}
+                    {t(f.titleKey)}
                   </h3>
-                  <p className="text-[13px] text-[#4a4640]">{f.desc}</p>
+                  <p className="text-[13px] text-[#4a4640]">{t(f.descKey)}</p>
                 </div>
                 <div className="pt-1 text-[11px] uppercase tracking-wider text-[#2A1D12] font-bold">
-                  {f.tag}
+                  {t(f.tagKey)}
                 </div>
               </div>
             ))}
@@ -969,29 +955,27 @@ export default function AboutPage() {
         {/* ============================================================ */}
         <section className="relative w-full h-[420px] sm:h-[480px] overflow-hidden my-8 flex items-center">
           <img
-            alt="Cinematic interior view of luxury salon atelier in Sri Lanka with arched architectural alcoves"
+            alt={t("about.cine.alt")}
             className="absolute inset-0 w-full h-full object-cover object-center"
             src={bannerImg}
           />
           <div className="absolute inset-0 bg-[#2A1D12]/70 backdrop-blur-[2px]" />
           <div className="relative z-10 max-w-4xl mx-auto px-5 md:px-8 lg:px-14 text-center space-y-4 text-white">
             <span className="text-[11px] uppercase tracking-widest text-[#ffddba] font-semibold">
-              Atmospheric Reverence
+              {t("about.cine.eyebrow")}
             </span>
             <h2 className="font-[family-name:var(--font-playfair)] text-[28px] sm:text-[42px] font-semibold leading-tight">
-              Where beauty meets quiet technological perfection.
+              {t("about.cine.title")}
             </h2>
             <p className="text-[16px] text-[#e6e2dc] max-w-2xl mx-auto">
-              Give your salon an online presence as immaculate and serene as
-              the physical sanctuary you have poured your heart into
-              creating.
+              {t("about.cine.sub")}
             </p>
             <div className="pt-2">
               <Link
                 href="/signup"
                 className="inline-flex items-center px-7 py-3.5 rounded-lg bg-white text-[#2A1D12] text-[15px] font-semibold hover:bg-[#f1ede7] transition-colors shadow-lg"
               >
-                Claim Your Salon Storefront
+                {t("about.cine.cta")}
               </Link>
             </div>
           </div>
@@ -1004,22 +988,22 @@ export default function AboutPage() {
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
             <div className="lg:col-span-8 lg:col-start-3 space-y-4">
               <div className="space-y-1 text-center">
-                <Eyebrow>Clarity &amp; Assurance</Eyebrow>
+                <Eyebrow>{t("about.faq.eyebrow")}</Eyebrow>
                 <h2 className="font-[family-name:var(--font-playfair)] text-[24px] text-[#2A1D12] font-semibold pt-1">
-                  Frequently Asked Questions
+                  {t("about.faq.title")}
                 </h2>
               </div>
 
               <div className="space-y-2">
                 {faqs.map((f, i) => (
                   <div
-                    key={f.q}
+                    key={f.qKey}
                     onClick={() => setOpenFaq(openFaq === i ? null : i)}
                     className="rounded-xl bg-[#f1ede7] p-5 space-y-2 cursor-pointer"
                   >
                     <div className="flex items-center justify-between gap-4">
                       <h3 className="text-[15px] text-[#2A1D12] font-semibold">
-                        {f.q}
+                        {t(f.qKey)}
                       </h3>
                       <ChevronDown
                         className={`h-5 w-5 text-[#7b766f] shrink-0 transition-transform duration-300 ${
@@ -1029,7 +1013,7 @@ export default function AboutPage() {
                     </div>
                     {openFaq === i && (
                       <div className="text-[13.5px] text-[#4a4640] leading-relaxed pr-6">
-                        {f.a}
+                        {t(f.aKey)}
                       </div>
                     )}
                   </div>
@@ -1046,15 +1030,13 @@ export default function AboutPage() {
           <div className="rounded-3xl bg-[#f7f3ed] p-10 lg:p-20 shadow-[0_24px_64px_rgba(74,72,69,0.06)] relative overflow-hidden text-center space-y-6">
             <div className="max-w-2xl mx-auto space-y-2">
               <span className="text-[11px] uppercase tracking-widest text-[#795831] font-semibold">
-                Elevate Your Standard
+                {t("about.cta.eyebrow")}
               </span>
               <h2 className="font-[family-name:var(--font-playfair)] text-[28px] sm:text-[42px] text-[#2A1D12] font-semibold leading-tight">
-                Your salon deserves to be effortlessly booked.
+                {t("about.cta.title")}
               </h2>
               <p className="text-[16px] text-[#4a4640]">
-                Join Colombo, Galle, and Kandy&apos;s most distinguished
-                salons elevating their hospitality standard today. Free
-                14-day trial with full VIP white-glove onboarding.
+                {t("about.cta.sub")}
               </p>
             </div>
             <div className="flex flex-wrap items-center justify-center gap-4 pt-1">
@@ -1062,18 +1044,18 @@ export default function AboutPage() {
                 href="/signup"
                 className="inline-flex items-center justify-center px-7 py-3.5 rounded-lg bg-[#2A1D12] text-white text-[15px] font-semibold hover:bg-[#4a4640] transition-all shadow-[0_12px_28px_rgba(31,30,29,0.14)]"
               >
-                Get Started Free
+                {t("about.cta.start")}
               </Link>
               <Link
                 href="/contact"
                 className="inline-flex items-center gap-2 px-6 py-3.5 rounded-lg bg-white text-[#1c1c18] text-[15px] font-semibold hover:bg-[#f1ede7] transition-colors shadow-sm"
               >
-                <span>Schedule a Demo</span>
+                <span>{t("about.cta.demo")}</span>
                 <Calendar className="h-[18px] w-[18px]" />
               </Link>
             </div>
             <p className="text-[11px] text-[#7b766f]">
-              No credit card required • Active setup in under 15 minutes
+              {t("about.cta.note")}
             </p>
           </div>
         </section>

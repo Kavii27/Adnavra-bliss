@@ -5,6 +5,7 @@ import { Cormorant_Garamond } from "next/font/google";
 import { ArrowLeft, MapPin } from "lucide-react";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
+import { getServerT } from "@/lib/i18n/server";
 import { BookingWizard } from "@/components/booking/BookingWizard";
 
 const display = Cormorant_Garamond({
@@ -15,6 +16,23 @@ const display = Cormorant_Garamond({
   display: "swap",
 });
 
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ businessSlug: string }>;
+}) {
+  const { businessSlug } = await params;
+  const t = await getServerT();
+  const venue = await db.business.findUnique({
+    where: { slug: businessSlug },
+    select: { name: true },
+  });
+  return {
+    title: venue ? `${venue.name} | ADNAVRA BLISS` : "ADNAVRA BLISS",
+    description: t("book.meta.description"),
+  };
+}
+
 export default async function BookPage({
   params,
   searchParams,
@@ -23,6 +41,7 @@ export default async function BookPage({
   searchParams: Promise<{ serviceId?: string; staffId?: string; date?: string; slot?: string }>;
 }) {
   const { businessSlug } = await params;
+  const t = await getServerT();
   const { serviceId, staffId, date, slot } = await searchParams;
 
   const venue = await db.business.findUnique({
@@ -61,7 +80,7 @@ export default async function BookPage({
           A matching spacer immediately below reserves their combined height (64px + 144px = 208px)
           in normal document flow so real content never renders underneath them. */}
       <nav className="fixed inset-x-0 top-0 z-40 flex h-16 items-center justify-between border-b border-[#E9E1D3] bg-white/90 px-4 backdrop-blur sm:px-6 lg:px-12">
-        <Link href="/" className="flex items-center gap-2" aria-label="ADNAVRA BLISS home">
+        <Link href="/" className="flex items-center gap-2" aria-label={t("book.aria.home")}>
           <Image src="/logo.png" alt="ADNAVRA BLISS" width={28} height={28} className="h-7 w-7 shrink-0 rounded-md object-contain" />
           <span className="text-base font-semibold tracking-tight text-[#1F1E1D] sm:text-lg">
             ADNAVRA <span className="font-normal text-[#795831]">BLISS</span>
@@ -71,7 +90,7 @@ export default async function BookPage({
           href={`/${businessSlug}`}
           className="inline-flex items-center gap-1.5 rounded-full border border-[#E9E1D3] px-3 py-1.5 text-[13px] font-medium text-[#4A4640] transition-colors hover:bg-[#F7F3ED] hover:text-[#1F1E1D]"
         >
-          <ArrowLeft className="h-3.5 w-3.5" /> <span className="hidden sm:inline">Back to venue</span>
+          <ArrowLeft className="h-3.5 w-3.5" /> <span className="hidden sm:inline">{t("book.back")}</span>
         </Link>
       </nav>
 
@@ -87,7 +106,7 @@ export default async function BookPage({
         />
         <div className="flex w-full flex-col gap-0.5 px-4 py-5 sm:px-6 lg:px-12">
           <p className="text-[10px] font-semibold uppercase tracking-[0.3em]" style={{ color: "#D9BE8C" }}>
-            Reserve your visit
+            {t("book.eyebrow")}
           </p>
           <h1 className={`${display.variable} font-[family-name:var(--font-display)] text-2xl font-medium leading-tight text-white sm:text-3xl lg:text-4xl`}>
             {venue.name}

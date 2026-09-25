@@ -1,34 +1,39 @@
+"use client";
+
 import Link from "next/link";
 import Image from "next/image";
 import { Facebook, Instagram, Linkedin } from "lucide-react";
+import { LanguageSwitcher } from "@/components/customer/language-switcher";
+import { useLocale } from "@/lib/i18n/locale-context";
 
 const COLUMNS = [
   {
-    title: "About",
+    titleKey: "footer.col.about",
     links: [
-      { href: "/about", label: "About ADNAVRA" },
-      { href: "/contact", label: "Contact us" },
-      { href: "/help", label: "Help and support" },
+      { href: "/about", labelKey: "footer.col.about1" },
+      { href: "/contact", labelKey: "footer.col.about2" },
+      { href: "/help", labelKey: "footer.col.about3" },
     ],
   },
   {
-    title: "For business",
+    titleKey: "footer.col.biz",
     links: [
-      { href: "/for-business", label: "For salons" },
-      { href: "/about#features", label: "Features" },
-      { href: "/signup", label: "Get started" },
+      { href: "/for-business", labelKey: "footer.col.biz1" },
+      { href: "/about#features", labelKey: "footer.col.biz2" },
+      { href: "/signup", labelKey: "footer.col.biz3" },
     ],
   },
   {
-    title: "Legal",
+    titleKey: "footer.col.legal",
     links: [
-      { href: "/privacy", label: "Privacy policy" },
-      { href: "/terms", label: "Terms of service" },
+      { href: "/privacy", labelKey: "footer.col.legal1" },
+      { href: "/terms", labelKey: "footer.col.legal2" },
     ],
   },
-];
+] as const;
 
 export function SiteFooter() {
+  const { t } = useLocale();
   return (
     <footer className="bg-[#f7f3ed] text-[#4a4640] px-6 lg:px-12 py-16 mt-16">
       <div className="max-w-[1400px] mx-auto grid gap-10 md:grid-cols-[1.4fr_1fr_1fr_1fr]">
@@ -41,7 +46,7 @@ export function SiteFooter() {
             </span>
           </Link>
           <p className="text-sm mt-3 max-w-xs leading-relaxed">
-            Booking infrastructure and a digital presence for Sri Lankan salons and beauty businesses.
+            {t("footer.tagline")}
           </p>
           <div className="flex items-center gap-3 mt-4">
             <a href="#" aria-label="Facebook" className="hover:text-[#050504] transition-colors">
@@ -56,13 +61,13 @@ export function SiteFooter() {
           </div>
         </div>
         {COLUMNS.map((col) => (
-          <div key={col.title}>
-            <p className="text-[#050504] text-sm font-semibold">{col.title}</p>
+          <div key={col.titleKey}>
+            <p className="text-[#050504] text-sm font-semibold">{t(col.titleKey)}</p>
             <ul className="mt-3 space-y-2">
               {col.links.map((l) => (
-                <li key={`${l.href}-${l.label}`}>
+                <li key={`${l.href}-${l.labelKey}`}>
                   <Link href={l.href} className="text-sm hover:text-[#050504] transition-colors">
-                    {l.label}
+                    {t(l.labelKey)}
                   </Link>
                 </li>
               ))}
@@ -70,11 +75,14 @@ export function SiteFooter() {
           </div>
         ))}
       </div>
-      <div className="max-w-[1400px] mx-auto border-t border-[#ccc6bd]/40 mt-10 pt-6 text-xs text-[#7b766f] flex items-center justify-between">
-        <span>© {new Date().getFullYear()} ADNAVRA. All rights reserved. Colombo, Sri Lanka.</span>
-        <Link href="/login?callbackUrl=/admin" className="hover:text-[#050504] transition-colors">
-          Admin
-        </Link>
+      <div className="max-w-[1400px] mx-auto border-t border-[#ccc6bd]/40 mt-10 pt-6 text-xs text-[#7b766f] flex flex-wrap items-center justify-between gap-3">
+        <span>© {new Date().getFullYear()} ADNAVRA. {t("footer.rights")}</span>
+        <div className="flex items-center gap-3">
+          <LanguageSwitcher />
+          <Link href="/login?callbackUrl=/admin" className="hover:text-[#050504] transition-colors">
+            Admin
+          </Link>
+        </div>
       </div>
     </footer>
   );

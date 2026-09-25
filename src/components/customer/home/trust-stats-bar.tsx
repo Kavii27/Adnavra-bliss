@@ -1,25 +1,30 @@
 import { ShieldCheck, BadgePercent, Mail } from "lucide-react";
+import { getServerT } from "@/lib/i18n/server";
 import { Reveal } from "./reveal";
 
 const STATS = [
   {
     icon: ShieldCheck,
-    title: "Verified Salons & Spas",
-    desc: "Audited hygiene & master credentials",
+    titleKey: "home.trust.verified",
+    descKey: "home.trust.verifiedDesc",
+    withCount: true,
   },
   {
     icon: BadgePercent,
-    title: "Zero Booking Fee",
-    desc: "Direct salon rates with zero card surcharges",
+    titleKey: "home.trust.zeroFee",
+    descKey: "home.trust.zeroFeeDesc",
+    withCount: false,
   },
   {
     icon: Mail,
-    title: "Instant Email Confirm",
-    desc: "Calendar-ready reminders with location maps",
+    titleKey: "home.trust.instantConfirm",
+    descKey: "home.trust.instantConfirmDesc",
+    withCount: false,
   },
 ] as const;
 
-export function TrustStatsBar({ businessCount }: { businessCount: number }) {
+export async function TrustStatsBar({ businessCount }: { businessCount: number }) {
+  const t = await getServerT();
   return (
     <section className="relative bg-transparent">
       <Reveal
@@ -27,15 +32,15 @@ export function TrustStatsBar({ businessCount }: { businessCount: number }) {
         className="max-w-[1400px] mx-auto px-6 lg:px-12 py-6 grid gap-6 sm:grid-cols-3 reveal-stagger"
       >
         {STATS.map((s) => (
-          <div key={s.title} className="flex items-center gap-3">
+          <div key={s.titleKey} className="flex items-center gap-3">
             <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#F7F3ED] text-[#795831]">
               <s.icon className="h-4 w-4" />
             </span>
             <div>
               <p className="text-sm font-semibold text-[#1F1E1D]">
-                {s.title.startsWith("Verified") ? `${businessCount > 0 ? `${businessCount}+ ` : ""}${s.title}` : s.title}
+                {s.withCount && businessCount > 0 ? `${businessCount}+ ` : ""}{t(s.titleKey)}
               </p>
-              <p className="text-xs text-[#8A8377]">{s.desc}</p>
+              <p className="text-xs text-[#8A8377]">{t(s.descKey)}</p>
             </div>
           </div>
         ))}

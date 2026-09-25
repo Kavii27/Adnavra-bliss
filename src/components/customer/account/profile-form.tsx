@@ -2,12 +2,14 @@
 import { useState, useTransition } from "react";
 import { Loader2, AlertCircle, Check } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import { useLocale } from "@/lib/i18n/locale-context";
 
 export function ProfileForm({
   initial,
 }: {
   initial: { name: string; email: string; phone: string; image: string };
 }) {
+  const { t } = useLocale();
   const [name, setName] = useState(initial.name);
   const [phone, setPhone] = useState(initial.phone);
   const [image, setImage] = useState(initial.image);
@@ -26,7 +28,7 @@ export function ProfileForm({
       if ((image.trim() || "") !== (initial.image || "")) payload.image = image.trim() || null;
 
       if (Object.keys(payload).length === 0) {
-        setError("No changes to save.");
+        setError(t("account.noChanges"));
         return;
       }
 
@@ -38,13 +40,13 @@ export function ProfileForm({
         });
         const data = await res.json().catch(() => ({}));
         if (!res.ok) {
-          setError((data as { error?: string }).error ?? "Unable to update profile");
+          setError((data as { error?: string }).error ?? t("account.updateFail"));
           return;
         }
-        setSuccess("Profile updated");
+        setSuccess(t("account.updated"));
         // update initial reference by reloading page state via refresh
       } catch {
-        setError("Network error. Please try again.");
+        setError(t("account.netErr"));
       }
     });
   }
@@ -66,22 +68,22 @@ export function ProfileForm({
 
       <div>
         <label htmlFor="name" className="text-sm font-medium text-[#1F1E1D]">
-          Name
+          {t("account.name")}
         </label>
         <Input id="name" value={name} onChange={(e) => setName(e.target.value)} required maxLength={100} className="mt-1.5 bg-white" disabled={pending} />
       </div>
 
       <div>
         <label htmlFor="email" className="text-sm font-medium text-[#1F1E1D]">
-          Email
+          {t("account.email")}
         </label>
         <Input id="email" value={initial.email} disabled className="mt-1.5 bg-[#FBF7EF] text-[#8A8377]" />
-        <p className="mt-1 text-xs text-[#8A8377]">Email cannot be changed. Contact support if needed.</p>
+        <p className="mt-1 text-xs text-[#8A8377]">{t("account.emailLocked")}</p>
       </div>
 
       <div>
         <label htmlFor="phone" className="text-sm font-medium text-[#1F1E1D]">
-          Phone
+          {t("account.phone")}
         </label>
         <Input
           id="phone"
@@ -96,7 +98,7 @@ export function ProfileForm({
 
       <div>
         <label htmlFor="image" className="text-sm font-medium text-[#1F1E1D]">
-          Profile photo URL
+          {t("account.photoUrl")}
         </label>
         <Input
           id="image"
@@ -115,10 +117,10 @@ export function ProfileForm({
       >
         {pending ? (
           <>
-            <Loader2 className="h-4 w-4 animate-spin" /> Saving...
+            <Loader2 className="h-4 w-4 animate-spin" /> {t("account.saving")}
           </>
         ) : (
-          "Save changes"
+          t("account.save")
         )}
       </button>
     </form>

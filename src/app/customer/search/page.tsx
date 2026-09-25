@@ -7,7 +7,8 @@ import { Heart, MapPin, SlidersHorizontal, Map as MapIcon, EyeOff } from "lucide
 import { CustomerHeader } from "@/components/customer/customer-header";
 import { SearchBar } from "@/components/customer/search/search-bar";
 import { Button } from "@/components/ui/button";
-import { getCategoryLabel } from "@/lib/categories";
+import { taxonomyLabelKey } from "@/lib/categories";
+import { useLocale } from "@/lib/i18n/locale-context";
 
 const ResultsMap = dynamic(() => import("@/components/customer/results-map"), { ssr: false });
 
@@ -60,6 +61,7 @@ function formatPillLabel(d: Date): string {
 
 /** Result card photo + logo badge — each falls back quietly if its URL 404s. */
 function ResultPhoto({ name, coverUrl, logoUrl }: { name: string; coverUrl: string | null; logoUrl: string | null }) {
+  const { t } = useLocale();
   const [coverFailed, setCoverFailed] = useState(false);
   const [logoFailed, setLogoFailed] = useState(false);
 
@@ -83,7 +85,7 @@ function ResultPhoto({ name, coverUrl, logoUrl }: { name: string; coverUrl: stri
       )}
       <button
         type="button"
-        aria-label="Save"
+        aria-label={t("search.save")}
         onClick={(e) => {
           e.preventDefault();
           e.stopPropagation();
@@ -104,6 +106,7 @@ function ResultPhoto({ name, coverUrl, logoUrl }: { name: string; coverUrl: stri
 }
 
 function SearchInner() {
+  const { t } = useLocale();
   const params = useSearchParams();
   const router = useRouter();
   const [radiusKm, setRadiusKm] = useState(10);
@@ -120,6 +123,10 @@ function SearchInner() {
   const q = params.get("q") ?? "";
   const category = params.get("category") ?? "";
   const selectedDate = params.get("date") ?? "";
+  // Hoisted so the search effect can depend on the resolved strings
+  // (re-fetching with the right language) instead of the `t` closure.
+  const searchFailedMsg = t("search.searchFailed");
+  const salonFallback = t("search.salonFallback");
 
   // Close filters popover on outside click
   useEffect(() => {
@@ -146,7 +153,7 @@ function SearchInner() {
     fetch(`/api/marketplace/search?${qs.toString()}`)
       .then(async (r) => {
         const j = await r.json().catch(() => null);
-        if (!r.ok) throw new Error(j?.error ?? "Search failed");
+        if (!r.ok) throw new Error(j?.error ?? searchFailedMsg);
         return j;
       })
       .then((j) => {
@@ -156,7 +163,7 @@ function SearchInner() {
         setResults(
           rows.map((row: Record<string, unknown>) => ({
             id: String(row.id ?? ""),
-            name: String(row.name ?? "Salon"),
+            name: String(row.name ?? salonFallback),
             slug: String(row.slug ?? ""),
             logoUrl: (row.logoUrl as string | null) ?? null,
             coverUrl: (row.coverUrl as string | null) ?? null,
@@ -178,7 +185,7 @@ function SearchInner() {
       .catch((e: unknown) => {
         if (!cancelled) {
           setResults([]);
-          setLoadError(e instanceof Error ? e.message : "Search failed");
+          setLoadError(e instanceof Error ? e.message : searchFailedMsg);
         }
       })
       .finally(() => {
@@ -187,19 +194,21 @@ function SearchInner() {
     return () => {
       cancelled = true;
     };
-  }, [center, q, category, selectedDate, radiusKm, retryKey, params]);
+  }, [center, q, category, selectedDate, radiusKm, retryKey, params, searchFailedMsg, salonFallback]);
 
-  // Generate day pills: Any day | Today | next 12 dates
+  // Generate day pills: Any day | Today | next 12 dates. Labels resolve at
+  // render via t() so they follow the active locale; `kind` (not the label)
+  // drives the Today / Any-day rendering branches below.
   const dayPills = useMemo(() => {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    const pills: { label: string; value: string | null; subLabel?: string }[] = [{ label: "Any day", value: null }];
+    const pills: { kind: "any" | "today" | "date"; value: string | null; date?: Date }[] = [{ kind: "any", value: null }];
     const todayStr = formatDateISO(today);
-    pills.push({ label: "Today", value: todayStr, subLabel: formatPillLabel(today).split(" ").slice(1).join(" ") });
+    pills.push({ kind: "today", value: todayStr, date: today });
     for (let i = 1; i <= 12; i++) {
       const d = new Date(today);
       d.setDate(today.getDate() + i);
-      pills.push({ label: formatPillLabel(d), value: formatDateISO(d) });
+      pills.push({ kind: "date", value: formatDateISO(d), date: d });
     }
     return pills;
   }, []);
@@ -226,9 +235,13 @@ function SearchInner() {
         <div className="flex gap-2 overflow-x-auto scrollbar-thin pb-1 -mb-1 snap-x snap-mandatory" style={{ scrollbarWidth: "thin" }}>
           {dayPills.map((pill) => {
             const isActive = (pill.value === null && !selectedDate) || pill.value === selectedDate;
+            const subLabel =
+              pill.kind === "today" && pill.date
+                ? formatPillLabel(pill.date).split(" ").slice(1).join(" ")
+                : undefined;
             return (
               <button
-                key={pill.label + (pill.value ?? "any")}
+                key={pill.kind + (pill.value ?? "any")}
                 type="button"
                 onClick={() => setDateParam(pill.value)}
                 className={`shrink-0 snap-start rounded-full border px-4 py-2 text-sm font-medium transition ${
@@ -238,15 +251,15 @@ function SearchInner() {
                 }`}
                 aria-pressed={isActive}
               >
-                {pill.label === "Today" ? (
+                {pill.kind === "today" ? (
                   <span className="inline-flex flex-col items-center leading-none">
-                    <span className="text-[11px] font-semibold uppercase tracking-wide opacity-70">Today</span>
-                    <span className="text-xs font-medium">{pill.subLabel}</span>
+                    <span className="text-[11px] font-semibold uppercase tracking-wide opacity-70">{t("search.today")}</span>
+                    <span className="text-xs font-medium">{subLabel}</span>
                   </span>
-                ) : pill.label === "Any day" ? (
-                  "Any day"
+                ) : pill.kind === "any" ? (
+                  t("search.anyDay")
                 ) : (
-                  pill.label
+                  pill.date ? formatPillLabel(pill.date) : ""
                 )}
               </button>
             );
@@ -268,25 +281,25 @@ function SearchInner() {
                 }`}
                 aria-pressed={activeTab === "venues"}
               >
-                Venues
+                {t("search.venues")}
               </button>
               <button
                 type="button"
                 onClick={() => setActiveTab("professionals")}
                 className="rounded-full px-5 py-1.5 text-sm font-medium text-[#8A8377] cursor-not-allowed relative group/prof"
                 aria-disabled="true"
-                title="Coming soon"
+                title={t("search.comingSoon")}
               >
-                Professionals
+                {t("search.professionals")}
                 <span className="pointer-events-none absolute left-1/2 top-full z-10 mt-2 hidden -translate-x-1/2 whitespace-nowrap rounded-md bg-[#1F1E1D] px-2 py-1 text-xs font-medium text-white group-hover/prof:block">
-                  Coming soon
+                  {t("search.comingSoon")}
                 </span>
               </button>
             </div>
 
             <div className="flex items-center justify-between gap-2">
               <p className="text-sm font-medium text-[#1F1E1D]">
-                {activeTab === "professionals" ? "Professionals" : `${results.length} salons nearby`}
+                {activeTab === "professionals" ? t("search.professionals") : `${results.length} ${t("search.salonsNearby")}`}
               </p>
               <div className="flex items-center gap-2">
                 {/* Filters popover — keeps radius select inside */}
@@ -299,11 +312,11 @@ function SearchInner() {
                     className="h-9 gap-2 rounded-full px-4 text-sm"
                   >
                     <SlidersHorizontal className="h-4 w-4" />
-                    Filters
+                    {t("search.filters")}
                   </Button>
                   {showFilters && (
                     <div className="absolute right-0 mt-2 w-64 rounded-xl border border-[#E5DDD0] bg-white p-4 shadow-[0_8px_30px_rgba(16,24,40,0.12)] z-20">
-                      <p className="text-xs font-semibold uppercase tracking-wide text-[#8A8377] mb-2">Search radius</p>
+                      <p className="text-xs font-semibold uppercase tracking-wide text-[#8A8377] mb-2">{t("search.searchRadius")}</p>
                       <select
                         value={radiusKm}
                         onChange={(e) => {
@@ -312,12 +325,12 @@ function SearchInner() {
                         }}
                         className="w-full rounded-lg border border-[#E5DDD0] bg-white px-3 py-2 text-sm text-[#1F1E1D] outline-none focus:border-[#795831] focus:ring-1 focus:ring-[#795831]"
                       >
-                        <option value={2}>Within 2 km</option>
-                        <option value={5}>Within 5 km</option>
-                        <option value={10}>Within 10 km</option>
-                        <option value={25}>Within 25 km</option>
+                        <option value={2}>{t("search.within2km")}</option>
+                        <option value={5}>{t("search.within5km")}</option>
+                        <option value={10}>{t("search.within10km")}</option>
+                        <option value={25}>{t("search.within25km")}</option>
                       </select>
-                      <p className="mt-2 text-xs text-[#8A8377]">Adjust how far from the selected location to search.</p>
+                      <p className="mt-2 text-xs text-[#8A8377]">{t("search.radiusHint")}</p>
                     </div>
                   )}
                 </div>
@@ -328,7 +341,7 @@ function SearchInner() {
                   className="h-9 gap-2 rounded-full px-4 text-sm"
                 >
                   {hideMap ? <MapIcon className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
-                  {hideMap ? "Show map" : "Hide map"}
+                  {hideMap ? t("search.showMap") : t("search.hideMap")}
                 </Button>
               </div>
             </div>
@@ -336,21 +349,23 @@ function SearchInner() {
 
           {activeTab === "professionals" ? (
             <div className="mt-6 rounded-xl border border-dashed border-[#E5DDD0] bg-[#FDF9F3] p-8 text-center">
-              <p className="text-sm font-semibold text-[#1F1E1D]">Professionals search — Coming soon</p>
-              <p className="mt-1 text-sm text-[#8A8377]">We are building a dedicated search for individual professionals. For now, browse venues above.</p>
+              <p className="text-sm font-semibold text-[#1F1E1D]">{t("search.professionalsSoonTitle")}</p>
+              <p className="mt-1 text-sm text-[#8A8377]">{t("search.professionalsSoonSub")}</p>
             </div>
           ) : loading ? (
-            <p className="mt-6 text-sm text-[#8A8377]">Searching...</p>
+            <p className="mt-6 text-sm text-[#8A8377]">{t("search.searching")}</p>
           ) : loadError ? (
             <div className="mt-6 rounded-xl border border-red-200 bg-red-50 p-4 text-center">
-              <p className="text-sm font-medium text-red-800">Search failed — {loadError}</p>
+              <p className="text-sm font-medium text-red-800">
+                {loadError === searchFailedMsg ? searchFailedMsg : `${searchFailedMsg} — ${loadError}`}
+              </p>
               <Button
                 type="button"
                 variant="secondary"
                 onClick={() => setRetryKey((k) => k + 1)}
                 className="mt-3 h-9 rounded-full px-4 text-sm"
               >
-                Retry
+                {t("search.retry")}
               </Button>
             </div>
           ) : (
@@ -366,7 +381,7 @@ function SearchInner() {
                   <div className="p-4">
                     {r.marketplacePriority && (
                       <span className="mb-1.5 inline-flex items-center rounded-full bg-[#795831] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-white">
-                        Featured
+                        {t("search.featured")}
                       </span>
                     )}
                     <p className="text-sm font-semibold text-[#1F1E1D] truncate">{r.name}</p>
@@ -376,15 +391,15 @@ function SearchInner() {
                     {(r.salonTypes.length > 0 || r.categories.length > 0) && (
                       <div className="mt-1.5 flex flex-wrap gap-1">
                         {[...r.salonTypes, ...r.categories].slice(0, 2).map((c) => (
-                          <span key={c} className="rounded-full bg-[#F7F3ED] px-2 py-0.5 text-[10px] text-[#795831]">{getCategoryLabel(c)}</span>
+                          <span key={c} className="rounded-full bg-[#F7F3ED] px-2 py-0.5 text-[10px] text-[#795831]">{t(taxonomyLabelKey(c))}</span>
                         ))}
                       </div>
                     )}
-                    {r.distanceKm != null && <p className="text-xs text-[#c9a26d] mt-1">{r.distanceKm.toFixed(1)} km away</p>}
+                    {r.distanceKm != null && <p className="text-xs text-[#c9a26d] mt-1">{r.distanceKm.toFixed(1)} {t("search.kmAway")}</p>}
                   </div>
                 </Link>
               ))}
-              {results.length === 0 && <p className="text-sm text-[#8A8377] mt-6">No salons found in this area yet. Try a larger radius or a different location.</p>}
+              {results.length === 0 && <p className="text-sm text-[#8A8377] mt-6">{t("search.noResults")}</p>}
             </div>
           )}
         </div>
@@ -399,10 +414,11 @@ function SearchInner() {
 }
 
 export default function CustomerSearchPage() {
+  const { t } = useLocale();
   return (
     <main className="min-h-screen bg-[#FDF9F3]">
       <CustomerHeader />
-      <Suspense fallback={<div className="p-10 text-sm text-[#8A8377]">Loading search...</div>}>
+      <Suspense fallback={<div className="p-10 text-sm text-[#8A8377]">{t("search.loadingSearch")}</div>}>
         <SearchInner />
       </Suspense>
     </main>

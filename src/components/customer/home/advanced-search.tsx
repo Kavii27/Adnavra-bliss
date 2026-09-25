@@ -3,7 +3,8 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { ChevronDown, SlidersHorizontal } from "lucide-react";
-import { BUSINESS_TYPES } from "@/lib/categories";
+import { BUSINESS_TYPES, taxonomyLabelKey } from "@/lib/categories";
+import { useLocale } from "@/lib/i18n/locale-context";
 
 /**
  * Collapsible advanced search under the hero.
@@ -13,6 +14,7 @@ import { BUSINESS_TYPES } from "@/lib/categories";
  * no support for them, and shipping them would be fake filters.
  */
 export function AdvancedSearch() {
+  const { t } = useLocale();
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [salonType, setSalonType] = useState("");
@@ -43,7 +45,7 @@ export function AdvancedSearch() {
         >
           <span className="inline-flex items-center gap-2 text-sm font-semibold text-[#1F1E1D]">
             <SlidersHorizontal className="h-4 w-4 text-[#795831]" />
-            Advanced search
+            {t("search.advancedTitle")}
           </span>
           <ChevronDown
             className={`h-4 w-4 text-[#8A8377] transition-transform ${open ? "rotate-180" : ""}`}
@@ -53,7 +55,7 @@ export function AdvancedSearch() {
           <form onSubmit={handleSubmit} className="grid gap-4 border-t border-[#E5DDD0] px-5 py-5 sm:grid-cols-2">
             <div>
               <label htmlFor="adv-salon-type" className="text-xs font-semibold uppercase tracking-wide text-[#8A8377]">
-                Salon type
+                {t("search.salonType")}
               </label>
               <select
                 id="adv-salon-type"
@@ -61,17 +63,17 @@ export function AdvancedSearch() {
                 onChange={(e) => setSalonType(e.target.value)}
                 className="mt-1.5 w-full rounded-lg border border-[#E5DDD0] bg-white px-3 py-2.5 text-sm text-[#1F1E1D] outline-none focus:border-[#795831] focus:ring-1 focus:ring-[#795831]"
               >
-                <option value="">Any type</option>
-                {BUSINESS_TYPES.map((t) => (
-                  <option key={t.slug} value={t.slug}>
-                    {t.label}
+                <option value="">{t("search.anyType")}</option>
+                {BUSINESS_TYPES.map((bt) => (
+                  <option key={bt.slug} value={bt.slug}>
+                    {t(taxonomyLabelKey(bt.slug))}
                   </option>
                 ))}
               </select>
             </div>
             <div>
               <label htmlFor="adv-date" className="text-xs font-semibold uppercase tracking-wide text-[#8A8377]">
-                Date
+                {t("search.dateLabel")}
               </label>
               <input
                 id="adv-date"
@@ -86,14 +88,14 @@ export function AdvancedSearch() {
                 type="submit"
                 className="rounded-lg bg-[#2A1D12] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[#17100A]"
               >
-                Search
+                {t("search.submit")}
               </button>
               <button
                 type="button"
                 onClick={handleReset}
                 className="rounded-lg border border-[#E5DDD0] px-5 py-2.5 text-sm font-medium text-[#4A4640] transition hover:bg-[#F7F3ED]"
               >
-                Reset
+                {t("search.reset")}
               </button>
             </div>
           </form>

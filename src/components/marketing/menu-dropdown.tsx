@@ -2,30 +2,32 @@
 import Link from "next/link";
 import { useState, useRef, useEffect } from "react";
 import { Menu as MenuIcon, X, ArrowRight } from "lucide-react";
+import { useLocale } from "@/lib/i18n/locale-context";
 
 type Audience = "business" | "customer";
 
 const BUSINESS_LINKS = [
-  { href: "/login", label: "Log in or sign up" },
-  { href: "/about", label: "Home" },
-  { href: "/blog", label: "Blog" },
-  { href: "/help", label: "Help and support" },
+  { href: "/login", labelKey: "mkt.menu.loginSignup" },
+  { href: "/about", labelKey: "mkt.menu.home" },
+  { href: "/blog", labelKey: "mkt.menu.blog" },
+  { href: "/help", labelKey: "mkt.menu.help" },
 ];
 
 const CUSTOMER_LINKS = [
-  { href: "/customer/login", label: "Log in or sign up" },
-  { href: "/", label: "Home" },
-  { href: "/blog", label: "Blog" },
-  { href: "/help", label: "Help and support" },
+  { href: "/customer/login", labelKey: "mkt.menu.loginSignup" },
+  { href: "/", labelKey: "mkt.menu.home" },
+  { href: "/blog", labelKey: "mkt.menu.blog" },
+  { href: "/help", labelKey: "mkt.menu.help" },
 ];
 
 export function MenuDropdown({ audience }: { audience: Audience }) {
+  const { t } = useLocale();
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
   const links = audience === "business" ? BUSINESS_LINKS : CUSTOMER_LINKS;
-  const sectionLabel = audience === "business" ? "For businesses" : "For customers";
+  const sectionLabel = audience === "business" ? t("mkt.menu.sectionBusiness") : t("mkt.menu.sectionCustomer");
   const crossHref = audience === "business" ? "/" : "/for-business";
-  const crossLabel = audience === "business" ? "For customers" : "For businesses";
+  const crossLabel = audience === "business" ? t("mkt.menu.forCustomers") : t("mkt.menu.forBusiness");
 
   useEffect(() => {
     function onClick(e: MouseEvent) {
@@ -41,10 +43,10 @@ export function MenuDropdown({ audience }: { audience: Audience }) {
         onClick={() => setOpen((v) => !v)}
         className="inline-flex items-center gap-2 h-11 rounded-full border border-[#ccc6bd]/60 px-4 text-sm font-medium text-[#050504] hover:bg-[#f1ede7]"
         aria-expanded={open}
-        aria-label="Menu"
+        aria-label={t("mkt.menu.label")}
       >
         {open ? <X className="h-4 w-4" /> : <MenuIcon className="h-4 w-4" />}
-        Menu
+        {t("mkt.menu.label")}
       </button>
       {open && (
         <div className="fixed inset-x-0 top-16 z-50 mx-3 rounded-xl border border-[#ccc6bd]/40 bg-[#fdf9f3] shadow-[0_8px_30px_rgba(28,28,24,0.12)] p-2 sm:absolute sm:inset-x-auto sm:right-0 sm:top-auto sm:mt-2 sm:mx-0 sm:w-72 max-h-[calc(100dvh-6rem)] overflow-y-auto overscroll-contain">
@@ -57,10 +59,10 @@ export function MenuDropdown({ audience }: { audience: Audience }) {
               href={l.href}
               onClick={() => setOpen(false)}
               className={`block rounded-md px-3 py-3 sm:py-2 text-center sm:text-left text-[15px] sm:text-sm ${
-                l.label === "Log in or sign up" ? "font-semibold text-[#795831]" : "text-[#050504] hover:bg-[#f1ede7]"
+                l.labelKey === "mkt.menu.loginSignup" ? "font-semibold text-[#795831]" : "text-[#050504] hover:bg-[#f1ede7]"
               }`}
             >
-              {l.label}
+              {t(l.labelKey)}
             </Link>
           ))}
           <div className="mt-1 border-t border-[#ccc6bd]/40 pt-1">

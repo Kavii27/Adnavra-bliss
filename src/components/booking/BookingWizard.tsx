@@ -4,7 +4,8 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
 import { Loader2, AlertCircle, Check, Clock, MapPin, User, Calendar, ChevronLeft, ChevronRight, Scissors, Info } from "lucide-react";
-import { SERVICE_CATEGORIES } from "@/lib/categories";
+import { SERVICE_CATEGORIES, taxonomyLabelKey } from "@/lib/categories";
+import { useLocale } from "@/lib/i18n/locale-context";
 import { ServiceImage } from "@/components/business/service-image";
 
 function PrimaryCta({
@@ -54,15 +55,12 @@ function SecondaryCta({
 type Step = "services" | "professional" | "time" | "confirm";
 
 const STEP_ORDER: Step[] = ["services", "professional", "time", "confirm"];
-const STEP_LABELS: Record<Step, string> = {
-  services: "Services",
-  professional: "Professional",
-  time: "Time",
-  confirm: "Confirm",
-};
 
-// Static cancellation policy per Phase 7 spec (constant, not per-business yet)
-const CANCELLATION_POLICY = "Please cancel at least 24 hours before your appointment.";
+function periodKey(label: string): string {
+  if (label === "Afternoon") return "booking.period.afternoon";
+  if (label === "Evening") return "booking.period.evening";
+  return "booking.period.morning";
+}
 
 type Service = {
   id: string;
@@ -198,6 +196,7 @@ export function BookingWizard({
   initialSlotStart?: string;
 }) {
   const [step, setStep] = useState<Step>("services");
+  const { t } = useLocale();
 
   // Step 4: require a CUSTOMER account before a booking is confirmed.
   // The /[businessSlug]/book page already redirects logged-out visitors, but the
@@ -240,9 +239,9 @@ export function BookingWizard({
 
   const selectedService = useMemo(() => services.find((s) => s.id === selectedServiceId) ?? null, [services, selectedServiceId]);
   const selectedStaffName = useMemo(() => {
-    if (!selectedStaffId) return "Any professional";
-    return staff.find((s) => s.id === selectedStaffId)?.name ?? "Any professional";
-  }, [selectedStaffId, staff]);
+    if (!selectedStaffId) return t("booking.pro.any");
+    return staff.find((s) => s.id === selectedStaffId)?.name ?? t("booking.pro.any");
+  }, [selectedStaffId, staff, t]);
 
   // Step 4: sign-in return URL preserving the current selection, so callbackUrl
   // lands the customer back on the same step instead of restarting the flow.
@@ -360,15 +359,15 @@ export function BookingWizard({
         const j = await r.json();
         if (cancelled) return;
         if (!r.ok) {
-          setSlotError(j.error ?? "Unable to load slots");
+          setSlotError(j.error ?? t("booking.error.slots"));
           setSlots([]);
           return;
         }
         const list: Slot[] = j.data?.slots ?? [];
         setSlots(list);
-        if (list.length === 0) setSlotError("No slots available on this day. Try another date.");
+        if (list.length === 0) setSlotError(t("booking.error.noSlots"));
       } catch {
-        if (!cancelled) setSlotError("Network error loading slots");
+        if (!cancelled) setSlotError(t("booking.error.slotsNetwork"));
       } finally {
         if (!cancelled) setSlotsLoading(false);
       }
@@ -417,15 +416,15 @@ export function BookingWizard({
       const j = await r.json();
       if (!r.ok) {
         if (j.error === "auth_required" || r.status === 401) {
-          setSubmitError("Please sign in to confirm your booking — your selection is saved.");
+          setSubmitError(t("booking.error.signin"));
         } else {
-          setSubmitError(j.error ?? "Booking failed. Please try again.");
+          setSubmitError(j.error ?? t("booking.error.failed"));
         }
         return;
       }
       setSuccess({ reference: j.reference ?? j.data?.reference ?? "" });
     } catch {
-      setSubmitError("Network error. Please try again.");
+      setSubmitError(t("booking.error.network"));
     } finally {
       setSubmitting(false);
     }
@@ -446,31 +445,31 @@ export function BookingWizard({
             >
               <Check className="h-7 w-7 text-[#1B1714]" strokeWidth={3} />
             </div>
-            <h2 className={`${SERIF} mt-5 text-3xl font-medium text-white sm:text-4xl`}>Appointment confirmed</h2>
+            <h2 className={`${SERIF} mt-5 text-3xl font-medium text-white sm:text-4xl`}>{t("booking.success.title")}</h2>
             <p className="mx-auto mt-2 max-w-sm text-sm text-white/70">
-              Your appointment at {business?.name ?? businessSlug} is booked. We look forward to seeing you.
+              {t("booking.success.lead")} {business?.name ?? businessSlug} {t("booking.success.tail")}
             </p>
           </div>
           <div className="px-6 py-8 text-center sm:px-10">
             {success.reference && (
               <div className="mx-auto inline-flex flex-col items-center gap-1 rounded-xl border border-dashed border-[#D9BE8C] bg-[#FBF7EF] px-6 py-3">
-                <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#9A7B4F]">Booking reference</span>
+                <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#9A7B4F]">{t("booking.reference.label")}</span>
                 <span className="font-mono text-lg font-bold tracking-[0.15em] text-[#1F1E1D]">{success.reference}</span>
               </div>
             )}
-            <p className="mt-4 text-xs text-[#8A8377]">Show this reference at the venue. You can also take a screenshot of this page.</p>
+            <p className="mt-4 text-xs text-[#8A8377]">{t("booking.reference.hint")}</p>
             <div className="mt-7 flex flex-col items-center justify-center gap-3 sm:flex-row">
               <Link
                 href="/customer/account/activity"
                 className="inline-flex h-11 w-full items-center justify-center rounded-full bg-[#1F1B17] px-6 text-[12px] font-bold uppercase tracking-[0.12em] text-white transition-colors hover:bg-[#795831] sm:w-auto"
               >
-                View in your activity
+                {t("booking.success.viewActivity")}
               </Link>
               <Link
                 href={`/${businessSlug}`}
                 className="inline-flex h-11 w-full items-center justify-center rounded-full border border-[#E5DDD0] bg-white px-6 text-[12px] font-bold uppercase tracking-[0.12em] text-[#1F1E1D] transition-colors hover:bg-[#F7F3ED] sm:w-auto"
               >
-                Back to venue
+                {t("booking.backToVenue")}
               </Link>
             </div>
           </div>
@@ -521,7 +520,7 @@ export function BookingWizard({
                         isActive || isCompleted ? "text-[#1F1E1D]" : "text-[#B4AC9E]"
                       }`}
                     >
-                      {STEP_LABELS[s]}
+                      {t(`booking.step.${s}`)}
                     </span>
                   </button>
                   {idx < STEP_ORDER.length - 1 && (
@@ -546,7 +545,7 @@ export function BookingWizard({
           {/* Loading state */}
           {bizLoading ? (
             <div className="flex-1 flex items-center justify-center gap-2 text-sm text-[#8A8377] py-12">
-              <Loader2 className="h-4 w-4 animate-spin" /> Loading booking details...
+              <Loader2 className="h-4 w-4 animate-spin" /> {t("booking.loading.details")}
             </div>
           ) : (
             <>
@@ -554,8 +553,8 @@ export function BookingWizard({
               {step === "services" && (
                 <div className="flex-1 flex flex-col">
                   <div className="border-b border-[#F1EDE7] px-6 pt-7 pb-5 sm:px-9">
-                    <h2 className={`${SERIF} text-3xl font-medium tracking-tight text-[#1F1E1D]`}>Select a service</h2>
-                    <p className="mt-1 text-sm text-[#8A8377]">Choose one service for this appointment.</p>
+                    <h2 className={`${SERIF} text-3xl font-medium tracking-tight text-[#1F1E1D]`}>{t("booking.selectService.title")}</h2>
+                    <p className="mt-1 text-sm text-[#8A8377]">{t("booking.selectService.sub")}</p>
                     {groups.length > 1 && (
                       <div className="mt-5 -mb-1 flex gap-2 overflow-x-auto pb-1">
                         <button
@@ -565,7 +564,7 @@ export function BookingWizard({
                             activeCategory === null ? "border-[#1F1B17] bg-[#1F1B17] text-white" : "border-[#E5DDD0] bg-white text-[#4A4640] hover:border-[#CCC6BD]"
                           }`}
                         >
-                          All
+                          {t("booking.filter.all")}
                         </button>
                         {groups.map((g) => (
                           <button
@@ -576,7 +575,7 @@ export function BookingWizard({
                               activeCategory === g.key ? "border-[#1F1B17] bg-[#1F1B17] text-white" : "border-[#E5DDD0] bg-white text-[#4A4640] hover:border-[#CCC6BD]"
                             }`}
                           >
-                            {g.label}
+                            {g.key === "featured" ? t("booking.group.featured") : t(taxonomyLabelKey(g.key))}
                           </button>
                         ))}
                       </div>
@@ -585,12 +584,12 @@ export function BookingWizard({
                   <div className="flex-1 overflow-y-auto">
                     {servicesLoading ? (
                       <div className="flex items-center gap-2 text-sm text-[#8A8377] p-6">
-                        <Loader2 className="h-4 w-4 animate-spin" /> Loading services...
+                        <Loader2 className="h-4 w-4 animate-spin" /> {t("booking.loading.services")}
                       </div>
                     ) : services.length === 0 ? (
                       <div className="p-8 text-center">
-                        <p className="text-sm font-medium text-[#1F1E1D]">No services listed yet</p>
-                        <p className="mt-1 text-sm text-[#8A8377]">This venue has not published its service menu yet.</p>
+                        <p className="text-sm font-medium text-[#1F1E1D]">{t("booking.services.emptyTitle")}</p>
+                        <p className="mt-1 text-sm text-[#8A8377]">{t("booking.services.emptySub")}</p>
                       </div>
                     ) : (
                       <div className="space-y-8 px-6 py-6 sm:px-9">
@@ -598,7 +597,7 @@ export function BookingWizard({
                           .filter((g) => activeCategory === null || activeCategory === g.key)
                           .map((g) => (
                             <div key={g.key}>
-                              <h3 className="text-xs font-semibold uppercase tracking-[0.16em] text-[#9A7B4F]">{g.label}</h3>
+                              <h3 className="text-xs font-semibold uppercase tracking-[0.16em] text-[#9A7B4F]">{g.key === "featured" ? t("booking.group.featured") : t(taxonomyLabelKey(g.key))}</h3>
                               <div className="mt-3 grid gap-4 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
                                 {g.services.map((s) => {
                                   const isSelected = selectedServiceId === s.id;
@@ -637,7 +636,7 @@ export function BookingWizard({
                                         <p className={`${SERIF} text-lg font-semibold leading-tight text-[#1F1E1D]`}>{s.name}</p>
                                         {s.description && <p className="mt-1 text-xs leading-relaxed text-[#4A4640] line-clamp-2">{s.description}</p>}
                                         <p className="mt-2 flex items-center gap-1.5 text-xs text-[#8A8377]">
-                                          <Clock className="h-3.5 w-3.5" /> {s.duration} min
+                                          <Clock className="h-3.5 w-3.5" /> {s.duration} {t("booking.min")}
                                         </p>
                                       </div>
                                     </button>
@@ -651,7 +650,7 @@ export function BookingWizard({
                   </div>
                   <div className="border-t border-[#F1EDE7] px-6 py-5 flex justify-end sm:px-9">
                     <PrimaryCta onClick={goNext} disabled={!selectedServiceId}>
-                      Continue
+                      {t("booking.continue")}
                     </PrimaryCta>
                   </div>
                 </div>
@@ -661,21 +660,21 @@ export function BookingWizard({
               {step === "professional" && (
                 <div className="flex-1 flex flex-col">
                   <div className="border-b border-[#F1EDE7] px-6 pt-7 pb-4 sm:px-9">
-                    <h2 className={`${SERIF} text-3xl font-medium tracking-tight text-[#1F1E1D]`}>Choose a professional</h2>
-                    <p className="mt-1 text-sm text-[#8A8377]">Pick who you&apos;d like to book with, or choose any professional.</p>
+                    <h2 className={`${SERIF} text-3xl font-medium tracking-tight text-[#1F1E1D]`}>{t("booking.pro.title")}</h2>
+                    <p className="mt-1 text-sm text-[#8A8377]">{t("booking.pro.sub")}</p>
                   </div>
                   <div className="flex-1 p-6 sm:p-9">
                     {staffLoading ? (
                       <div className="flex items-center gap-2 text-sm text-[#8A8377]">
-                        <Loader2 className="h-4 w-4 animate-spin" /> Loading team...
+                        <Loader2 className="h-4 w-4 animate-spin" /> {t("booking.loading.team")}
                       </div>
                     ) : (
                       <>
                         <label className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.16em] text-[#9A7B4F]">
-                          <User className="h-3.5 w-3.5" /> Available professionals
+                          <User className="h-3.5 w-3.5" /> {t("booking.pro.available")}
                         </label>
                         {staff.length === 0 ? (
-                          <p className="mt-3 text-sm text-[#8A8377]">This venue has not listed individual professionals. &quot;Any professional&quot; will be used.</p>
+                          <p className="mt-3 text-sm text-[#8A8377]">{t("booking.pro.empty")}</p>
                         ) : (
                           <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
                             <button
@@ -694,8 +693,8 @@ export function BookingWizard({
                                 <User className={`h-5 w-5 ${!selectedStaffId ? "text-[#1B1714]" : "text-[#795831]"}`} />
                               </span>
                               <span className="min-w-0">
-                                <span className={`${SERIF} block text-lg font-semibold leading-tight text-[#1F1E1D]`}>Any professional</span>
-                                <span className="block text-xs text-[#8A8377]">We&apos;ll assign someone available</span>
+                                <span className={`${SERIF} block text-lg font-semibold leading-tight text-[#1F1E1D]`}>{t("booking.pro.any")}</span>
+                                <span className="block text-xs text-[#8A8377]">{t("booking.pro.anySub")}</span>
                               </span>
                               {!selectedStaffId && <Check className="ml-auto h-4 w-4 shrink-0 text-[#1F1B17]" />}
                             </button>
@@ -724,7 +723,7 @@ export function BookingWizard({
                                   </span>
                                   <span className="min-w-0">
                                     <span className={`${SERIF} block truncate text-lg font-semibold leading-tight text-[#1F1E1D]`}>{m.name}</span>
-                                    <span className="block text-xs text-[#8A8377]">Specialist</span>
+                                    <span className="block text-xs text-[#8A8377]">{t("booking.pro.specialist")}</span>
                                   </span>
                                   {isSelected && <Check className="ml-auto h-4 w-4 shrink-0 text-[#1F1B17]" />}
                                 </button>
@@ -736,8 +735,8 @@ export function BookingWizard({
                     )}
                   </div>
                   <div className="flex justify-between gap-3 border-t border-[#F1EDE7] px-6 py-5 sm:px-9">
-                    <SecondaryCta onClick={goBack}>Back</SecondaryCta>
-                    <PrimaryCta onClick={goNext}>Continue</PrimaryCta>
+                    <SecondaryCta onClick={goBack}>{t("booking.back")}</SecondaryCta>
+                    <PrimaryCta onClick={goNext}>{t("booking.continue")}</PrimaryCta>
                   </div>
                 </div>
               )}
@@ -746,9 +745,9 @@ export function BookingWizard({
               {step === "time" && (
                 <div className="flex-1 flex flex-col">
                   <div className="border-b border-[#F1EDE7] px-6 pt-7 pb-4 sm:px-9">
-                    <h2 className={`${SERIF} text-3xl font-medium tracking-tight text-[#1F1E1D]`}>Select a time</h2>
+                    <h2 className={`${SERIF} text-3xl font-medium tracking-tight text-[#1F1E1D]`}>{t("booking.time.title")}</h2>
                     <p className="mt-1 text-sm text-[#8A8377]">
-                      {selectedService ? `${selectedService.name} · ${selectedService.duration} min` : "Pick a date and time"}
+                      {selectedService ? <>{selectedService.name} · {selectedService.duration} {t("booking.min")}</> : t("booking.time.pickPrompt")}
                       {selectedStaffId ? ` · ${selectedStaffName}` : ""}
                     </p>
                   </div>
@@ -756,20 +755,20 @@ export function BookingWizard({
                   <div className="flex min-h-0 flex-1 flex-col p-6 sm:p-9">
                     {!selectedServiceId ? (
                       <div className="rounded-lg border border-[#FDECEC] bg-[#FDECEC] p-4 flex gap-2 text-sm text-[#B91C1C]">
-                        <AlertCircle className="h-4 w-4 shrink-0 mt-0.5" /> Please go back and select a service first.
+                        <AlertCircle className="h-4 w-4 shrink-0 mt-0.5" /> {t("booking.time.needService")}
                       </div>
                     ) : (
                       <>
                         {/* Date strip: 7 visible days, arrows to page */}
                         <label className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.16em] text-[#9A7B4F]">
-                          <Calendar className="h-3.5 w-3.5" /> Choose a date
+                          <Calendar className="h-3.5 w-3.5" /> {t("booking.time.chooseDate")}
                         </label>
                         <div className="mt-3 flex items-center gap-1.5 sm:gap-2">
                           <button
                             onClick={() => setDateOffset((v) => Math.max(0, v - 7))}
                             disabled={dateOffset === 0}
                             className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-[#E5DDD0] bg-white text-[#4A4640] transition-colors hover:bg-[#F7F3ED] disabled:opacity-40"
-                            aria-label="Previous week"
+                            aria-label={t("booking.time.prevWeek")}
                           >
                             <ChevronLeft className="h-4 w-4" />
                           </button>
@@ -789,7 +788,7 @@ export function BookingWizard({
                                   style={isSelected ? { background: `linear-gradient(135deg, ${GOLD}, #C9A467)` } : undefined}
                                 >
                                   <span className={`text-[9px] sm:text-[11px] ${isSelected ? "text-[#1B1714]/70" : "text-[#8A8377]"}`}>
-                                    {isToday ? "Today" : isTomorrow ? "Tmrw" : dow}
+                                    {isToday ? t("booking.date.today") : isTomorrow ? t("booking.date.tomorrow") : dow}
                                   </span>
                                   <span className={`${SERIF} mt-1 text-base font-semibold sm:text-lg`}>{dayNum}</span>
                                 </button>
@@ -799,7 +798,7 @@ export function BookingWizard({
                           <button
                             onClick={() => setDateOffset((v) => v + 7)}
                             className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-[#E5DDD0] bg-white text-[#4A4640] transition-colors hover:bg-[#F7F3ED]"
-                            aria-label="Next week"
+                            aria-label={t("booking.time.nextWeek")}
                           >
                             <ChevronRight className="h-4 w-4" />
                           </button>
@@ -809,7 +808,7 @@ export function BookingWizard({
                         <div className="mt-6 min-h-[180px] flex-1">
                           {slotsLoading ? (
                             <div className="flex items-center gap-2 text-sm text-[#8A8377] py-6">
-                              <Loader2 className="h-4 w-4 animate-spin" /> Loading times...
+                              <Loader2 className="h-4 w-4 animate-spin" /> {t("booking.loading.times")}
                             </div>
                           ) : slotError && slots.length === 0 ? (
                             <p className="text-sm text-[#B91C1C] flex items-center gap-1.5 py-3">
@@ -819,7 +818,7 @@ export function BookingWizard({
                             <div className="space-y-5">
                               {groupSlotsByPeriod(slots).map((group) => (
                                 <div key={group.label}>
-                                  <h4 className="text-xs font-semibold uppercase tracking-[0.14em] text-[#9A7B4F]">{group.label}</h4>
+                                  <h4 className="text-xs font-semibold uppercase tracking-[0.14em] text-[#9A7B4F]">{t(periodKey(group.label))}</h4>
                                   <div className="mt-2.5 grid grid-cols-3 gap-2 sm:grid-cols-4 xl:grid-cols-6">
                                     {group.slots.map((s) => {
                                       const isSelected = selectedSlot?.start === s.start;
@@ -828,11 +827,11 @@ export function BookingWizard({
                                           <span
                                             key={s.start}
                                             aria-disabled="true"
-                                            title="This time is already reserved"
+                                            title={t("booking.slot.reservedTitle")}
                                             className="flex cursor-not-allowed flex-col items-center rounded-full border border-dashed border-[#E5DDD0] bg-[#F7F3ED] px-3 py-2 text-[#B4AC9E]"
                                           >
                                             <span className="text-sm font-medium line-through decoration-[#CCC6BD]">{formatTimeLabel(s.start)}</span>
-                                            <span className="text-[9px] font-semibold uppercase tracking-wide">Reserved</span>
+                                            <span className="text-[9px] font-semibold uppercase tracking-wide">{t("booking.slot.reserved")}</span>
                                           </span>
                                         );
                                       }
@@ -868,9 +867,9 @@ export function BookingWizard({
                   </div>
 
                   <div className="flex justify-between gap-3 border-t border-[#F1EDE7] px-6 py-5 sm:px-9">
-                    <SecondaryCta onClick={goBack}>Back</SecondaryCta>
+                    <SecondaryCta onClick={goBack}>{t("booking.back")}</SecondaryCta>
                     <PrimaryCta onClick={goNext} disabled={!selectedSlot}>
-                      Continue
+                      {t("booking.continue")}
                     </PrimaryCta>
                   </div>
                 </div>
@@ -880,8 +879,8 @@ export function BookingWizard({
               {step === "confirm" && (
                 <div className="flex-1 flex flex-col">
                   <div className="border-b border-[#F1EDE7] px-6 pt-7 pb-4 sm:px-9">
-                    <h2 className={`${SERIF} text-3xl font-medium tracking-tight text-[#1F1E1D]`}>Confirm your appointment</h2>
-                    <p className="mt-1 text-sm text-[#8A8377]">Review your details and add any notes.</p>
+                    <h2 className={`${SERIF} text-3xl font-medium tracking-tight text-[#1F1E1D]`}>{t("booking.confirm.title")}</h2>
+                    <p className="mt-1 text-sm text-[#8A8377]">{t("booking.confirm.review")}</p>
                   </div>
                   <div className="flex-1 space-y-5 overflow-y-auto p-6 sm:p-9">
                     {/* Summary inline for mobile before aside */}
@@ -893,14 +892,14 @@ export function BookingWizard({
                           <p className="text-xs text-[#4A4640]">
                             {formatDateLabel(selectedSlot.start)} · {selectedStaffName}
                           </p>
-                          <p className="text-sm font-semibold text-[#1F1E1D]">Total {formatPrice(selectedService.price)}</p>
+                          <p className="text-sm font-semibold text-[#1F1E1D]">{t("booking.total")} {formatPrice(selectedService.price)}</p>
                         </div>
                       </div>
                     )}
 
                     {!selectedSlot || !selectedService ? (
                       <div className="rounded-lg border border-[#FDECEC] bg-[#FDECEC] p-4 flex gap-2 text-sm text-[#B91C1C]">
-                        <AlertCircle className="h-4 w-4 shrink-0 mt-0.5" /> Please go back and complete service and time selection.
+                        <AlertCircle className="h-4 w-4 shrink-0 mt-0.5" /> {t("booking.confirm.needSelection")}
                       </div>
                     ) : (
                       <>
@@ -914,7 +913,7 @@ export function BookingWizard({
                           <div className="min-w-0 flex-1">
                             <p className={`${SERIF} text-lg font-semibold leading-tight text-[#1F1E1D] sm:text-xl`}>{selectedService!.name}</p>
                             <p className="mt-1 text-xs text-[#8A8377]">
-                              {selectedService!.duration} min · {selectedStaffName}
+                              {selectedService!.duration} {t("booking.min")} · {selectedStaffName}
                             </p>
                             <p className="mt-1 text-xs text-[#4A4640]">{formatDateLabel(selectedSlot!.start)}</p>
                           </div>
@@ -924,8 +923,8 @@ export function BookingWizard({
                         <div className="flex gap-3 rounded-xl border border-[#E9E1D3] bg-[#FBF7EF] p-4">
                           <Clock className="mt-0.5 h-4 w-4 shrink-0 text-[#9A7B4F]" />
                           <div>
-                            <h3 className="text-sm font-semibold text-[#1F1E1D]">Cancellation policy</h3>
-                            <p className="mt-1 text-sm leading-relaxed text-[#4A4640]">{CANCELLATION_POLICY}</p>
+                            <h3 className="text-sm font-semibold text-[#1F1E1D]">{t("booking.policy.title")}</h3>
+                            <p className="mt-1 text-sm leading-relaxed text-[#4A4640]">{t("booking.policy.cancel24")}</p>
                           </div>
                         </div>
 
@@ -933,7 +932,7 @@ export function BookingWizard({
                           <div className="flex gap-3 rounded-xl border border-[#E9E1D3] bg-white p-4">
                             <Info className="mt-0.5 h-4 w-4 shrink-0 text-[#9A7B4F]" />
                             <div>
-                              <h3 className="text-sm font-semibold text-[#1F1E1D]">Important information</h3>
+                              <h3 className="text-sm font-semibold text-[#1F1E1D]">{t("booking.info.title")}</h3>
                               <p className="mt-1 text-sm leading-relaxed text-[#4A4640] whitespace-pre-wrap">{business.description}</p>
                             </div>
                           </div>
@@ -941,7 +940,7 @@ export function BookingWizard({
 
                         <div>
                           <label htmlFor="wizard-notes" className="text-sm font-medium text-[#1F1E1D]">
-                            Comments or requests <span className="text-[#8A8377] font-normal">(optional)</span>
+                            {t("booking.notes.label")} <span className="text-[#8A8377] font-normal">{t("booking.notes.optional")}</span>
                           </label>
                           <textarea
                             id="wizard-notes"
@@ -949,7 +948,7 @@ export function BookingWizard({
                             onChange={(e) => setNotes(e.target.value)}
                             rows={3}
                             maxLength={1000}
-                            placeholder="Anything the salon should know?"
+                            placeholder={t("booking.notes.placeholder")}
                             className="mt-2 flex w-full rounded-lg border border-[#E5DDD0] bg-[#FDF9F3] px-3 py-2 text-sm text-[#1F1E1D] placeholder:text-[#8A8377] focus:outline-none focus:border-[#1F1E1D] focus:ring-1 focus:ring-[#1F1E1D]"
                           />
                           <p className="mt-1 text-xs text-[#8A8377] text-right">{notes.length}/1000</p>
@@ -965,20 +964,20 @@ export function BookingWizard({
                             never a dead-end error after clicking it. */}
                         {sessionStatus !== "loading" && !isCustomer && (
                           <div className="rounded-xl border border-[#E9E1D3] bg-[#FBF7EF] p-4 text-center">
-                            <p className="text-sm font-medium text-[#1F1E1D]">Sign in to confirm your booking</p>
-                            <p className="mt-1 text-xs text-[#8A8377]">Your selection is saved — you&apos;ll come right back here.</p>
+                            <p className="text-sm font-medium text-[#1F1E1D]">{t("booking.signin.title")}</p>
+                            <p className="mt-1 text-xs text-[#8A8377]">{t("booking.signin.sub")}</p>
                             <div className="mt-3 flex flex-wrap justify-center gap-2">
                               <Link
                                 href={`/customer/login?callbackUrl=${encodeURIComponent(currentUrlWithSelection)}`}
                                 className="rounded-full bg-[#1F1B17] px-4 py-2 text-sm font-medium text-white hover:bg-[#795831] transition-colors"
                               >
-                                Log in
+                                {t("nav.login")}
                               </Link>
                               <Link
                                 href={`/customer/signup?callbackUrl=${encodeURIComponent(currentUrlWithSelection)}`}
                                 className="rounded-full border border-[#E5DDD0] bg-white px-4 py-2 text-sm font-medium text-[#1F1E1D] hover:bg-[#FDF9F3] transition-colors"
                               >
-                                Sign up
+                                {t("booking.signup")}
                               </Link>
                             </div>
                           </div>
@@ -988,27 +987,27 @@ export function BookingWizard({
                   </div>
                   <div className="flex flex-wrap justify-between gap-3 border-t border-[#F1EDE7] px-6 py-5 sm:px-9">
                     <SecondaryCta onClick={goBack} disabled={submitting}>
-                      Back
+                      {t("booking.back")}
                     </SecondaryCta>
                     {sessionStatus === "loading" ? (
                       <PrimaryCta disabled className="min-w-[160px]">
-                        <Loader2 className="h-4 w-4 animate-spin" /> Checking session...
+                        <Loader2 className="h-4 w-4 animate-spin" /> {t("booking.signin.checking")}
                       </PrimaryCta>
                     ) : !isCustomer ? (
                       <Link
                         href={`/customer/login?callbackUrl=${encodeURIComponent(currentUrlWithSelection)}`}
                         className="inline-flex h-12 min-w-[160px] items-center justify-center rounded-full bg-[#1F1B17] px-7 text-[12px] font-bold uppercase tracking-[0.14em] text-white shadow-[0_4px_14px_rgba(30,28,26,0.25)] transition-all hover:scale-[1.02] hover:bg-[#795831]"
                       >
-                        Sign in to confirm
+                        {t("booking.signin.cta")}
                       </Link>
                     ) : (
                       <PrimaryCta onClick={handleConfirm} disabled={submitting || !selectedSlot || !selectedService} className="min-w-[160px]">
                         {submitting ? (
                           <>
-                            <Loader2 className="h-4 w-4 animate-spin" /> Confirming...
+                            <Loader2 className="h-4 w-4 animate-spin" /> {t("booking.confirming")}
                           </>
                         ) : (
-                          "Confirm booking"
+                          t("booking.confirm")
                         )}
                       </PrimaryCta>
                     )}
@@ -1028,7 +1027,7 @@ export function BookingWizard({
         <aside className="h-fit overflow-hidden rounded-2xl border border-[#E9E1D3] bg-white shadow-[0_8px_32px_rgba(30,28,26,0.1)] lg:fixed lg:top-96 lg:bottom-6 lg:right-12 lg:w-[400px] lg:overflow-y-auto xl:w-[420px]">
           {bizLoading ? (
             <div className="flex items-center gap-2 p-6 text-sm text-[#8A8377]">
-              <Loader2 className="h-4 w-4 animate-spin" /> Loading venue...
+              <Loader2 className="h-4 w-4 animate-spin" /> {t("booking.loading.venue")}
             </div>
           ) : business ? (
             <div>
@@ -1049,7 +1048,7 @@ export function BookingWizard({
                 )}
                 <div className="min-w-0">
                   <p className="text-[9px] font-semibold uppercase tracking-[0.2em]" style={{ color: GOLD }}>
-                    Your booking
+                    {t("booking.summary.title")}
                   </p>
                   <p className={`${SERIF} truncate text-xl font-medium leading-tight text-white`}>{business.name}</p>
                   {(business.address || business.city || business.district) && (
@@ -1063,42 +1062,42 @@ export function BookingWizard({
 
               <div className="space-y-4 p-5">
                 <div className="space-y-3">
-                  <h3 className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#9A7B4F]">Your selection</h3>
+                  <h3 className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#9A7B4F]">{t("booking.summary.selection")}</h3>
                   <div className="space-y-2.5 text-sm">
                     <div className="flex justify-between gap-4">
-                      <span className="text-[#8A8377]">Service</span>
+                      <span className="text-[#8A8377]">{t("booking.summary.service")}</span>
                       <span className="text-right font-medium text-[#1F1E1D]">{selectedService ? selectedService.name : "—"}</span>
                     </div>
                     <div className="flex justify-between gap-4">
-                      <span className="text-[#8A8377]">Professional</span>
+                      <span className="text-[#8A8377]">{t("booking.step.professional")}</span>
                       <span className="text-right font-medium text-[#1F1E1D]">{selectedStaffName}</span>
                     </div>
                     <div className="flex justify-between gap-4">
-                      <span className="text-[#8A8377]">Date & time</span>
+                      <span className="text-[#8A8377]">{t("booking.summary.datetime")}</span>
                       <span className="text-right font-medium text-[#1F1E1D]">{selectedSlot ? formatDateLabel(selectedSlot.start) : "—"}</span>
                     </div>
                   </div>
                   {notes.trim() && (
                     <div className="rounded-lg border border-[#F1EDE7] bg-[#FBF7EF] p-3">
-                      <p className="text-xs font-medium text-[#8A8377]">Note</p>
+                      <p className="text-xs font-medium text-[#8A8377]">{t("booking.summary.note")}</p>
                       <p className="mt-1 whitespace-pre-wrap text-sm text-[#4A4640]">{notes}</p>
                     </div>
                   )}
                 </div>
 
                 <div className="flex items-center justify-between rounded-xl bg-[#FBF7EF] px-4 py-3">
-                  <span className="text-sm font-semibold text-[#1F1E1D]">Total</span>
+                  <span className="text-sm font-semibold text-[#1F1E1D]">{t("booking.total")}</span>
                   <span className={`${SERIF} text-xl font-semibold text-[#1F1E1D]`}>{selectedService ? formatPrice(selectedService.price) : "—"}</span>
                 </div>
                 <p className="text-xs leading-relaxed text-[#8A8377]">
                   {isCustomer
-                    ? "You are booking as a logged-in customer. Your name and contact will be taken from your account."
-                    : "Sign-in is required to confirm — your selection is kept when you return."}
+                    ? t("booking.summary.loggedIn")
+                    : t("booking.summary.guest")}
                 </p>
               </div>
             </div>
           ) : (
-            <p className="p-6 text-sm text-[#8A8377]">Venue not found.</p>
+            <p className="p-6 text-sm text-[#8A8377]">{t("booking.venue.notFound")}</p>
           )}
         </aside>
       </div>

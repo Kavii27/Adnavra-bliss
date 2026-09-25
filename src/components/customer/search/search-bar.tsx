@@ -6,14 +6,16 @@ import { Search } from "lucide-react";
 import { TreatmentsDropdown } from "./treatments-dropdown";
 import { SalonAutocomplete } from "./salon-autocomplete";
 import { LocationAutocomplete, type LocationValue } from "./location-autocomplete";
-import { SERVICE_CATEGORIES } from "@/lib/categories";
+import { taxonomyLabelKey } from "@/lib/categories";
 import { DateTimePicker, type DateTimeValue } from "./date-time-picker";
+import { useLocale } from "@/lib/i18n/locale-context";
 
 type SearchBarProps = {
   variant: "hero" | "compact";
 };
 
 export function SearchBar({ variant }: SearchBarProps) {
+  const { t } = useLocale();
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -65,7 +67,7 @@ export function SearchBar({ variant }: SearchBarProps) {
   const [salon, setSalon] = useState(initialQ);
   const [treatmentText, setTreatmentText] = useState(() => {
     if (initialCategory) {
-      return SERVICE_CATEGORIES.find((c) => c.slug === initialCategory)?.label ?? "";
+      return t(taxonomyLabelKey(initialCategory));
     }
     return "";
   });
@@ -95,7 +97,7 @@ export function SearchBar({ variant }: SearchBarProps) {
     const c = searchParams.get("category");
     if (c !== categorySlug) {
       setCategorySlug(c);
-      setTreatmentText(c ? SERVICE_CATEGORIES.find((cat) => cat.slug === c)?.label ?? "" : "");
+      setTreatmentText(c ? t(taxonomyLabelKey(c)) : "");
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams]);
@@ -144,7 +146,7 @@ export function SearchBar({ variant }: SearchBarProps) {
       <div className="flex flex-col justify-center flex-1 min-w-0 px-5 py-2.5">
         {isHero && (
           <span className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[#B3ACA0]">
-            Salon
+            {t("search.salonLabel")}
           </span>
         )}
         <SalonAutocomplete value={salon} onChange={setSalon} />
@@ -154,7 +156,7 @@ export function SearchBar({ variant }: SearchBarProps) {
       <div className="flex flex-col justify-center flex-1 min-w-0 px-5 py-2.5 border-t lg:border-t-0 border-[#E5DDD0]">
         {isHero && (
           <span className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[#B3ACA0]">
-            Treatment
+            {t("search.treatmentLabel")}
           </span>
         )}
         <TreatmentsDropdown
@@ -171,7 +173,7 @@ export function SearchBar({ variant }: SearchBarProps) {
       <div className="flex flex-col justify-center flex-1 min-w-0 px-5 py-2.5 border-t lg:border-t-0 border-[#E5DDD0]">
         {isHero && (
           <span className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[#B3ACA0]">
-            Location
+            {t("search.locationLabel")}
           </span>
         )}
         <LocationAutocomplete value={location} onChange={setLocation} />
@@ -181,7 +183,7 @@ export function SearchBar({ variant }: SearchBarProps) {
       <div className="flex flex-col justify-center flex-1 min-w-0 px-5 py-2.5 border-t lg:border-t-0 border-[#E5DDD0]">
         {isHero && (
           <span className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[#B3ACA0]">
-            Date &amp; time
+            {t("search.dateTimeLabel")}
           </span>
         )}
         <DateTimePicker value={dateTime} onChange={setDateTime} />
@@ -193,7 +195,7 @@ export function SearchBar({ variant }: SearchBarProps) {
           className="flex h-full w-full items-center justify-center gap-2 rounded-xl bg-[#795831] px-8 py-3.5 text-sm font-semibold text-white transition-colors hover:bg-[#5C4326]"
         >
           <Search className="h-4 w-4" />
-          Search
+          {t("search.submit")}
         </button>
       </div>
     </form>

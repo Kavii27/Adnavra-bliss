@@ -19,7 +19,8 @@ import {
 import { VenueGallery } from "@/components/business/venue-gallery";
 import { ServiceTabs } from "@/components/business/service-tabs";
 import { BookingCard } from "@/components/business/booking-card";
-import { getCategoryLabel, isBusinessTypeSlug } from "@/lib/categories";
+import { taxonomyLabelKey, isBusinessTypeSlug } from "@/lib/categories";
+import { getServerT } from "@/lib/i18n/server";
 
 // Elegant serif for headings (falls back to Georgia if the font can't load).
 const display = Cormorant_Garamond({
@@ -33,6 +34,23 @@ const display = Cormorant_Garamond({
 // Always render fresh: admins edit this page's data and customers scan the QR
 // code at any time of day (the "Open now" badge depends on the current time).
 export const dynamic = "force-dynamic";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ businessSlug: string }>;
+}) {
+  const { businessSlug } = await params;
+  const t = await getServerT();
+  const business = await db.business.findUnique({
+    where: { slug: businessSlug },
+    select: { name: true },
+  });
+  return {
+    title: business ? `${business.name} | ADNAVRA BLISS` : "ADNAVRA BLISS",
+    description: t("salon.meta.description"),
+  };
+}
 
 /* ────────────────────────────── helpers ────────────────────────────── */
 
@@ -94,6 +112,14 @@ function capitalize(s: string): string {
   return s ? s.charAt(0).toUpperCase() + s.slice(1) : s;
 }
 
+const DAY_KEYS = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"] as const;
+
+function localizeDay(day: string, t: (key: string) => string): string {
+  const lower = day.toLowerCase();
+  if ((DAY_KEYS as readonly string[]).includes(lower)) return t(`salon.day.${lower}`);
+  return capitalize(day);
+}
+
 function venueNow(): { day: string; minutes: number } {
   const parts = new Intl.DateTimeFormat("en-GB", {
     timeZone: VENUE_TIMEZONE,
@@ -108,29 +134,29 @@ function venueNow(): { day: string; minutes: number } {
 
 type OpenStatus = { day: string; isOpen: boolean; label: string; detail: string };
 
-function getOpenStatus(hours: HoursMap): OpenStatus | null {
+function getOpenStatus(hours: HoursMap, t: (key: string) => string): OpenStatus | null {
   const { day, minutes } = venueNow();
   const key = Object.keys(hours).find((k) => k.toLowerCase() === day);
   if (!key) return null;
   const today = hours[key];
-  if (today.closed) return { day: key, isOpen: false, label: "Closed today", detail: "" };
+  if (today.closed) return { day: key, isOpen: false, label: t("salon.hours.closedToday"), detail: "" };
   const open = toMinutes(today.open);
   const close = toMinutes(today.close);
   if (open === null || close === null) return null;
   if (minutes >= open && minutes < close) {
-    return { day: key, isOpen: true, label: "Open now", detail: `until ${formatTime(today.close)}` };
+    return { day: key, isOpen: true, label: t("salon.hours.openNow"), detail: `${t("salon.hours.until")} ${formatTime(today.close)}` };
   }
   if (minutes < open) {
-    return { day: key, isOpen: false, label: "Closed", detail: `opens ${formatTime(today.open)}` };
+    return { day: key, isOpen: false, label: t("salon.hours.closed"), detail: `${t("salon.hours.opens")} ${formatTime(today.open)}` };
   }
-  return { day: key, isOpen: false, label: "Closed for today", detail: "" };
+  return { day: key, isOpen: false, label: t("salon.hours.closedForToday"), detail: "" };
 }
 
 // Merge consecutive days with identical hours: "Monday – Friday  09:00 AM – 07:00 PM"
-function groupHours(hours: HoursMap): { label: string; value: string; days: string[] }[] {
+function groupHours(hours: HoursMap, t: (key: string) => string): { label: string; value: string; days: string[] }[] {
   const groups: { value: string; days: string[] }[] = [];
   for (const [day, v] of sortedOpeningHours(hours)) {
-    const value = v.closed ? "Closed" : `${formatTime(v.open)} – ${formatTime(v.close)}`;
+    const value = v.closed ? t("salon.hours.closed") : `${formatTime(v.open)} – ${formatTime(v.close)}`;
     const last = groups[groups.length - 1];
     if (last && last.value === value) last.days.push(day);
     else groups.push({ value, days: [day] });
@@ -139,8 +165,8 @@ function groupHours(hours: HoursMap): { label: string; value: string; days: stri
     ...g,
     label:
       g.days.length === 1
-        ? capitalize(g.days[0])
-        : `${capitalize(g.days[0])} – ${capitalize(g.days[g.days.length - 1])}`,
+        ? localizeDay(g.days[0], t)
+        : `${localizeDay(g.days[0], t)} – ${localizeDay(g.days[g.days.length - 1], t)}`,
   }));
 }
 
@@ -184,6 +210,7 @@ function SectionHeader({
 /* ─────────────────────────────── page ─────────────────────────────── */
 
 export default async function BusinessProfilePage({ params }: { params: Promise<{ businessSlug: string }> }) {
+  const t = await getServerT();
   const { businessSlug } = await params;
   const business = await db.business.findUnique({
     where: { slug: businessSlug },
@@ -208,7 +235,7 @@ export default async function BusinessProfilePage({ params }: { params: Promise<
     Object.keys(business.openingHours as Record<string, unknown>).length > 0
       ? (business.openingHours as HoursMap)
       : null;
-  const status = hoursMap ? getOpenStatus(hoursMap) : null;
+  const status = hoursMap ? getOpenStatus(hoursMap, t) : null;
 
   const hasContact = Boolean(business.phone || business.email || business.website);
 
@@ -250,38 +277,38 @@ export default async function BusinessProfilePage({ params }: { params: Promise<
   // Hero stats — only facts we really have, never placeholders.
   const stats: { icon: React.ReactNode; label: string; value: string }[] = [];
   if (lowestPrice !== null) {
-    stats.push({ icon: <Tag className="h-4 w-4" />, label: "From", value: formatPrice(lowestPrice) });
+    stats.push({ icon: <Tag className="h-4 w-4" />, label: t("salon.stat.from"), value: formatPrice(lowestPrice) });
   }
   if (services.length > 0) {
     stats.push({
       icon: <Scissors className="h-4 w-4" />,
-      label: "Treatments",
+      label: t("salon.stat.treatments"),
       value:
         categoryCount > 1
-          ? `${services.length} · ${categoryCount} categories`
-          : `${services.length} ${services.length === 1 ? "service" : "services"}`,
+          ? `${services.length} · ${categoryCount} ${t("salon.stat.categories")}`
+          : `${services.length} ${services.length === 1 ? t("salon.stat.service") : t("salon.stat.services")}`,
     });
   }
   if (status) {
     stats.push({
       icon: <Clock className="h-4 w-4" />,
-      label: "Today",
-      value: status.isOpen ? `Open ${status.detail}` : status.detail ? `${status.label}, ${status.detail}` : status.label,
+      label: t("salon.stat.today"),
+      value: status.isOpen ? `${t("salon.hours.open")} ${status.detail}` : status.detail ? `${status.label}, ${status.detail}` : status.label,
     });
   } else if (business.staffMembers.length > 0) {
     stats.push({
       icon: <Users className="h-4 w-4" />,
-      label: "Team",
-      value: `${business.staffMembers.length} ${business.staffMembers.length === 1 ? "specialist" : "specialists"}`,
+      label: t("salon.stat.team"),
+      value: `${business.staffMembers.length} ${business.staffMembers.length === 1 ? t("salon.stat.specialist") : t("salon.stat.specialists")}`,
     });
   }
 
   const navLinks = [
-    { href: "#services", label: "Services", show: true },
-    { href: "#atmosphere", label: "Atmosphere", show: galleryPhotos.length > 0 },
-    { href: "#specialists", label: "Specialists", show: true },
-    { href: "#hours-side", label: "Hours", show: true },
-    { href: "#location", label: "Location", show: hasLocation },
+    { href: "#services", label: t("salon.nav.services"), show: true },
+    { href: "#atmosphere", label: t("salon.nav.atmosphere"), show: galleryPhotos.length > 0 },
+    { href: "#specialists", label: t("salon.nav.specialists"), show: true },
+    { href: "#hours-side", label: t("salon.nav.hours"), show: true },
+    { href: "#location", label: t("salon.nav.location"), show: hasLocation },
   ].filter((l) => l.show);
 
   // Opening hours card — always rendered (with an empty state) so customers
@@ -290,8 +317,8 @@ export default async function BusinessProfilePage({ params }: { params: Promise<
     <div className={`${CARD} p-6`}>
       <div className="flex items-start justify-between gap-3">
         <div>
-          <p className={EYEBROW}>Schedule</p>
-          <h3 className={`${SERIF} mt-1 text-2xl font-medium text-[#1F1B17]`}>Opening Hours</h3>
+          <p className={EYEBROW}>{t("salon.hours.schedule")}</p>
+          <h3 className={`${SERIF} mt-1 text-2xl font-medium text-[#1F1B17]`}>{t("salon.hours.title")}</h3>
         </div>
         {status && (
           <span
@@ -300,13 +327,13 @@ export default async function BusinessProfilePage({ params }: { params: Promise<
             }`}
           >
             <span className={`h-1.5 w-1.5 rounded-full ${status.isOpen ? "bg-emerald-500" : "bg-rose-500"}`} />
-            {status.isOpen ? "Open now" : "Closed"}
+            {status.isOpen ? t("salon.hours.openNow") : t("salon.hours.closed")}
           </span>
         )}
       </div>
       {hoursMap ? (
         <div className="mt-4 divide-y divide-[#F1EBDF]">
-          {groupHours(hoursMap).map((g) => {
+          {groupHours(hoursMap, t).map((g) => {
             const isToday = status ? g.days.includes(status.day) : false;
             return (
               <div
@@ -319,18 +346,18 @@ export default async function BusinessProfilePage({ params }: { params: Promise<
                   {g.label}
                   {isToday && (
                     <span className="rounded-full bg-[#F3EEE4] px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider text-[#795831]">
-                      Today
+                      {t("salon.hours.today")}
                     </span>
                   )}
                 </span>
-                <span className={g.value === "Closed" ? "text-[#9A9184]" : ""}>{g.value}</span>
+                <span className={g.value === t("salon.hours.closed") ? "text-[#9A9184]" : ""}>{g.value}</span>
               </div>
             );
           })}
         </div>
       ) : (
         <p className="mt-4 rounded-xl bg-[#F7F3ED] p-4 text-sm text-[#8A8377]">
-          Opening hours have not been added yet. Please contact the venue to confirm.
+          {t("salon.hours.empty")}
         </p>
       )}
     </div>
@@ -341,14 +368,14 @@ export default async function BusinessProfilePage({ params }: { params: Promise<
       {/* ── Top nav: ADNAVRA BLISS brand ── */}
       <nav className="sticky top-0 z-40 border-b border-[#E9E1D3] bg-white/90 backdrop-blur">
         <div className={`${WRAP} flex h-16 items-center justify-between gap-3`}>
-          <Link href="/" className="flex shrink-0 items-center gap-2" aria-label="ADNAVRA BLISS home">
+          <Link href="/" className="flex shrink-0 items-center gap-2" aria-label={t("salon.aria.home")}>
             <Image src="/logo.png" alt="ADNAVRA BLISS logo" width={28} height={28} className="h-7 w-7 rounded-md object-contain" />
             <span className="text-lg font-semibold tracking-tight text-[#1F1E1D]">
               ADNAVRA <span className="font-normal text-[#795831]">BLISS</span>
             </span>
           </Link>
 
-          <div className="hidden items-center gap-0.5 md:flex" aria-label="Page sections">
+          <div className="hidden items-center gap-0.5 md:flex" aria-label={t("salon.nav.sections")}>
             {navLinks.map((l) => (
               <a
                 key={l.href}
@@ -371,7 +398,7 @@ export default async function BusinessProfilePage({ params }: { params: Promise<
             )}
             <Link href={bookHref}>
               <span className="inline-flex h-10 items-center gap-2 rounded-full bg-[#1F1B17] px-5 text-[11px] font-bold uppercase tracking-[0.14em] text-white transition-colors hover:bg-[#795831]">
-                Book experience <ArrowRight className="h-3.5 w-3.5" />
+                {t("salon.cta.bookExperience")} <ArrowRight className="h-3.5 w-3.5" />
               </span>
             </Link>
           </div>
@@ -424,7 +451,7 @@ export default async function BusinessProfilePage({ params }: { params: Promise<
             )}
             {business.marketplacePriority && (
               <span className="inline-flex items-center gap-1 rounded-full border border-[#D9BE8C]/50 bg-[#D9BE8C]/15 px-3 py-1 text-[11px] font-medium text-[#EBD5A7]">
-                <Star className="h-3 w-3 fill-current" /> Featured
+                <Star className="h-3 w-3 fill-current" /> {t("salon.badge.featured")}
               </span>
             )}
             {salonTypes.slice(0, 4).map((c) => (
@@ -432,7 +459,7 @@ export default async function BusinessProfilePage({ params }: { params: Promise<
                 key={c}
                 className="inline-flex rounded-full border border-white/20 bg-white/10 px-3 py-1 text-[11px] font-medium text-white/90 backdrop-blur"
               >
-                {getCategoryLabel(c)}
+                {t(taxonomyLabelKey(c))}
               </span>
             ))}
             {locationLine && (
@@ -447,7 +474,7 @@ export default async function BusinessProfilePage({ params }: { params: Promise<
               className="mt-6 text-[11px] font-bold uppercase tracking-[0.35em]"
               style={{ color: GOLD }}
             >
-              {getCategoryLabel(salonTypes[0])} · {locationLine || "Sri Lanka"}
+              {t(taxonomyLabelKey(salonTypes[0]))} · {locationLine || "Sri Lanka"}
             </p>
           )}
 
@@ -478,12 +505,12 @@ export default async function BusinessProfilePage({ params }: { params: Promise<
                 className="inline-flex h-14 items-center gap-2 rounded-full px-7 text-[12px] font-bold uppercase tracking-[0.16em] text-[#1B1714] shadow-[0_8px_30px_rgba(217,190,140,0.35)] transition-transform hover:scale-[1.03]"
                 style={{ background: `linear-gradient(135deg, ${GOLD}, #C9A467)` }}
               >
-                Book Now <ArrowRight className="h-3.5 w-3.5" />
+                {t("salon.cta.bookNow")} <ArrowRight className="h-3.5 w-3.5" />
               </span>
             </Link>
             <a href="#services">
               <span className="inline-flex h-14 items-center rounded-full border border-white/30 bg-white/5 px-6 text-[12px] font-bold uppercase tracking-[0.16em] text-white backdrop-blur transition-colors hover:bg-white/15">
-                View Services
+                {t("salon.cta.viewServices")}
               </span>
             </a>
           </div>
@@ -522,7 +549,7 @@ export default async function BusinessProfilePage({ params }: { params: Promise<
         {/* ── Main column ── */}
         <div className="min-w-0 space-y-12">
           {/* Services & pricing */}
-          <section id="services" aria-label="Services" className="scroll-mt-24">
+          <section id="services" aria-label={t("salon.nav.services")} className="scroll-mt-24">
             <ServiceTabs
               businessSlug={business.slug}
               services={services.map((s) => ({
@@ -544,14 +571,14 @@ export default async function BusinessProfilePage({ params }: { params: Promise<
 
           {/* The Space (only when the venue has gallery photos) */}
           {galleryPhotos.length > 0 && (
-            <section aria-label="Gallery">
+            <section aria-label={t("salon.aria.gallery")}>
               <SectionHeader
                 id="atmosphere"
-                eyebrow="Atmosphere"
-                title="The Space"
+                eyebrow={t("salon.nav.atmosphere")}
+                title={t("salon.space.title")}
                 right={
                   <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#9A9184]">
-                    {galleryPhotos.length} {galleryPhotos.length === 1 ? "photo" : "photos"}
+                    {galleryPhotos.length} {galleryPhotos.length === 1 ? t("salon.space.photo") : t("salon.space.photos")}
                   </span>
                 }
               />
@@ -562,11 +589,11 @@ export default async function BusinessProfilePage({ params }: { params: Promise<
           )}
 
           {/* Team — honest generic role label (no invented titles) */}
-          <section aria-label="Team">
-            <SectionHeader id="specialists" eyebrow="Artistry & care" title="Meet the Team" />
+          <section aria-label={t("salon.aria.team")}>
+            <SectionHeader id="specialists" eyebrow={t("salon.team.eyebrow")} title={t("salon.team.title")} />
             {business.staffMembers.length === 0 ? (
               <div className="mt-5 rounded-2xl border border-dashed border-[#D9CFBE] bg-white p-8 text-center">
-                <p className="text-sm text-[#8A8377]">Team information will appear here once the venue adds its staff.</p>
+                <p className="text-sm text-[#8A8377]">{t("salon.team.empty")}</p>
               </div>
             ) : (
               <div className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
@@ -579,7 +606,7 @@ export default async function BusinessProfilePage({ params }: { params: Promise<
                     </div>
                     <div className="min-w-0">
                       <p className={`${SERIF} truncate text-xl font-medium leading-tight text-[#1F1B17]`}>{m.name}</p>
-                      <p className="mt-0.5 text-xs text-[#8A8377]">Team member</p>
+                      <p className="mt-0.5 text-xs text-[#8A8377]">{t("salon.team.member")}</p>
                     </div>
                   </div>
                 ))}
@@ -588,15 +615,15 @@ export default async function BusinessProfilePage({ params }: { params: Promise<
           </section>
 
           {/* Reviews — honest empty state (no fake ratings) */}
-          <section aria-label="Reviews">
-            <SectionHeader id="reviews" eyebrow="Feedback & praise" title="Guest Experiences" />
+          <section aria-label={t("salon.aria.reviews")}>
+            <SectionHeader id="reviews" eyebrow={t("salon.reviews.eyebrow")} title={t("salon.reviews.title")} />
             <div className={`${CARD} mt-5 p-8 text-center`}>
               <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-[#F7F3ED]">
                 <Star className="h-5 w-5 text-[#C9B99C]" />
               </div>
-              <p className="mt-3 text-sm font-semibold text-[#1F1E1D]">No reviews yet</p>
+              <p className="mt-3 text-sm font-semibold text-[#1F1E1D]">{t("salon.reviews.emptyTitle")}</p>
               <p className="mx-auto mt-1 max-w-md text-sm text-[#8A8377]">
-                Customer reviews will appear here once the venue starts collecting them on ADNAVRA BLISS.
+                {t("salon.reviews.emptySub")}
               </p>
             </div>
           </section>
@@ -613,11 +640,11 @@ export default async function BusinessProfilePage({ params }: { params: Promise<
           {/* Location + contact */}
           {hasLocation && (
             <div id="location" className={`${CARD} scroll-mt-24 p-6`}>
-              <p className={EYEBROW}>Venue location</p>
-              <h3 className={`${SERIF} mt-1 text-2xl font-medium text-[#1F1B17]`}>Where to find us</h3>
+              <p className={EYEBROW}>{t("salon.location.eyebrow")}</p>
+              <h3 className={`${SERIF} mt-1 text-2xl font-medium text-[#1F1B17]`}>{t("salon.location.title")}</h3>
               {mapEmbed && (
                 <iframe
-                  title={`Map showing ${business.name} location`}
+                  title={`${business.name} — ${t("salon.map.suffix")}`}
                   src={mapEmbed}
                   loading="lazy"
                   className="mt-4 h-72 w-full rounded-xl border border-[#E9E1D3] sm:h-80"
@@ -672,7 +699,7 @@ export default async function BusinessProfilePage({ params }: { params: Promise<
                   rel="noreferrer"
                   className="mt-5 inline-flex h-11 w-full items-center justify-center gap-2 rounded-full border border-[#E2D9C8] text-[11px] font-bold uppercase tracking-[0.14em] text-[#1F1B17] transition hover:bg-[#F7F3ED]"
                 >
-                  <Navigation className="h-3.5 w-3.5 text-[#9A7B4F]" /> Get directions in Google Maps
+                  <Navigation className="h-3.5 w-3.5 text-[#9A7B4F]" /> {t("salon.directions.cta")}
                 </a>
               )}
             </div>
@@ -690,7 +717,7 @@ export default async function BusinessProfilePage({ params }: { params: Promise<
         {business.phone && (
           <a
             href={`tel:${business.phone}`}
-            aria-label={`Call ${business.name}`}
+            aria-label={`${t("salon.aria.call")} ${business.name}`}
             className="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-[#E9E1D3] bg-white text-[#795831]"
           >
             <Phone className="h-5 w-5" />
@@ -698,7 +725,7 @@ export default async function BusinessProfilePage({ params }: { params: Promise<
         )}
         <Link href={bookHref} className="flex-1">
           <span className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-full bg-[#1F1B17] px-5 text-[11px] font-bold uppercase tracking-[0.14em] text-white transition-colors hover:bg-[#795831]">
-            Book appointment <ArrowRight className="h-3.5 w-3.5" />
+            {t("salon.cta.bookAppointment")} <ArrowRight className="h-3.5 w-3.5" />
           </span>
         </Link>
       </div>
@@ -729,7 +756,7 @@ export default async function BusinessProfilePage({ params }: { params: Promise<
 
           {services.length > 0 && (
             <div>
-              <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-white/50">Venue services</p>
+              <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-white/50">{t("salon.footer.services")}</p>
               <ul className="mt-4 space-y-2.5 text-[13px]">
                 {services.slice(0, 4).map((s) => (
                   <li key={s.id}>
@@ -744,12 +771,12 @@ export default async function BusinessProfilePage({ params }: { params: Promise<
 
           {(fullAddress || business.phone || business.email) && (
             <div>
-              <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-white/50">Visit us</p>
+              <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-white/50">{t("salon.footer.visit")}</p>
               <ul className="mt-4 space-y-2.5 text-[13px]">
                 {fullAddress && <li>{fullAddress}</li>}
                 {business.phone && (
                   <li>
-                    Hotline:{" "}
+                    {t("salon.footer.hotline")}{" "}
                     <a href={`tel:${business.phone}`} className="text-white hover:underline">
                       {business.phone}
                     </a>
@@ -757,7 +784,7 @@ export default async function BusinessProfilePage({ params }: { params: Promise<
                 )}
                 {business.email && (
                   <li>
-                    Email:{" "}
+                    {t("salon.footer.email")}{" "}
                     <a href={`mailto:${business.email}`} className="break-all text-white hover:underline">
                       {business.email}
                     </a>
@@ -771,10 +798,10 @@ export default async function BusinessProfilePage({ params }: { params: Promise<
         <div className="border-t border-white/10">
           <div className={`${WRAP} flex flex-col justify-between gap-2 py-5 text-xs text-[#8F877A] sm:flex-row sm:items-center`}>
             <span>
-              © {new Date().getFullYear()} {business.name}. All rights reserved.
+              © {new Date().getFullYear()} {business.name}. {t("salon.footer.rights")}
             </span>
             <Link href="/" className="inline-flex items-center gap-2 transition-colors hover:text-white">
-              Powered by
+              {t("salon.footer.poweredBy")}
               <Image src="/logo.png" alt="" width={16} height={16} className="h-4 w-4 rounded object-contain" />
               <span className="font-semibold text-white">
                 ADNAVRA <span className="font-normal text-[#D9BE8C]">BLISS</span>

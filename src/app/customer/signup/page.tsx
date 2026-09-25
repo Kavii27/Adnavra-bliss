@@ -8,8 +8,10 @@ import { signIn } from "next-auth/react";
 import { Loader2, AlertCircle, CheckCircle2, Eye, EyeOff } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { useLocale } from "@/lib/i18n/locale-context";
 
 function CustomerSignupForm() {
+  const { t } = useLocale();
   const router = useRouter();
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get("callbackUrl") ?? "/customer/account/activity";
@@ -45,9 +47,9 @@ function CustomerSignupForm() {
       });
       const data = await res.json().catch(() => null);
       if (!res.ok) {
-        const msg = data?.error ?? "Unable to create account.";
+        const msg = data?.error ?? t("auth.errSignup");
         if (res.status === 429) {
-          setError("Too many signup attempts. Please try again later.");
+          setError(t("auth.errTooManySignup"));
         } else if (data?.details) {
           const flat = data.details?.fieldErrors ?? data.details;
           const first = Object.values(flat as Record<string, string[]>).flat()[0];
@@ -80,8 +82,8 @@ function CustomerSignupForm() {
           <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-full bg-[#DCF5E7]">
             <CheckCircle2 className="h-5 w-5 text-[#15803D]" />
           </div>
-          <h1 className="mt-4 text-xl font-semibold text-[#1F1E1D]">Account created</h1>
-          <p className="mt-2 text-sm text-[#4A4640]">Redirecting you to ADNAVRA for customers...</p>
+          <h1 className="mt-4 text-xl font-semibold text-[#1F1E1D]">{t("auth.accountCreated")}</h1>
+          <p className="mt-2 text-sm text-[#4A4640]">{t("auth.redirecting")}</p>
         </div>
       </main>
     );
@@ -93,14 +95,14 @@ function CustomerSignupForm() {
         <div className="w-full max-w-md">
           <Link href="/" className="inline-flex items-center gap-2 text-lg font-semibold tracking-tight text-[#1F1E1D]">
             <Image src="/logo.png" alt="ADNAVRA logo" width={28} height={28} className="h-7 w-7 rounded-md object-contain" />
-            ADNAVRA <span className="text-[#8A7F6E] font-normal ml-2 text-sm">for customers</span>
+            ADNAVRA <span className="text-[#8A7F6E] font-normal ml-2 text-sm">{t("auth.forCustomers")}</span>
           </Link>
-          <h1 className="mt-6 text-2xl font-semibold text-[#1F1E1D]">Create your account</h1>
-          <p className="mt-1 text-sm text-[#4A4640]">Book appointments at top-rated salons near you</p>
+          <h1 className="mt-6 text-2xl font-semibold text-[#1F1E1D]">{t("auth.createAccount")}</h1>
+          <p className="mt-1 text-sm text-[#4A4640]">{t("auth.signupSub")}</p>
           <p className="mt-2 text-sm text-[#4A4640]">
-            Signing up to book appointments. Own a salon?{" "}
+            {t("auth.signupNote")}{" "}
             <Link href="/signup" className="font-medium text-[#795831] hover:underline">
-              Create a business account
+              {t("auth.createBusiness")}
             </Link>
             .
           </p>
@@ -115,7 +117,7 @@ function CustomerSignupForm() {
 
             <div>
               <label htmlFor="name" className="text-sm font-medium text-[#1F1E1D]">
-                Full name
+                {t("auth.fullName")}
               </label>
               <Input
                 id="name"
@@ -130,7 +132,7 @@ function CustomerSignupForm() {
 
             <div>
               <label htmlFor="email" className="text-sm font-medium text-[#1F1E1D]">
-                Email
+                {t("auth.email")}
               </label>
               <Input
                 id="email"
@@ -147,7 +149,7 @@ function CustomerSignupForm() {
 
             <div>
               <label htmlFor="password" className="text-sm font-medium text-[#1F1E1D]">
-                Password
+                {t("auth.password")}
               </label>
               <div className="relative mt-1.5">
                 <Input
@@ -157,7 +159,7 @@ function CustomerSignupForm() {
                   minLength={8}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  placeholder="At least 8 characters"
+                  placeholder={t("auth.pwMin")}
                   className="pr-10 bg-white border-[#E5DDD0] text-[#1F1E1D] placeholder:text-[#8A7F6E]"
                   disabled={isPending}
                   autoComplete="new-password"
@@ -166,7 +168,7 @@ function CustomerSignupForm() {
                   type="button"
                   onClick={() => setShowPw((v) => !v)}
                   className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-[#8A7F6E] hover:text-[#1F1E1D]"
-                  aria-label={showPw ? "Hide password" : "Show password"}
+                  aria-label={showPw ? t("auth.hidePw") : t("auth.showPw")}
                 >
                   {showPw ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </button>
@@ -175,7 +177,7 @@ function CustomerSignupForm() {
 
             <div className="grid grid-cols-[110px_1fr] gap-2">
               <div>
-                <label className="text-sm font-medium text-[#1F1E1D]">Country code</label>
+                <label className="text-sm font-medium text-[#1F1E1D]">{t("auth.countryCode")}</label>
                 <select
                   value={countryCode}
                   onChange={(e) => setCountryCode(e.target.value)}
@@ -187,7 +189,7 @@ function CustomerSignupForm() {
               </div>
               <div>
                 <label htmlFor="mobile" className="text-sm font-medium text-[#1F1E1D]">
-                  Mobile number
+                  {t("auth.mobile")}
                 </label>
                 <Input
                   id="mobile"
@@ -202,14 +204,14 @@ function CustomerSignupForm() {
             </div>
 
             <div>
-              <label className="text-sm font-medium text-[#1F1E1D]">Country</label>
+              <label className="text-sm font-medium text-[#1F1E1D]">{t("auth.country")}</label>
               <Input
                 value={country}
                 onChange={(e) => setCountry(e.target.value)}
                 disabled
                 className="mt-1.5 bg-[#F7F3ED] border-[#E5DDD0] text-[#1F1E1D] disabled:opacity-60"
               />
-              <p className="mt-1 text-xs text-[#8A7F6E]">ADNAVRA currently supports customers in Sri Lanka only.</p>
+              <p className="mt-1 text-xs text-[#8A7F6E]">{t("auth.countryNote")}</p>
             </div>
 
             <label className="flex items-start gap-2 text-xs text-[#4A4640]">
@@ -221,39 +223,39 @@ function CustomerSignupForm() {
                 required
               />
               <span>
-                I agree to the{" "}
+                {t("auth.agreePrefix")}{" "}
                 <Link href="/privacy" className="text-[#795831] hover:underline">
-                  Privacy Policy
+                  {t("auth.privacy")}
                 </Link>
                 ,{" "}
                 <Link href="/terms" className="text-[#795831] hover:underline">
-                  Terms of Service
+                  {t("auth.terms")}
                 </Link>{" "}
-                and Terms of Business.
+                {t("auth.termsBiz")}
               </span>
             </label>
 
             <Button type="submit" disabled={isPending || !agreed} variant="gradient" className="w-full">
               {isPending ? (
                 <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Creating account...
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" /> {t("auth.creating")}
                 </>
               ) : (
-                "Create account"
+                t("auth.createAccountBtn")
               )}
             </Button>
           </form>
 
           <p className="mt-8 text-center text-sm text-[#4A4640]">
-            Already have an account?{" "}
+            {t("auth.haveAccount")}{" "}
             <Link href={`/customer/login?callbackUrl=${encodeURIComponent(callbackUrl)}`} className="font-medium text-[#795831] hover:underline">
-              Sign in
+              {t("auth.signIn")}
             </Link>
           </p>
           <p className="mt-3 text-center text-sm text-[#4A4640]">
-            Own a salon?{" "}
+            {t("auth.ownSalon")}{" "}
             <Link href="/signup" className="font-medium text-[#1F1E1D] hover:underline">
-              Go to ADNAVRA for business
+              {t("auth.goBusiness")}
             </Link>
           </p>
         </div>
@@ -265,9 +267,9 @@ function CustomerSignupForm() {
         <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/25 to-black/5" />
         <div className="relative h-full flex items-end p-14">
           <div className="text-white max-w-sm">
-            <p className="text-2xl font-semibold leading-snug">Discover and book, anytime.</p>
+            <p className="text-2xl font-semibold leading-snug">{t("auth.signupHeroTitle")}</p>
             <p className="mt-3 text-white/85 text-sm">
-              Find top-rated salons near you and book appointments in seconds. Your next look is one tap away.
+              {t("auth.signupHeroSub")}
             </p>
           </div>
         </div>
