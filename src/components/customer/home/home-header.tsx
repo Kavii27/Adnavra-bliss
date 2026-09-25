@@ -27,9 +27,16 @@ export function HomeHeader() {
   }, []);
 
   return (
-    <div
-      className={`sticky top-4 z-50 px-4 lg:px-8 transition-all ${scrolled ? "top-3" : ""}`}
-    >
+    <>
+      {/* Spacer — reserves the pill's in-flow space now that the bar below
+          is fixed. pt-4 + h-16 mirrors the floating pill geometry exactly,
+          so page content never jumps or slides underneath it. */}
+      <div aria-hidden className="px-4 pt-4 lg:px-8">
+        <div className="mx-auto h-16 max-w-[1600px]" />
+      </div>
+      <div
+        className={`fixed inset-x-0 top-4 z-50 px-4 lg:px-8 transition-all ${scrolled ? "top-3" : ""}`}
+      >
       <header
         className={`mx-auto flex h-16 max-w-[1600px] items-center justify-between gap-4 rounded-full border border-white/10 bg-[#2A1D12] px-4 lg:px-6 transition-shadow ${
           scrolled ? "shadow-[0_8px_30px_rgba(0,0,0,0.35)]" : "shadow-[0_4px_20px_rgba(0,0,0,0.2)]"
@@ -112,10 +119,11 @@ export function HomeHeader() {
             >
               Access Portal
             </Link>
-          </nav>
-        </div>
-      )}
-    </div>
+            </nav>
+          </div>
+        )}
+      </div>
+    </>
   );
 }
 

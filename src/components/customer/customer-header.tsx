@@ -5,7 +5,7 @@ import { MenuDropdown } from "@/components/marketing/menu-dropdown";
 
 export function CustomerHeader({ hideBusinessLink = false, hideMenu = false }: { hideBusinessLink?: boolean; hideMenu?: boolean } = {}) {
   return (
-    <header className="h-16 border-b border-[#E5DDD0] bg-white flex items-center justify-between px-6 lg:px-12">
+    <header className="sticky top-0 z-50 h-16 border-b border-[#E5DDD0] bg-white flex items-center justify-between px-6 lg:px-12">
       <Link href="/" className="flex items-center gap-2">
         <Image src="/logo.png" alt="ADNAVRA BLISS logo" width={28} height={28} className="h-7 w-7 rounded-md object-contain" />
         <span className="text-lg font-semibold tracking-tight text-[#1F1E1D]">
