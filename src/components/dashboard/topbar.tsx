@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { Search, BarChart3, Bell, MessageCircle, X, Loader2, User, QrCode, Download, ExternalLink } from "lucide-react";
+import { Search, BarChart3, Bell, X, Loader2, User, QrCode, Download, ExternalLink } from "lucide-react";
 import { ContinueSetupPill } from "./continue-setup-pill";
 import { AccountMenu } from "./account-menu";
 
@@ -19,9 +19,9 @@ export function DashboardTopbar({
   userInitials: string;
 }) {
   return (
-    <header className="flex h-16 items-center gap-4 border-b border-[#E9E1D3] bg-[#FAF7F2] px-4 md:px-6">
+    <header className="flex h-16 items-center gap-2 border-b border-[#E9E1D3] bg-[#FAF7F2] px-3 sm:gap-4 sm:px-4 md:px-6">
       {/* ADNAVRA logo lives only in the sidebar — topbar shows the salon name to avoid duplication */}
-      <span className="truncate text-sm font-semibold text-[#1F1E1D] lg:text-base">{businessName}</span>
+      <span className="min-w-0 flex-1 truncate text-sm font-semibold text-[#1F1E1D] lg:text-base">{businessName}</span>
       <div className="ml-auto flex items-center gap-1.5">
         <ContinueSetupPill />
         <QrTopbarButton businessId={businessId ?? null} businessSlug={businessSlug ?? null} />
@@ -29,18 +29,11 @@ export function DashboardTopbar({
         <Link
           href="/dashboard/reports"
           aria-label="Reports"
-          className="flex h-9 w-9 items-center justify-center rounded-full text-[#8A8377] hover:bg-[#FBF7EF] hover:text-[#1F1E1D]"
+          className="hidden h-11 w-11 items-center justify-center rounded-full text-[#8A8377] hover:bg-[#FBF7EF] hover:text-[#1F1E1D] sm:flex"
         >
           <BarChart3 className="h-4 w-4" />
         </Link>
         <NotificationBell />
-        <Link
-          href="/help"
-          aria-label="Help chat"
-          className="flex h-9 w-9 items-center justify-center rounded-full text-[#8A8377] hover:bg-[#FBF7EF] hover:text-[#1F1E1D]"
-        >
-          <MessageCircle className="h-4 w-4" />
-        </Link>
         <AccountMenu userName={userName} userInitials={userInitials} />
       </div>
     </header>
@@ -129,12 +122,12 @@ function SearchPopover() {
         aria-label="Search"
         aria-expanded={open}
         onClick={() => setOpen((v) => !v)}
-        className="flex h-9 w-9 items-center justify-center rounded-full text-[#8A8377] hover:bg-[#FBF7EF] hover:text-[#1F1E1D]"
+        className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-[#8A8377] hover:bg-[#FBF7EF] hover:text-[#1F1E1D]"
       >
         <Search className="h-4 w-4" />
       </button>
       {open && (
-        <div className="absolute right-0 top-11 z-50 w-80 rounded-xl border border-[#E9E1D3] bg-[#FBF7EF] shadow-xl overflow-hidden">
+        <div className="absolute right-0 top-12 z-50 w-[calc(100vw-1.5rem)] max-w-80 overflow-hidden rounded-xl border border-[#E9E1D3] bg-[#FBF7EF] shadow-xl">
           <div className="flex items-center gap-2 border-b border-[#E9E1D3] px-3 py-2">
             <Search className="h-4 w-4 text-[#8A8377] shrink-0" />
             <input
@@ -156,7 +149,7 @@ function SearchPopover() {
             ) : null}
           </div>
 
-          <div className="max-h-80 overflow-y-auto">
+          <div className="max-h-80 overflow-y-auto overscroll-contain">
             {loading ? (
               <div className="flex items-center gap-2 px-4 py-6 text-sm text-[#8A8377]">
                 <Loader2 className="h-4 w-4 animate-spin" /> Searching...
@@ -290,12 +283,12 @@ function NotificationBell() {
         )}
       </button>
       {open && (
-        <div className="absolute right-0 top-11 z-50 w-80 rounded-xl border border-[#E9E1D3] bg-[#FBF7EF] shadow-xl overflow-hidden">
+        <div className="absolute right-0 top-12 z-50 w-[calc(100vw-1.5rem)] max-w-80 overflow-hidden rounded-xl border border-[#E9E1D3] bg-[#FBF7EF] shadow-xl">
           <div className="flex items-center justify-between border-b border-[#E9E1D3] px-4 py-3">
             <h3 className="text-sm font-semibold text-[#1F1E1D]">Notifications</h3>
             {showBadge && <span className="rounded-full bg-[#9A7B4F] px-2 py-0.5 text-xs font-semibold text-[#1F1E1D]">{count} pending</span>}
           </div>
-          <div className="max-h-80 overflow-y-auto">
+          <div className="max-h-80 overflow-y-auto overscroll-contain">
             {loading ? (
               <div className="flex items-center gap-2 px-4 py-6 text-sm text-[#8A8377]">
                 <Loader2 className="h-4 w-4 animate-spin" /> Loading...
@@ -445,12 +438,12 @@ function QrTopbarButton({
         aria-expanded={open}
         onClick={() => setOpen((v) => !v)}
         title="Booking QR code"
-        className="flex h-9 w-9 items-center justify-center rounded-full text-[#8A8377] hover:bg-[#FBF7EF] hover:text-[#1F1E1D]"
+        className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-[#8A8377] hover:bg-[#FBF7EF] hover:text-[#1F1E1D]"
       >
         <QrCode className="h-4 w-4" />
       </button>
       {open && (
-        <div className="absolute right-0 top-11 z-50 w-80 rounded-xl border border-[#E9E1D3] bg-[#FBF7EF] shadow-xl overflow-hidden">
+        <div className="absolute right-0 top-12 z-50 w-[calc(100vw-1.5rem)] max-w-80 overflow-hidden rounded-xl border border-[#E9E1D3] bg-[#FBF7EF] shadow-xl">
           <div className="flex items-center justify-between border-b border-[#E9E1D3] px-4 py-3">
             <div className="flex items-center gap-2">
               <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-[#795831] text-[#ffffff]">

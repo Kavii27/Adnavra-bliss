@@ -124,7 +124,7 @@ export function CalendarProTools({ bookings, onChanged }: { bookings: ProBooking
 
   return (
     <div className="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-4">
-      <div className="rounded-xl border border-[#e6dcc8] bg-white/[0.04] p-5">
+      <div className="rounded-xl border border-[#e6dcc8] bg-white/[0.04] p-4 sm:p-5">
         <h2 className="text-sm font-semibold text-[#3a2f22] flex items-center gap-2"><Tags className="h-4 w-4 text-[#a89880]" /> Custom status labels</h2>
         <p className="text-xs text-[#a89880] mt-1">Rename how each appointment status reads across your calendar and reports.</p>
         {labelsLoading ? (
@@ -133,14 +133,14 @@ export function CalendarProTools({ bookings, onChanged }: { bookings: ProBooking
           <>
             <div className="mt-3 space-y-2">
               {STATUSES.map((s) => (
-                <div key={s} className="flex items-center gap-2">
-                  <span className="w-28 shrink-0 text-xs uppercase tracking-wide text-[#a89880]">{s.replace("_", " ")}</span>
-                  <Input value={labels[s] ?? ""} onChange={(e) => setLabels((prev) => ({ ...prev, [s]: e.target.value }))} placeholder={DEFAULT_LABELS[s]} className="bg-[#f6efe3] border-[#e6dcc8] text-[#3a2f22] placeholder:text-[#a89880]" />
+                <div key={s} className="grid grid-cols-1 gap-2 sm:grid-cols-[7rem_minmax(0,1fr)] sm:items-center">
+                  <span className="text-xs uppercase tracking-wide text-[#a89880]">{s.replace("_", " ")}</span>
+                  <Input value={labels[s] ?? ""} onChange={(e) => setLabels((prev) => ({ ...prev, [s]: e.target.value }))} placeholder={DEFAULT_LABELS[s]} className="min-h-11 bg-[#f6efe3] border-[#e6dcc8] text-[#3a2f22] placeholder:text-[#a89880]" />
                 </div>
               ))}
             </div>
-            <div className="mt-3 flex items-center gap-2">
-              <Button onClick={saveLabels} disabled={savingLabels || !businessId} variant="secondaryDark">
+            <div className="mt-3 flex flex-col items-start gap-2 sm:flex-row sm:items-center">
+              <Button onClick={saveLabels} disabled={savingLabels || !businessId} variant="secondaryDark" className="w-full sm:w-auto">
                 {savingLabels ? <><Loader2 className="h-4 w-4 animate-spin mr-2" /> Saving...</> : <><Check className="h-4 w-4 mr-2" /> Save labels</>}
               </Button>
               {labelsSaved && <span className="text-xs text-emerald-300">Saved.</span>}
@@ -149,27 +149,27 @@ export function CalendarProTools({ bookings, onChanged }: { bookings: ProBooking
         )}
       </div>
 
-      <div className="rounded-xl border border-[#e6dcc8] bg-white/[0.04] p-5">
+      <div className="rounded-xl border border-[#e6dcc8] bg-white/[0.04] p-4 sm:p-5">
         <h2 className="text-sm font-semibold text-[#3a2f22] flex items-center gap-2"><CalendarClock className="h-4 w-4 text-[#a89880]" /> Bulk reschedule</h2>
         <p className="text-xs text-[#a89880] mt-1">Move several bookings to another day, keeping their times. Overlaps are rejected per booking.</p>
         {bookings.length === 0 ? (
           <p className="mt-3 text-sm text-[#a89880]">No bookings on the selected day to move.</p>
         ) : (
           <>
-            <div className="mt-3 max-h-56 space-y-1.5 overflow-y-auto">
+            <div className="mt-3 max-h-56 space-y-1.5 overflow-y-auto overscroll-contain">
               {bookings.map((b) => (
-                <label key={b.id} className="flex items-center gap-2 rounded-lg border border-[#e6dcc8] bg-[#f6efe3] px-3 py-2 text-sm cursor-pointer">
-                  <input type="checkbox" checked={selected.includes(b.id)} onChange={() => toggle(b.id)} className="accent-white" />
-                  <span className="font-medium text-[#3a2f22] truncate flex-1">{b.service?.name} · {b.customer?.name}</span>
-                  <span className="text-xs text-[#a89880] shrink-0">
+                <label key={b.id} className="grid min-h-11 cursor-pointer grid-cols-[1.25rem_minmax(0,1fr)] items-center gap-x-2 gap-y-1 rounded-lg border border-[#e6dcc8] bg-[#f6efe3] px-3 py-2 text-sm sm:flex sm:gap-2">
+                  <input type="checkbox" checked={selected.includes(b.id)} onChange={() => toggle(b.id)} className="h-5 w-5 accent-[#8a6d4f]" />
+                  <span className="min-w-0 flex-1 truncate font-medium text-[#3a2f22]">{b.service?.name} · {b.customer?.name}</span>
+                  <span className="col-span-2 pl-[1.75rem] text-xs text-[#a89880] sm:pl-0 sm:shrink-0">
                     {new Date(b.startTime).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })} · {(labels[b.status] ?? b.status)}
                   </span>
                 </label>
               ))}
             </div>
-            <div className="mt-3 flex flex-wrap items-center gap-2">
-              <Input type="date" value={targetDate} onChange={(e) => setTargetDate(e.target.value)} className="w-auto bg-[#f6efe3] border-[#e6dcc8] text-[#3a2f22]" />
-              <Button onClick={bulkMove} disabled={moving || selected.length === 0} className="bg-[#8a6d4f] text-[#ffffff] hover:bg-white/90">
+            <div className="mt-3 grid grid-cols-1 gap-2 sm:flex sm:flex-wrap sm:items-center">
+              <Input type="date" value={targetDate} onChange={(e) => setTargetDate(e.target.value)} className="min-h-11 w-full bg-[#f6efe3] border-[#e6dcc8] text-[#3a2f22] sm:w-auto" />
+              <Button onClick={bulkMove} disabled={moving || selected.length === 0} className="w-full bg-[#8a6d4f] text-[#ffffff] hover:bg-white/90 sm:w-auto">
                 {moving ? <><Loader2 className="h-4 w-4 animate-spin mr-2" /> Moving...</> : <>Move {selected.length > 0 ? `${selected.length} ` : ""}booking(s)</>}
               </Button>
             </div>

@@ -14,7 +14,7 @@ type AddBookingModalProps = {
 };
 
 const inputClass =
-  "w-full rounded-lg border border-[#e6dcc8] bg-white px-3 py-2 text-sm text-[#3a2f22] placeholder:text-[#a89880] focus:outline-none focus:ring-2 focus:ring-[var(--color-sidebar-active)]";
+  "min-h-11 w-full rounded-lg border border-[#e6dcc8] bg-white px-3 py-2 text-sm text-[#3a2f22] placeholder:text-[#a89880] focus:outline-none focus:ring-2 focus:ring-[var(--color-sidebar-active)]";
 const labelClass = "mb-1 block text-xs font-medium text-[#3a2f22]";
 
 /**
@@ -114,14 +114,14 @@ export function AddBookingModal({ businessId, staff, defaultDate, onClose, onCre
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+      className="fixed inset-0 z-50 flex items-end justify-center bg-black/50 p-0 sm:items-center sm:p-4"
       onClick={onClose}
       role="dialog"
       aria-modal="true"
       aria-label="Add booking"
     >
       <div
-        className="max-h-[90dvh] w-full max-w-md overflow-y-auto overscroll-contain rounded-xl border border-[#e6dcc8] bg-[#faf6ef] p-5"
+        className="max-h-[90dvh] w-full max-w-md overflow-y-auto overscroll-contain rounded-t-2xl border border-[#e6dcc8] bg-[#faf6ef] p-4 sm:rounded-xl sm:p-5"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between">
@@ -129,7 +129,7 @@ export function AddBookingModal({ businessId, staff, defaultDate, onClose, onCre
           <button
             aria-label="Close"
             onClick={onClose}
-            className="flex h-8 w-8 items-center justify-center rounded-full text-[#a89880] hover:bg-[#f3ebdd] hover:text-[#3a2f22]"
+            className="flex h-11 w-11 items-center justify-center rounded-full text-[#a89880] hover:bg-[#f3ebdd] hover:text-[#3a2f22]"
           >
             <X className="h-4 w-4" />
           </button>
@@ -170,7 +170,7 @@ export function AddBookingModal({ businessId, staff, defaultDate, onClose, onCre
                 ))}
               </select>
             </div>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               <div>
                 <label htmlFor="ab-date" className={labelClass}>Date</label>
                 <input id="ab-date" type="date" value={date} onChange={(e) => setDate(e.target.value)} className={inputClass} />
@@ -213,18 +213,18 @@ export function AddBookingModal({ businessId, staff, defaultDate, onClose, onCre
                 className={inputClass}
               />
             </div>
-            <div className="mt-1 flex items-center justify-end gap-2">
+            <div className="mt-1 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
               <button
                 type="button"
                 onClick={onClose}
-                className="rounded-lg border border-[#e6dcc8] bg-[#f6efe3] px-4 py-2 text-sm font-medium text-[#3a2f22] hover:bg-[#f3ebdd]"
+                className="inline-flex min-h-11 w-full items-center justify-center rounded-lg border border-[#e6dcc8] bg-[#f6efe3] px-4 py-2 text-sm font-medium text-[#3a2f22] hover:bg-[#f3ebdd] sm:w-auto"
               >
                 Cancel
               </button>
               <button
                 type="submit"
                 disabled={saving}
-                className="inline-flex items-center gap-2 rounded-lg bg-[var(--color-sidebar-active)] px-4 py-2 text-sm font-semibold text-[#3a2f22] hover:opacity-90 disabled:opacity-50"
+                className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-lg bg-[var(--color-sidebar-active)] px-4 py-2 text-sm font-semibold text-[#3a2f22] hover:opacity-90 disabled:opacity-50 sm:w-auto"
               >
                 {saving && <Loader2 className="h-4 w-4 animate-spin" />}
                 {saving ? "Saving..." : "Create booking"}

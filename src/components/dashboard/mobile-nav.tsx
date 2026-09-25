@@ -16,7 +16,6 @@ import {
   LineChart,
   Grid3x3,
   Settings,
-  HelpCircle,
   QrCode,
 } from "lucide-react";
 import { PLAN_RANK, type Plan } from "@/lib/plan-features";
@@ -46,7 +45,7 @@ export function MobileNav() {
       <button
         aria-label="Open navigation"
         onClick={() => setOpen(true)}
-        className="md:hidden flex h-9 w-9 items-center justify-center rounded-lg text-[#a89880] hover:bg-[#f3ebdd] hover:text-[#3a2f22]"
+        className="md:hidden flex h-11 w-11 shrink-0 items-center justify-center rounded-lg text-[#a89880] hover:bg-[#f3ebdd] hover:text-[#3a2f22]"
       >
         <Menu className="h-5 w-5" />
       </button>
@@ -57,7 +56,7 @@ export function MobileNav() {
             onClick={() => setOpen(false)}
             className="flex-1 bg-black/50"
           />
-          <div className="w-64 shrink-0 bg-[#faf6ef] border-l border-[#e6dcc8] flex flex-col py-4 px-3 overflow-y-auto">
+          <div className="flex max-h-[100dvh] w-[min(20rem,88vw)] shrink-0 flex-col overflow-y-auto overscroll-contain border-l border-[#e6dcc8] bg-[#faf6ef] px-3 py-4">
             <div className="flex items-center justify-between mb-4 px-2">
               <span className="flex items-center gap-2 text-sm font-semibold text-[#3a2f22]">
                 <Image src="/logo.png" alt="ADNAVRA logo" width={24} height={24} className="h-6 w-6 rounded-md object-contain" />
@@ -66,7 +65,7 @@ export function MobileNav() {
               <button
                 aria-label="Close"
                 onClick={() => setOpen(false)}
-                className="flex h-8 w-8 items-center justify-center rounded-lg text-[#a89880] hover:bg-[#f3ebdd] hover:text-[#3a2f22]"
+                className="flex h-11 w-11 items-center justify-center rounded-lg text-[#a89880] hover:bg-[#f3ebdd] hover:text-[#3a2f22]"
               >
                 <X className="h-5 w-5" />
               </button>
@@ -80,7 +79,7 @@ export function MobileNav() {
                     key={href}
                     href={href}
                     onClick={() => setOpen(false)}
-                    className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors ${
+                    className={`flex min-h-11 items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors ${
                       active ? "bg-[var(--color-sidebar-active)] text-[#3a2f22]" : "text-[#a89880] hover:bg-[#f3ebdd] hover:text-[#3a2f22]"
                     }`}
                   >
@@ -95,13 +94,6 @@ export function MobileNav() {
                 );
               })}
             </nav>
-            <Link
-              href="/help"
-              onClick={() => setOpen(false)}
-              className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-[#a89880] hover:bg-[#f3ebdd] hover:text-[#3a2f22]"
-            >
-              <HelpCircle className="h-5 w-5" /> Help
-            </Link>
           </div>
         </div>
       )}

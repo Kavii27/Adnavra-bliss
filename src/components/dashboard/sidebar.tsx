@@ -13,7 +13,6 @@ import {
   LineChart,
   Grid3x3,
   Settings,
-  HelpCircle,
   QrCode,
 } from "lucide-react";
 import { PLAN_RANK, type Plan } from "@/lib/plan-features";
@@ -71,14 +70,6 @@ export function DashboardSidebar() {
           );
         })}
       </nav>
-      <Link
-        href="/help"
-        title="Help"
-        aria-label="Help"
-        className="flex h-11 w-11 items-center justify-center rounded-xl text-[#8A8377] hover:bg-[#FBF7EF] hover:text-[#1F1E1D]"
-      >
-        <HelpCircle className="h-5 w-5" />
-      </Link>
     </aside>
   );
 }

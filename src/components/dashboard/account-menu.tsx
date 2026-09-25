@@ -27,7 +27,7 @@ export function AccountMenu({
       <button
         onClick={() => setOpen((v) => !v)}
         aria-label="Account menu"
-        className="flex h-9 w-9 items-center justify-center rounded-full bg-[#f3ebdd] text-xs font-semibold text-[#3a2f22] hover:bg-white/15"
+        className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[#f3ebdd] text-xs font-semibold text-[#3a2f22] hover:bg-white/15"
       >
         {userInitials}
       </button>
