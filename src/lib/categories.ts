@@ -21,14 +21,14 @@ export const CATEGORY_SLUGS = SERVICE_CATEGORIES.map((c) => c.slug) as unknown a
 // enforced by Zod in src/schemas/business.ts). Search filtering matches
 // `salonTypes` via `has`/`hasSome` alongside the existing `categories` filter.
 export const BUSINESS_TYPES = [
-  { slug: "unisex", label: "Unisex", icon: Users },
-  { slug: "gents", label: "Gents only", icon: UserRound },
-  { slug: "ladies", label: "Ladies only", icon: Sparkles },
-  { slug: "bridal", label: "Bridal & occasion", icon: Gem },
-  { slug: "home-visits", label: "Home visits", icon: Home },
-  { slug: "spa-resort", label: "Spa & resort", icon: Flower2 },
-  { slug: "kids", label: "Kids friendly", icon: Baby },
-  { slug: "makeup", label: "Makeup", icon: Sparkles },
+  { slug: "unisex", label: "Unisex", icon: Users, imageUrl: "/home-images/unisex.jpg" },
+  { slug: "gents", label: "Gents only", icon: UserRound, imageUrl: "/home-images/gents.jpg" },
+  { slug: "ladies", label: "Ladies only", icon: Sparkles, imageUrl: "/home-images/ladies.jpg" },
+  { slug: "bridal", label: "Bridal & occasion", icon: Gem, imageUrl: "/home-images/bridal.jpg" },
+  { slug: "home-visits", label: "Home visits", icon: Home, imageUrl: "/home-images/home.jpg" },
+  { slug: "spa-resort", label: "Spa & resort", icon: Flower2, imageUrl: "/home-images/sparesot.jpg" },
+  { slug: "kids", label: "Kids friendly", icon: Baby, imageUrl: "/home-images/kids.jpg" },
+  { slug: "makeup", label: "Makeup", icon: Sparkles, imageUrl: "/home-images/makeup.jpg" },
 ] as const;
 
 export type BusinessTypeSlug = (typeof BUSINESS_TYPES)[number]["slug"];

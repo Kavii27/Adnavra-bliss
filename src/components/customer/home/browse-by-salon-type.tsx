@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { BUSINESS_TYPES, taxonomyLabelKey } from "@/lib/categories";
 import { useLocale } from "@/lib/i18n/locale-context";
@@ -34,17 +35,29 @@ export function BrowseBySalonType({
           <Link
             key={bt.slug}
             href={`/salon-types/${encodeURIComponent(bt.slug)}`}
-            className="group card-lift relative flex min-h-[192px] flex-col justify-start gap-8 rounded-xl border border-[#E5DDD0] bg-white p-5 hover:border-[#795831]"
+            className="group card-lift relative min-h-[192px] overflow-hidden rounded-xl border border-[#E5DDD0] bg-white hover:border-[#795831]"
           >
-            <div className="flex items-start justify-between">
-              <span className="num-ghost text-3xl font-semibold text-[#EDE6D8] tabular-nums leading-none">
-                {String(i + 1).padStart(2, "0")}
-              </span>
-              <span className="icon-pop flex h-9 w-9 items-center justify-center rounded-full bg-[#F7F3ED] text-[#795831] group-hover:bg-[#795831] group-hover:text-white">
-                <bt.icon className="h-4 w-4" />
-              </span>
+            <div className="absolute inset-0 overflow-hidden">
+              <Image
+                src={bt.imageUrl}
+                alt={t(taxonomyLabelKey(bt.slug))}
+                fill
+                sizes="(min-width: 1024px) 25vw, (min-width: 640px) 50vw, 50vw"
+                className="object-cover transition-transform duration-500 group-hover:scale-105"
+              />
+              <div className="absolute inset-0 bg-[#2A1D12]/35 transition-colors group-hover:bg-[#2A1D12]/25" />
             </div>
-            <p className="text-[15px] font-semibold text-[#1F1E1D]">{t(taxonomyLabelKey(bt.slug))}</p>
+            <div className="relative z-10 flex min-h-[192px] flex-col justify-between p-5">
+              <div className="flex items-start justify-between">
+                <span className="num-ghost text-3xl font-semibold text-white/70 tabular-nums leading-none">
+                  {String(i + 1).padStart(2, "0")}
+                </span>
+                <span className="icon-pop flex h-9 w-9 items-center justify-center rounded-full bg-white/90 text-[#795831] group-hover:bg-[#795831] group-hover:text-white">
+                  <bt.icon className="h-4 w-4" />
+                </span>
+              </div>
+              <p className="text-[15px] font-semibold text-white">{t(taxonomyLabelKey(bt.slug))}</p>
+            </div>
           </Link>
         ))}
       </Reveal>
