@@ -266,6 +266,13 @@ export default function AboutPage() {
                   {t("about.hero.sub")}
                 </p>
 
+                <div className="mt-6 inline-flex max-w-full items-center gap-3 rounded-xl border border-[#E5DDD0] bg-white px-5 py-3">
+                  <Image src="/logo.png" alt="ADNAVRA" width={28} height={28} className="h-7 w-7 shrink-0 rounded-md object-contain" />
+                  <p className="text-sm text-[#4A4640">
+                    ADNAVRA BLISS is a product of <span className="font-semibold text-[#1F1E1D]">ADNAVRA (Pvt) Ltd</span>, Sri Lanka.
+                  </p>
+                </div>
+
                 <div className="flex flex-wrap items-center gap-4 pt-1">
                   <Link
                     href="/signup"

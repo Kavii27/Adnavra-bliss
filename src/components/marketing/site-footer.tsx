@@ -76,7 +76,7 @@ export function SiteFooter() {
         ))}
       </div>
       <div className="max-w-[1400px] mx-auto border-t border-[#ccc6bd]/40 mt-10 pt-6 text-xs text-[#7b766f] flex flex-wrap items-center justify-between gap-3">
-        <span>© {new Date().getFullYear()} ADNAVRA. {t("footer.rights")}</span>
+        <span>© {new Date().getFullYear()} ADNAVRA (Pvt) Ltd. All rights reserved. Colombo, Sri Lanka.</span>
         <div className="flex items-center gap-3">
           <LanguageSwitcher />
           <Link href="/login?callbackUrl=/admin" className="hover:text-[#050504] transition-colors">
