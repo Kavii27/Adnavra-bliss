@@ -62,11 +62,9 @@ export default async function BookPage({
 
   return (
     <main className={`${display.variable} min-h-screen bg-[#FAF7F2]`}>
-      {/* Nav + hero are truly `fixed` to the viewport — not `sticky` — so they cannot drift,
-          jump, or unstick under any circumstance regardless of scroll position or page length.
-          A matching spacer immediately below reserves their combined height (64px + 144px = 208px)
-          in normal document flow so real content never renders underneath them. */}
-      <nav className="fixed inset-x-0 top-0 z-40 flex h-16 items-center justify-between border-b border-[#E9E1D3] bg-white/90 px-4 backdrop-blur sm:px-6 lg:px-12">
+      {/* Nav + hero sit in normal document flow so they scroll away with the page —
+          nothing is pinned to the viewport here. */}
+      <nav className="relative z-40 flex h-16 items-center justify-between border-b border-[#E9E1D3] bg-white/90 px-4 backdrop-blur sm:px-6 lg:px-12">
         <Link href="/" className="flex items-center gap-2" aria-label={t("book.aria.home")}>
           <Image src="/logo.png" alt="ADNAVRA BLISS" width={28} height={28} className="h-7 w-7 shrink-0 rounded-md object-contain" />
           <span className="text-base font-semibold tracking-tight text-[#1F1E1D] sm:text-lg">
@@ -76,7 +74,7 @@ export default async function BookPage({
         <BackButton fallbackHref={`/${businessSlug}`} />
       </nav>
 
-      <div className="fixed inset-x-0 top-16 z-30 isolate flex h-36 items-end overflow-hidden bg-[#1B1714]">
+      <div className="relative z-30 isolate flex h-36 items-end overflow-hidden bg-[#1B1714]">
         {coverUrl && (
           // eslint-disable-next-line @next/next/no-img-element
           <img src={coverUrl} alt="" className="absolute inset-0 -z-20 h-full w-full object-cover" />
@@ -100,8 +98,6 @@ export default async function BookPage({
           )}
         </div>
       </div>
-      {/* Spacer: reserves the exact 208px (nav 64px + hero 144px) the two fixed bands above occupy. */}
-      <div className="h-52" aria-hidden="true" />
 
       <div
         className="relative"

@@ -333,8 +333,11 @@ model Booking {
   endTime   DateTime @db.Timestamptz(6)
 
   status    BookingStatus @default(PENDING)
-  // Human-friendly reference shown to customer (e.g. ADN-8K2F9Q)
-  reference String        @unique @default(cuid())
+  // Human-friendly reference shown to customer (e.g. ADN-8K2F9Q).
+  // NOT unique: every service row in a multi-service appointment shares the
+  // same reference, grouped by groupId. Uniqueness is enforced per-group,
+  // not per-row, so a plain index is all this needs.
+  reference String        @default(cuid())
 
   // Links every service in the same appointment together. Null for
   // legacy single-service bookings (backward compatible, no backfill needed).
@@ -348,6 +351,7 @@ model Booking {
 
   @@index([businessId])
   @@index([groupId])
+  @@index([reference])
   @@index([serviceId])
   @@index([staffMemberId])
   @@index([customerId])

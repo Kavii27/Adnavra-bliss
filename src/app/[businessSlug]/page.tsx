@@ -20,9 +20,8 @@ import { VenueGallery } from "@/components/business/venue-gallery";
 import { ServiceTabs } from "@/components/business/service-tabs";
 import { BookingCard } from "@/components/business/booking-card";
 import { BackButton } from "@/components/business/back-button";
-import { FeedbackButton } from "@/components/business/feedback-button";
 import { taxonomyLabelKey, isBusinessTypeSlug } from "@/lib/categories";
-import { getServerLocale, getServerT } from "@/lib/i18n/server";
+import { getServerT } from "@/lib/i18n/server";
 
 // Elegant serif for headings (falls back to Georgia if the font can't load).
 const display = Cormorant_Garamond({
@@ -108,22 +107,6 @@ function formatTime(hm: string): string {
 
 function formatPrice(minor: number): string {
   return (minor / 100).toLocaleString("en-LK", { style: "currency", currency: "LKR", maximumFractionDigits: 0 });
-}
-
-function formatReviewDate(date: Date, locale: "en" | "si"): string {
-  const formatter = new Intl.RelativeTimeFormat(locale, { numeric: "auto" });
-  const difference = date.getTime() - Date.now();
-  const hours = Math.round(difference / (60 * 60 * 1000));
-  if (Math.abs(hours) < 24) return formatter.format(hours, "hour");
-  const days = Math.round(hours / 24);
-  if (Math.abs(days) < 30) return formatter.format(days, "day");
-  const months = Math.round(days / 30.44);
-  if (Math.abs(months) < 12) return formatter.format(months, "month");
-  return formatter.format(Math.round(months / 12), "year");
-}
-
-function firstName(name: string): string {
-  return name.trim().split(/\s+/).filter(Boolean)[0] ?? "";
 }
 
 function capitalize(s: string): string {
@@ -228,7 +211,7 @@ function SectionHeader({
 /* ─────────────────────────────── page ─────────────────────────────── */
 
 export default async function BusinessProfilePage({ params }: { params: Promise<{ businessSlug: string }> }) {
-  const [t, locale] = await Promise.all([getServerT(), getServerLocale()]);
+  const t = await getServerT();
   const { businessSlug } = await params;
   const business = await db.business.findUnique({
     where: { slug: businessSlug },
@@ -239,22 +222,6 @@ export default async function BusinessProfilePage({ params }: { params: Promise<
     },
   });
   if (!business) notFound();
-
-  const [reviews, reviewAgg] = await Promise.all([
-    db.review.findMany({
-      where: { businessId: business.id },
-      orderBy: { createdAt: "desc" },
-      take: 12,
-      include: { customer: { select: { name: true } } },
-    }),
-    db.review.aggregate({
-      where: { businessId: business.id },
-      _avg: { rating: true },
-      _count: true,
-    }),
-  ]);
-  const avgRating = reviewAgg._avg.rating ?? 0;
-  const reviewCount = reviewAgg._count;
 
   const cover = business.images.find((img) => img.kind === "cover") ?? null;
   const gallery = business.images.filter((img) => img.kind === "gallery");
@@ -342,7 +309,6 @@ export default async function BusinessProfilePage({ params }: { params: Promise<
     { href: "#atmosphere", label: t("salon.nav.atmosphere"), show: galleryPhotos.length > 0 },
     { href: "#specialists", label: t("salon.nav.specialists"), show: business.staffMembers.length > 0 },
     { href: "#hours-side", label: t("salon.nav.hours"), show: true },
-    { href: "#reviews", label: t("salon.nav.reviews"), show: true },
     { href: "#location", label: t("salon.nav.location"), show: hasLocation },
   ].filter((l) => l.show);
 
@@ -464,14 +430,15 @@ export default async function BusinessProfilePage({ params }: { params: Promise<
             style={{ animation: "heroKenBurns 22s ease-in-out infinite alternate" }}
           />
         )}
-        <div
-          className={`absolute inset-0 -z-10 ${
-            heroUrl
-              ? "bg-gradient-to-t from-[#1B1714] via-[#1B1714]/60 to-[#1B1714]/30"
-              : "bg-gradient-to-br from-[#3A2F22] via-[#2A211A] to-[#1B1714]"
-          }`}
-        />
-        {heroUrl && <div className="absolute inset-0 -z-10 bg-gradient-to-r from-[#1B1714]/90 via-[#1B1714]/30 to-transparent" />}
+        {heroUrl && (
+          <>
+            <div className="absolute inset-0 -z-10 bg-gradient-to-r from-[#1B1714]/55 via-[#1B1714]/15 to-transparent" />
+            <div className="absolute inset-0 -z-10 bg-gradient-to-t from-[#1B1714]/45 via-transparent to-[#1B1714]/10" />
+          </>
+        )}
+        {!heroUrl && (
+          <div className="absolute inset-0 -z-10 bg-gradient-to-br from-[#3A2F22] via-[#2A211A] to-[#1B1714]" />
+        )}
 
         <div
           className={`${WRAP} flex min-h-[520px] flex-col justify-end py-14 sm:min-h-[600px] lg:min-h-[680px] lg:py-20`}
@@ -647,61 +614,6 @@ export default async function BusinessProfilePage({ params }: { params: Promise<
             </section>
           )}
 
-          <section aria-label={t("salon.aria.reviews")}>
-            <SectionHeader
-              id="reviews"
-              eyebrow={t("salon.reviews.eyebrow")}
-              title={t("salon.reviews.title")}
-              right={
-                <div className="flex w-full flex-col items-start gap-3 sm:w-auto sm:flex-row sm:items-center">
-                  {reviews.length > 0 && (
-                    <span className="text-sm font-medium text-[#6B655B]">
-                      {reviewCount} {t("salon.reviews.count")} · {avgRating.toFixed(1)} ★
-                    </span>
-                  )}
-                  <FeedbackButton businessId={business.id} businessName={business.name} />
-                </div>
-              }
-            />
-            {reviews.length > 0 ? (
-              <div className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
-                {reviews.map((review) => {
-                  const reviewer = firstName(review.customer?.name ?? review.reviewerName ?? "") || t("salon.reviews.guest");
-                  return (
-                    <article key={review.id} className={`${CARD} p-5`}>
-                      <div className="flex items-center justify-between gap-3">
-                        <div
-                          className="flex gap-0.5"
-                          aria-label={t("salon.reviews.ratingAria").replace("{rating}", String(review.rating))}
-                        >
-                          {[1, 2, 3, 4, 5].map((star) => (
-                            <Star
-                              key={star}
-                              className={`h-4 w-4 ${star <= review.rating ? "fill-[#9A7B4F] text-[#9A7B4F]" : "text-[#E5DDD0]"}`}
-                              aria-hidden="true"
-                            />
-                          ))}
-                        </div>
-                        <time dateTime={review.createdAt.toISOString()} className="text-xs text-[#9A9184]">
-                          {formatReviewDate(review.createdAt, locale)}
-                        </time>
-                      </div>
-                      {review.comment && <p className="mt-3 text-sm leading-relaxed text-[#4A4640]">{review.comment}</p>}
-                      <p className="mt-4 text-sm font-semibold text-[#1F1E1D]">{reviewer}</p>
-                    </article>
-                  );
-                })}
-              </div>
-            ) : (
-              <div className={`${CARD} mt-5 p-8 text-center`}>
-                <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-[#F7F3ED]">
-                  <Star className="h-5 w-5 text-[#C9B99C]" />
-                </div>
-                <p className="mt-3 text-sm font-semibold text-[#1F1E1D]">{t("salon.reviews.emptyTitle")}</p>
-                <p className="mx-auto mt-1 max-w-md text-sm text-[#8A8377]">{t("salon.reviews.emptySub")}</p>
-              </div>
-            )}
-          </section>
         </div>
 
         {/* ── Sidebar ── */}

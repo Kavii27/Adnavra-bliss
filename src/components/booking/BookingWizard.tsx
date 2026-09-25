@@ -510,7 +510,7 @@ export function BookingWizard({
     <div className="flex min-h-[100dvh] w-full flex-col">
       {/* Stepper — sticky in normal flow so it never overlaps content.
           min-h instead of fixed h so longer labels (e.g. Sinhala) grow instead of clipping. */}
-      <div className="sticky top-52 z-20 flex min-h-28 shrink-0 items-center bg-[#FAF7F2]">
+      <div className="sticky top-0 z-20 flex min-h-28 shrink-0 items-center bg-[#FAF7F2]">
         <div className="w-full overflow-x-auto overscroll-contain rounded-2xl border border-[#E9E1D3] bg-white px-4 py-5 shadow-[0_2px_16px_rgba(30,28,26,0.04)] sm:px-8">
           <div className="flex min-w-[520px] items-center sm:min-w-0">
             {STEP_ORDER.map((s, idx) => {
@@ -555,11 +555,11 @@ export function BookingWizard({
       </div>
       <div className="mb-2 shrink-0" aria-hidden="true" />
 
-      {/* Left wizard + right summary. The summary is fixed at lg+ so it stays
-          visible while scrolling; the left card reserves its column via margin. */}
-      <div className="flex flex-col gap-6 lg:block">
-        {/* Left: step content — scrolls independently, pb clears the fixed mobile bar */}
-        <div className="flex min-h-[560px] flex-1 flex-col overflow-hidden rounded-2xl border border-[#E9E1D3] bg-white shadow-[0_8px_32px_rgba(30,28,26,0.08)] lg:mr-[432px] xl:mr-[452px]">
+      {/* Left wizard + right summary. Both are in normal flow at lg+ so the whole
+          page scrolls together; the summary simply sits in its own grid column. */}
+      <div className="flex flex-col gap-6 lg:grid lg:grid-cols-[minmax(0,1fr)_400px] lg:items-start xl:grid-cols-[minmax(0,1fr)_420px]">
+        {/* Left: step content */}
+        <div className="flex min-h-[560px] flex-1 flex-col overflow-hidden rounded-2xl border border-[#E9E1D3] bg-white shadow-[0_8px_32px_rgba(30,28,26,0.08)]">
           {/* Loading state */}
           {bizLoading ? (
             <div className="flex flex-1 items-center justify-center gap-2 py-12 text-sm text-[#8A8377]">
@@ -1084,9 +1084,9 @@ export function BookingWizard({
           )}
         </div>
 
-        {/* Right: summary panel (live) — fixed at lg+ so it stays visible while
-            scrolling. On mobile it is a normal in-flow block below the wizard. */}
-        <aside className="h-fit overflow-hidden rounded-2xl border border-[#E9E1D3] bg-white shadow-[0_8px_32px_rgba(30,28,26,0.1)] lg:fixed lg:bottom-6 lg:right-12 lg:top-96 lg:w-[400px] lg:overflow-y-auto lg:overscroll-contain xl:w-[420px]">
+        {/* Right: summary panel (live) — a normal in-flow block in its own column,
+            so it scrolls with the page instead of being pinned to the viewport. */}
+        <aside className="h-fit overflow-hidden rounded-2xl border border-[#E9E1D3] bg-white shadow-[0_8px_32px_rgba(30,28,26,0.1)]">
           {bizLoading ? (
             <div className="flex items-center gap-2 p-6 text-sm text-[#8A8377]">
               <Loader2 className="h-4 w-4 animate-spin" /> {t("booking.loading.venue")}
