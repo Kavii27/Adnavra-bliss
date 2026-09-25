@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Calendar as CalendarIcon, Clock, X } from "lucide-react";
+import { Calendar as CalendarIcon, ChevronLeft, ChevronRight, Clock, X } from "lucide-react";
 import { useLocale } from "@/lib/i18n/locale-context";
 import { DatePickerModal, fromISODate, toISODate } from "@/components/shared/date-picker-modal";
 
@@ -27,6 +27,20 @@ function monthLabel(d: Date): string {
   return d.toLocaleDateString("en-GB", { month: "long", year: "numeric" });
 }
 
+function startOfMonth(d: Date): Date {
+  return new Date(d.getFullYear(), d.getMonth(), 1);
+}
+
+const WEEKDAY_KEYS = [
+  "search.wdMon",
+  "search.wdTue",
+  "search.wdWed",
+  "search.wdThu",
+  "search.wdFri",
+  "search.wdSat",
+  "search.wdSun",
+] as const;
+
 const BANDS: { id: TimeBand; labelKey: string; hint?: string }[] = [
   { id: "any", labelKey: "search.anyTime" },
   { id: "morning", labelKey: "search.morning", hint: "9am–12pm" },
@@ -35,9 +49,18 @@ const BANDS: { id: TimeBand; labelKey: string; hint?: string }[] = [
   { id: "custom", labelKey: "search.custom" },
 ];
 
+/**
+ * Two layouts behind one trigger:
+ *   md+ — the original inline dropdown: Today/Tomorrow quick picks beside a
+ *         month grid with arrow navigation, time bands underneath.
+ *   <md — a bottom sheet with no quick picks at all. Tapping the date row opens
+ *         the shared calendar modal, and the time bands live in the same sheet,
+ *         so a phone never has to scroll a 520px dropdown sideways.
+ */
 export function DateTimePicker({ value, onChange }: DateTimePickerProps) {
   const { t } = useLocale();
   const [open, setOpen] = useState(false);
+  const [calendarOpen, setCalendarOpen] = useState(false);
   const today = useMemo(() => {
     const d = new Date();
     d.setHours(0, 0, 0, 0);
@@ -49,17 +72,33 @@ export function DateTimePicker({ value, onChange }: DateTimePickerProps) {
     return d;
   }, [today]);
 
-  const [calendarOpen, setCalendarOpen] = useState(false);
+  const [cursor, setCursor] = useState<Date>(() => startOfMonth(today));
   const [customFrom, setCustomFrom] = useState(value?.from ?? "09:00");
   const [customTo, setCustomTo] = useState(value?.to ?? "17:00");
 
   const ref = useRef<HTMLDivElement>(null);
 
-  // Keep custom inputs synced when parent value changes externally
+  // Keep custom inputs and the visible month synced when the parent value changes
   useEffect(() => {
     if (value?.from) setCustomFrom(value.from);
     if (value?.to) setCustomTo(value.to);
-  }, [value?.from, value?.to]);
+    if (value?.date) {
+      const d = fromISODate(value.date);
+      if (d) setCursor(startOfMonth(d));
+    }
+  }, [value?.from, value?.to, value?.date]);
+
+  // Stop the page behind the mobile sheet from scrolling while it is open.
+  // Desktop uses a small dropdown, so the page must stay scrollable there.
+  useEffect(() => {
+    if (!open) return;
+    if (window.matchMedia("(min-width: 768px)").matches) return;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [open]);
 
   useEffect(() => {
     function onClick(e: MouseEvent) {
@@ -79,12 +118,27 @@ export function DateTimePicker({ value, onChange }: DateTimePickerProps) {
   const selectedDate: Date | null = value?.date ? fromISODate(value.date) : null;
   const band: TimeBand = value?.band ?? "any";
 
+  // Desktop inline grid: 0=Sun..6=Sat, shifted so Monday is first (en-GB).
+  const calendar = useMemo(() => {
+    const first = startOfMonth(cursor);
+    const startOffset = (first.getDay() + 6) % 7;
+    const total = new Date(cursor.getFullYear(), cursor.getMonth() + 1, 0).getDate();
+    const cells: (Date | null)[] = [];
+    for (let i = 0; i < startOffset; i++) cells.push(null);
+    for (let day = 1; day <= total; day++) cells.push(new Date(cursor.getFullYear(), cursor.getMonth(), day));
+    return cells;
+  }, [cursor]);
+
   function displayLabel(): string {
     if (!value?.date) return t("search.anyTime");
     const d = fromISODate(value.date) ?? today;
     const isToday = isSameDay(d, today);
     const isTomorrow = isSameDay(d, tomorrow);
-    const dateLabel = isToday ? t("search.today") : isTomorrow ? t("search.tomorrow") : d.toLocaleDateString("en-GB", { day: "numeric", month: "short" });
+    const dateLabel = isToday
+      ? t("search.today")
+      : isTomorrow
+        ? t("search.tomorrow")
+        : d.toLocaleDateString("en-GB", { day: "numeric", month: "short" });
     const bandObj = BANDS.find((b) => b.id === band);
     const bandLabel = band && band !== "any" ? ` · ${bandObj ? t(bandObj.labelKey) : band}` : "";
     if (band === "custom" && value?.from && value?.to) return `${dateLabel}, ${value.from}–${value.to}`;
@@ -102,13 +156,11 @@ export function DateTimePicker({ value, onChange }: DateTimePickerProps) {
 
   function setBand(next: TimeBand) {
     if (next === "custom") {
-      // keep date, require from/to
       const date = value?.date ?? toISODate(today);
       onChange({ date, band: "custom", from: customFrom, to: customTo });
       return;
     }
     if (!value?.date) {
-      // picking a band without a date should default to today for better UX, but spec says store date; we set today
       onChange({ date: toISODate(today), band: next });
       return;
     }
@@ -123,8 +175,69 @@ export function DateTimePicker({ value, onChange }: DateTimePickerProps) {
 
   const isClearable = value !== null;
 
+  // Shared between the desktop dropdown and the mobile sheet.
+  const timeBlock = (
+    <div className={band === "custom" ? "" : "mt-5 border-t border-[#F1EDE7] pt-4"}>
+      <p className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-[#8A8377]">
+        <Clock className="h-3.5 w-3.5" /> {t("search.timeLabel")}
+      </p>
+      <div className="mt-2 flex flex-wrap gap-1.5">
+        {BANDS.map((b) => {
+          const isActive = band === b.id;
+          return (
+            <button
+              key={b.id}
+              type="button"
+              onClick={() => setBand(b.id)}
+              className={`rounded-full border px-3 py-1.5 text-xs font-medium transition ${
+                isActive ? "border-[#795831] bg-[#795831] text-white" : "border-[#E5DDD0] bg-white text-[#4A4640] hover:bg-[#F7F3ED]"
+              }`}
+            >
+              {t(b.labelKey)}
+              {b.hint ? <span className={`ml-1 ${isActive ? "text-white/80" : "text-[#8A8377]"}`}>{b.hint}</span> : null}
+            </button>
+          );
+        })}
+      </div>
+
+      {band === "custom" ? (
+        <div className="mt-3 flex items-center gap-2">
+          <label className="flex-1">
+            <span className="sr-only">{t("search.fromLabel")}</span>
+            <input
+              type="time"
+              value={customFrom}
+              onChange={(e) => setCustomFrom(e.target.value)}
+              onBlur={handleCustomTimeChange}
+              className="w-full rounded-md border border-[#E5DDD0] bg-white px-2 py-2 text-sm outline-none focus:border-[#795831] focus:ring-1 focus:ring-[#795831]"
+            />
+          </label>
+          <span className="text-xs text-[#8A8377]">{t("search.toSep")}</span>
+          <label className="flex-1">
+            <span className="sr-only">{t("search.toLabel")}</span>
+            <input
+              type="time"
+              value={customTo}
+              onChange={(e) => setCustomTo(e.target.value)}
+              onBlur={handleCustomTimeChange}
+              className="w-full rounded-md border border-[#E5DDD0] bg-white px-2 py-2 text-sm outline-none focus:border-[#795831] focus:ring-1 focus:ring-[#795831]"
+            />
+          </label>
+          <button
+            type="button"
+            onClick={handleCustomTimeChange}
+            className="rounded-md bg-[#795831] px-3 py-2 text-xs font-semibold text-white hover:bg-[#5F4426]"
+          >
+            {t("search.apply")}
+          </button>
+        </div>
+      ) : null}
+    </div>
+  );
+
   return (
     <div ref={ref} className="relative flex-1 min-w-0 overflow-visible">
+      {/* Trigger — free-text date/time summary that opens the picker */}
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
@@ -157,11 +270,12 @@ export function DateTimePicker({ value, onChange }: DateTimePickerProps) {
         ) : null}
       </button>
 
+      {/* ── Desktop: original inline dropdown (quick picks + month grid) ── */}
       {open ? (
-        <div className="absolute left-1/2 -translate-x-1/2 sm:left-auto sm:right-0 sm:translate-x-0 top-[calc(100%+8px)] z-50 w-[520px] max-w-[min(520px,94vw)] overflow-hidden rounded-xl border border-[#E5DDD0] bg-white shadow-[0_8px_30px_rgba(16,24,40,0.12)]">
-          <div className="grid md:grid-cols-[160px_1fr] gap-0">
+        <div className="absolute left-1/2 -translate-x-1/2 sm:left-auto sm:right-0 sm:translate-x-0 top-[calc(100%+8px)] z-50 hidden md:block w-[520px] max-w-[min(520px,94vw)] overflow-hidden rounded-xl border border-[#E5DDD0] bg-white shadow-[0_8px_30px_rgba(16,24,40,0.12)]">
+          <div className="grid grid-cols-[160px_1fr] gap-0">
             {/* Left: Today / Tomorrow */}
-            <div className="border-b md:border-b-0 md:border-r border-[#F1EDE7] p-3 space-y-2 bg-[#FDF9F3]/50">
+            <div className="border-r border-[#F1EDE7] p-3 space-y-2 bg-[#FDF9F3]/50">
               <p className="px-1 pb-1 text-xs font-semibold uppercase tracking-wide text-[#8A8377]">{t("search.quickPick")}</p>
               {[
                 { date: today, labelKey: "search.today" },
@@ -194,80 +308,115 @@ export function DateTimePicker({ value, onChange }: DateTimePickerProps) {
               </button>
             </div>
 
-            {/* Right: date — the day grid itself now lives in the shared modal */}
+            {/* Right: inline month grid */}
             <div className="p-4">
+              <div className="flex items-center justify-between">
+                <button
+                  type="button"
+                  onClick={() => setCursor(new Date(cursor.getFullYear(), cursor.getMonth() - 1, 1))}
+                  aria-label={t("search.prevMonth")}
+                  className="inline-flex h-8 w-8 items-center justify-center rounded-full hover:bg-[#F7F3ED]"
+                >
+                  <ChevronLeft className="h-4 w-4 text-[#4A4640]" />
+                </button>
+                <p className="text-sm font-semibold text-[#1F1E1D]">{monthLabel(cursor)}</p>
+                <button
+                  type="button"
+                  onClick={() => setCursor(new Date(cursor.getFullYear(), cursor.getMonth() + 1, 1))}
+                  aria-label={t("search.nextMonth")}
+                  className="inline-flex h-8 w-8 items-center justify-center rounded-full hover:bg-[#F7F3ED]"
+                >
+                  <ChevronRight className="h-4 w-4 text-[#4A4640]" />
+                </button>
+              </div>
+
+              <div className="mt-3 grid grid-cols-7 gap-1 text-center">
+                {WEEKDAY_KEYS.map((k) => (
+                  <span key={k} className="py-1 text-[11px] font-medium text-[#8A8377]">
+                    {t(k)}
+                  </span>
+                ))}
+                {calendar.map((cell, idx) => {
+                  if (!cell) return <span key={`e-${idx}`} />;
+                  const iso = toISODate(cell);
+                  const isPast = cell < today;
+                  const isSelected = selectedDate ? isSameDay(cell, selectedDate) : false;
+                  const isTodayMark = isSameDay(cell, today);
+                  return (
+                    <button
+                      key={iso}
+                      type="button"
+                      disabled={isPast}
+                      onClick={() => setDate(iso)}
+                      className={`relative flex h-8 w-8 items-center justify-center rounded-full text-xs transition mx-auto
+                        ${isPast ? "text-[#C9C1B4] cursor-not-allowed" : "hover:bg-[#F7F3ED] text-[#1F1E1D]"}
+                        ${isSelected ? "!bg-[#795831] !text-white" : ""}
+                        ${!isSelected && isTodayMark ? "ring-1 ring-[#795831] ring-inset" : ""}
+                      `}
+                    >
+                      {cell.getDate()}
+                    </button>
+                  );
+                })}
+              </div>
+
+              {timeBlock}
+            </div>
+          </div>
+        </div>
+      ) : null}
+
+      {/* ── Mobile: bottom sheet — calendar popup + time, no quick picks ── */}
+      {open ? (
+        <div className="fixed inset-0 z-[60] flex items-end md:hidden" role="dialog" aria-modal="true" aria-label={t("search.dateTimeLabel")}>
+          <button
+            type="button"
+            aria-label={t("datepicker.cancel")}
+            onClick={() => setOpen(false)}
+            className="absolute inset-0 h-full w-full cursor-default bg-black/45 backdrop-blur-sm"
+          />
+          <div className="relative max-h-[88dvh] w-full overflow-y-auto overscroll-contain rounded-t-2xl bg-white p-4 pb-[max(1rem,env(safe-area-inset-bottom))]">
+            <div className="mx-auto mb-4 h-1 w-10 rounded-full bg-[#E5DDD0]" aria-hidden="true" />
+
+            <button
+              type="button"
+              onClick={() => setCalendarOpen(true)}
+              className="flex min-h-12 w-full items-center gap-3 rounded-xl border border-[#E5DDD0] bg-white px-4 text-left transition-colors hover:border-[#CCC6BD] active:bg-[#F7F3ED]"
+            >
+              <CalendarIcon className="h-4 w-4 shrink-0 text-[#8A8377]" />
+              <span className="min-w-0 flex-1">
+                <span className="block text-[10px] font-semibold uppercase tracking-[0.16em] text-[#9A9184]">
+                  {t("datepicker.title")}
+                </span>
+                <span className={`block truncate text-sm font-semibold ${selectedDate ? "text-[#1F1E1D]" : "text-[#8A8377]"}`}>
+                  {selectedDate
+                    ? `${selectedDate.toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short" })} · ${monthLabel(selectedDate)}`
+                    : t("datepicker.chooseDate")}
+                </span>
+              </span>
+              <span className="shrink-0 text-xs font-medium text-[#795831]">{t("datepicker.changeDate")}</span>
+            </button>
+
+            {timeBlock}
+
+            <div className="mt-5 flex gap-2">
               <button
                 type="button"
-                onClick={() => setCalendarOpen(true)}
-                className="flex min-h-11 w-full items-center gap-2 rounded-lg border border-[#E5DDD0] bg-white px-3 py-2 text-left text-sm transition-colors hover:border-[#CCC6BD] hover:bg-[#F7F3ED]"
+                onClick={() => {
+                  setDate(null);
+                  setOpen(false);
+                }}
+                className="inline-flex min-h-12 flex-1 items-center justify-center rounded-full border border-[#E5DDD0] text-sm font-semibold text-[#4A4640] transition-colors hover:bg-[#F7F3ED]"
               >
-                <CalendarIcon className="h-4 w-4 shrink-0 text-[#8A8377]" />
-                <span className={`min-w-0 flex-1 truncate font-semibold ${selectedDate ? "text-[#1F1E1D]" : "text-[#8A8377]"}`}>
-                  {selectedDate ? monthLabel(selectedDate) : t("datepicker.chooseDate")}
-                </span>
-                {selectedDate ? (
-                  <span className="shrink-0 text-xs font-medium text-[#795831]">{t("datepicker.changeDate")}</span>
-                ) : null}
+                {t("search.clearDate")}
               </button>
-
-              {/* Time bands */}
-              <div className="mt-5 border-t border-[#F1EDE7] pt-4">
-                <p className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-[#8A8377]">
-                  <Clock className="h-3.5 w-3.5" /> {t("search.timeLabel")}
-                </p>
-                <div className="mt-2 flex flex-wrap gap-1.5">
-                  {BANDS.map((b) => {
-                    const isActive = band === b.id;
-                    // Custom shows from/to, but button still active state matters
-                    return (
-                      <button
-                        key={b.id}
-                        type="button"
-                        onClick={() => setBand(b.id)}
-                        className={`rounded-full border px-3 py-1.5 text-xs font-medium transition ${
-                          isActive ? "border-[#795831] bg-[#795831] text-white" : "border-[#E5DDD0] bg-white text-[#4A4640] hover:bg-[#F7F3ED]"
-                        }`}
-                      >
-                        {t(b.labelKey)}
-                        {b.hint ? <span className={`ml-1 ${isActive ? "text-white/80" : "text-[#8A8377]"}`}>{b.hint}</span> : null}
-                      </button>
-                    );
-                  })}
-                </div>
-
-                {band === "custom" ? (
-                  <div className="mt-3 flex items-center gap-2">
-                    <label className="flex-1">
-                      <span className="sr-only">{t("search.fromLabel")}</span>
-                      <input
-                        type="time"
-                        value={customFrom}
-                        onChange={(e) => setCustomFrom(e.target.value)}
-                        onBlur={handleCustomTimeChange}
-                        className="w-full rounded-md border border-[#E5DDD0] bg-white px-2 py-2 text-sm outline-none focus:border-[#795831] focus:ring-1 focus:ring-[#795831]"
-                      />
-                    </label>
-                    <span className="text-xs text-[#8A8377]">{t("search.toSep")}</span>
-                    <label className="flex-1">
-                      <span className="sr-only">{t("search.toLabel")}</span>
-                      <input
-                        type="time"
-                        value={customTo}
-                        onChange={(e) => setCustomTo(e.target.value)}
-                        onBlur={handleCustomTimeChange}
-                        className="w-full rounded-md border border-[#E5DDD0] bg-white px-2 py-2 text-sm outline-none focus:border-[#795831] focus:ring-1 focus:ring-[#795831]"
-                      />
-                    </label>
-                    <button
-                      type="button"
-                      onClick={handleCustomTimeChange}
-                      className="rounded-md bg-[#795831] px-3 py-2 text-xs font-semibold text-white hover:bg-[#5F4426]"
-                    >
-                      {t("search.apply")}
-                    </button>
-                  </div>
-                ) : null}
-              </div>
+              <button
+                type="button"
+                onClick={() => setOpen(false)}
+                className="inline-flex min-h-12 flex-[1.4] items-center justify-center rounded-full bg-[#795831] text-sm font-semibold text-white transition-colors hover:bg-[#5C4326]"
+              >
+                {t("search.apply")}
+              </button>
             </div>
           </div>
         </div>
@@ -279,15 +428,7 @@ export function DateTimePicker({ value, onChange }: DateTimePickerProps) {
         value={selectedDate}
         minDate={today}
         firstDayOfWeek={1}
-        weekdayLabels={[
-          t("search.wdMon"),
-          t("search.wdTue"),
-          t("search.wdWed"),
-          t("search.wdThu"),
-          t("search.wdFri"),
-          t("search.wdSat"),
-          t("search.wdSun"),
-        ]}
+        weekdayLabels={WEEKDAY_KEYS.map((k) => t(k))}
         labels={{
           title: t("datepicker.title"),
           month: t("datepicker.month"),

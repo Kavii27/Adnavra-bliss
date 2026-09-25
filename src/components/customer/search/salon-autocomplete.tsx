@@ -35,13 +35,18 @@ export function SalonAutocomplete({ value, onChange }: SalonAutocompleteProps) {
 
   // Full A–Z salon list, fetched once when the panel first opens — shown
   // whenever fewer than MIN_LETTERS are typed.
+  //
+  // `allLoading` is deliberately NOT a dependency: setting it re-runs this
+  // effect, the cleanup then aborted the very request it had just started, and
+  // `allLoading` never reset — leaving the panel stuck on "Loading salons"
+  // with no A–Z list. `allSalons` alone guards the one-shot fetch.
   useEffect(() => {
-    if (!open || allSalons !== null || allLoading) return;
+    if (!open || allSalons !== null) return;
     setAllLoading(true);
-    const ctrl = new AbortController();
+    let cancelled = false;
     (async () => {
       try {
-        const r = await fetch("/api/marketplace/search", { signal: ctrl.signal });
+        const r = await fetch("/api/marketplace/search");
         const j = await r.json().catch(() => null);
         const rows: Record<string, unknown>[] = Array.isArray(j?.data) ? j.data : [];
         const mapped: Suggestion[] = rows
@@ -52,15 +57,17 @@ export function SalonAutocomplete({ value, onChange }: SalonAutocompleteProps) {
             city: row.city ? String(row.city) : null,
           }))
           .sort((a, b) => a.name.localeCompare(b.name));
-        setAllSalons(mapped);
+        if (!cancelled) setAllSalons(mapped);
       } catch {
-        // Aborted or network hiccup — retry on next open.
+        // Network hiccup — allSalons stays null so the next open retries.
       } finally {
-        if (!ctrl.signal.aborted) setAllLoading(false);
+        if (!cancelled) setAllLoading(false);
       }
     })();
-    return () => ctrl.abort();
-  }, [open, allSalons, allLoading, salonFallback]);
+    return () => {
+      cancelled = true;
+    };
+  }, [open, allSalons, salonFallback]);
 
   // Locally filter the A–Z list while fewer than MIN_LETTERS are typed
   // (e.g. a single letter narrows it without hitting the API).

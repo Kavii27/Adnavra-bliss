@@ -32,16 +32,37 @@ export function CreateBusinessForm() {
   const [ownerPhone, setOwnerPhone] = useState("");
 
   const [submitting, setSubmitting] = useState(false);
+  const [attempted, setAttempted] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [created, setCreated] = useState<(CreatedPayload & { temporaryPassword: string }) | null>(null);
   const [copied, setCopied] = useState(false);
 
-  const canSubmit =
-    name.trim().length > 0 && slug.trim().length >= 3 && ownerName.trim().length > 0 && ownerEmail.trim().length > 0;
+  // Tracked individually so the form can say WHICH field is outstanding instead
+  // of leaving a dead, disabled button with no explanation.
+  const hasName = name.trim().length > 0;
+  const hasSlug = slug.trim().length >= 3;
+  const hasOwnerName = ownerName.trim().length > 0;
+  const hasOwnerEmail = ownerEmail.trim().length > 0;
+  const canSubmit = hasName && hasSlug && hasOwnerName && hasOwnerEmail;
+
+  const missingLabels: string[] = [];
+  if (!hasName) missingLabels.push("Salon name");
+  if (!hasSlug) missingLabels.push("Public URL slug (3+ characters)");
+  if (!hasOwnerName) missingLabels.push("Owner name");
+  if (!hasOwnerEmail) missingLabels.push("Owner email");
+
+  function fieldClass(invalid: boolean) {
+    return invalid ? "mt-1 border-[#B91C1C] focus:border-[#B91C1C] focus:ring-[#B91C1C]" : "mt-1";
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!canSubmit || submitting) return;
+    if (submitting) return;
+    setAttempted(true);
+    if (!canSubmit) {
+      setError(`Fill in the required fields first: ${missingLabels.join(", ")}.`);
+      return;
+    }
     setSubmitting(true);
     setError(null);
     setCopied(false);
@@ -139,6 +160,7 @@ export function CreateBusinessForm() {
             type="button"
             onClick={() => {
               setCreated(null);
+              setAttempted(false);
               setName("");
               setSlug("");
               setPhone("");
@@ -182,7 +204,7 @@ export function CreateBusinessForm() {
               onChange={(e) => setName(e.target.value)}
               placeholder="Glow Salon"
               required
-              className="mt-1"
+              className={fieldClass(attempted && !hasName)}
             />
           </div>
           <div>
@@ -198,6 +220,7 @@ export function CreateBusinessForm() {
                 placeholder="glow-salon"
                 required
                 minLength={3}
+                className={fieldClass(attempted && !hasSlug)}
               />
             </div>
             {slug.trim() && <p className="mt-1 text-xs text-[#a89880]">Public page: /{slug.trim().toLowerCase()}</p>}
@@ -279,7 +302,7 @@ export function CreateBusinessForm() {
               onChange={(e) => setOwnerName(e.target.value)}
               placeholder="Ayesha Perera"
               required
-              className="mt-1"
+              className={fieldClass(attempted && !hasOwnerName)}
             />
           </div>
           <div>
@@ -293,7 +316,7 @@ export function CreateBusinessForm() {
               onChange={(e) => setOwnerEmail(e.target.value)}
               placeholder="owner@..."
               required
-              className="mt-1"
+              className={fieldClass(attempted && !hasOwnerEmail)}
             />
           </div>
           <div>
@@ -311,10 +334,18 @@ export function CreateBusinessForm() {
         </div>
       </section>
 
+      {/* Stays clickable while fields are outstanding — a disabled button here
+          looked broken. Only the in-flight request disables it. */}
+      {!canSubmit ? (
+        <p className="text-xs text-[#a89880]">
+          Still needed: <span className="font-medium text-[#8a6d4f]">{missingLabels.join(", ")}</span>
+        </p>
+      ) : null}
+
       <Button
         type="submit"
-        disabled={!canSubmit || submitting}
-        className="bg-[#8a6d4f] text-white hover:bg-[#5f4630] disabled:opacity-50"
+        disabled={submitting}
+        className="bg-[#8a6d4f] text-white hover:bg-[#5f4630] disabled:opacity-50 disabled:pointer-events-none"
       >
         {submitting ? (
           <>

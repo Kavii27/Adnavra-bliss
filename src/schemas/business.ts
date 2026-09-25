@@ -108,7 +108,7 @@ export const adminCreateBusinessSchema = z.object({
   salonTypes: z.array(z.string()).max(4).optional(),
   ownerName: z.string().min(1).max(100).trim(),
   ownerEmail: z.string().email().trim().toLowerCase(),
-  ownerPhone: z.string().min(7).max(20).trim().optional(),
+  ownerPhone: z.string().min(7).max(20).trim().nullable().optional(),
 });
 
 export type AdminCreateBusinessInput = z.infer<typeof adminCreateBusinessSchema>;

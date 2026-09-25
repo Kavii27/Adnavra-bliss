@@ -97,42 +97,49 @@ export function HomeHeader() {
         </button>
       </header>
 
-      {/* Mobile menu — CarMarket-style full-width panel below the header */}
+      {/* Backdrop — blurs and dims the whole page behind the open mobile menu.
+          -z-10 keeps it inside this z-50 stacking context, so it sits above the
+          page but behind the pill and the menu panel. */}
       {mobileOpen && (
-        <div className="mx-auto mt-2 max-w-[1600px] rounded-2xl border border-white/10 bg-[#2A1D12] px-2 py-3 lg:hidden max-h-[calc(100dvh-6rem)] overflow-y-auto overscroll-contain">
-          <nav className="flex flex-col divide-y divide-white/10">
+        <button
+          type="button"
+          aria-label="Close menu"
+          tabIndex={-1}
+          onClick={() => setMobileOpen(false)}
+          className="fixed inset-0 -z-10 h-dvh w-screen cursor-default bg-[#1B1714]/45 backdrop-blur-md lg:hidden"
+        />
+      )}
+
+      {/* Mobile menu — original layout: plain left-aligned link list plus the
+          Access Portal pill. Language switcher lives here so it is mobile-only
+          (the desktop cluster has its own). max-h/overflow kept as a safety
+          net for tall Sinhala labels. */}
+      {mobileOpen && (
+        <div className="mx-auto mt-2 max-w-[1600px] rounded-2xl border border-white/10 bg-[#2A1D12] px-6 py-4 lg:hidden max-h-[calc(100dvh-6rem)] overflow-y-auto overscroll-contain">
+          <nav className="flex flex-col gap-1">
             {NAV_LINKS.map((l) => (
               <Link
                 key={l.key}
                 href={l.href}
                 onClick={() => setMobileOpen(false)}
-                className="px-4 py-3.5 text-center text-[15px] font-medium text-white/90 hover:bg-white/5"
+                className="rounded-lg px-2 py-2.5 text-sm font-medium text-white/85 hover:bg-white/5"
               >
                 {t(l.key)}
               </Link>
             ))}
-          </nav>
-          <div className="mt-3 flex flex-col gap-2 px-2">
-            <Link
-              href="/customer/login"
-              onClick={() => setMobileOpen(false)}
-              className="inline-flex h-11 items-center justify-center rounded-full border border-white/20 text-sm font-semibold text-white"
-            >
-              {t("nav.login")}
-            </Link>
             <Link
               href="/login"
               onClick={() => setMobileOpen(false)}
-              className="inline-flex h-11 items-center justify-center rounded-full bg-[#C9A063] text-sm font-semibold text-[#2A1D12]"
+              className="mt-2 inline-flex items-center justify-center rounded-full bg-[#C9A063] px-4 py-2.5 text-sm font-semibold text-[#2A1D12]"
             >
-              {t("nav.forBusiness")} — Access Portal
+              Access Portal
             </Link>
-            <div className="flex justify-center py-2">
+            <div className="mt-1 flex justify-center py-1">
               <LanguageSwitcher dark />
             </div>
-          </div>
+          </nav>
         </div>
-        )}
+      )}
       </div>
     </>
   );
