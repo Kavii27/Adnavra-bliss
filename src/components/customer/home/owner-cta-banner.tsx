@@ -3,7 +3,7 @@ import { Reveal } from "./reveal";
 
 const METRICS = [
   { value: "99.4%", label: "CUSTOMERS SHOW UP" },
-  { value: "LKR 0", label: "FREE TO SET UP" },
+  { value: "0%", label: "BOOKING COMMISSION" },
   { value: "24h", label: "GO LIVE FAST" },
 ] as const;
 
