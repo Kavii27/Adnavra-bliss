@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Menu, X, Search } from "lucide-react";
+import { Menu, X } from "lucide-react";
 
 const NAV_LINKS = [
   { href: "/", label: "Home" },
@@ -73,13 +73,6 @@ export function HomeHeader() {
 
         {/* Right cluster */}
         <div className="hidden items-center gap-3 lg:flex">
-          <a
-            href="#search"
-            aria-label="Search"
-            className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-white/15 text-white/75 transition-colors hover:border-white/30 hover:text-white"
-          >
-            <Search className="h-4 w-4" />
-          </a>
           <Link
             href="/login"
             className="card-lift inline-flex items-center rounded-full bg-[#C9A063] px-4 py-2 text-[13px] font-semibold text-[#2A1D12] hover:bg-[#D8B27A]"
