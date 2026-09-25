@@ -30,7 +30,29 @@ export function VenueGallery({ photos, venueName }: { photos: VenuePhoto[]; venu
       </div>
 
       {photos.length > 1 && (
-        <div className="mt-3 grid grid-cols-3 gap-3 sm:grid-cols-4" role="tablist" aria-label="Photo thumbnails">
+        <div className="mt-3 grid grid-cols-3 gap-3 sm:hidden" role="tablist" aria-label="Photo thumbnails">
+          {photos.slice(0, 3).map((p, i) => {
+            const selected = i === index;
+            return (
+              <button
+                key={p.id}
+                role="tab"
+                aria-selected={selected}
+                aria-label={`View photo ${i + 1}`}
+                onClick={() => setActive(i)}
+                className={`aspect-[4/3] overflow-hidden rounded-xl border-2 transition ${
+                  selected ? "border-[#9A7B4F]" : "border-transparent opacity-75 hover:opacity-100"
+                }`}
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={p.url} alt="" loading="lazy" className="h-full w-full object-cover" />
+              </button>
+            );
+          })}
+        </div>
+      )}
+      {photos.length > 1 && (
+        <div className="mt-3 hidden gap-3 sm:grid sm:grid-cols-4" role="tablist" aria-label="Photo thumbnails">
           {photos.map((p, i) => {
             const selected = i === index;
             return (

@@ -918,6 +918,7 @@ model Review {
   rating  Int // 1-5
   comment String? @db.Text
   source  String  @default("walk-in") // walk-in | marketplace | staff-logged
+  reviewerName String?
 
   createdAt DateTime @default(now())
 

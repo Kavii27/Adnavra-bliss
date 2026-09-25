@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { Clock } from "lucide-react";
 import { ServiceImage } from "@/components/business/service-image";
@@ -55,6 +55,9 @@ export function ServiceTabs({
 
   const [active, setActive] = useState("all");
   const visible = active === "all" ? services : services.filter((s) => s.category === active);
+  const [showAll, setShowAll] = useState(false);
+  const visibleServices = showAll ? visible : visible.slice(0, 4);
+  useEffect(() => setShowAll(false), [active]);
 
   return (
     <div>
@@ -99,8 +102,9 @@ export function ServiceTabs({
           </p>
         </div>
       ) : (
-        <ul className="mt-5 grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-3 2xl:grid-cols-4">
-          {visible.map((s) => {
+        <div>
+          <ul className="mt-5 grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-3 2xl:grid-cols-4">
+            {visibleServices.map((s) => {
             const href = `/${businessSlug}/book?serviceId=${s.id}`;
             return (
               <li
@@ -147,7 +151,19 @@ export function ServiceTabs({
               </li>
             );
           })}
-        </ul>
+          </ul>
+          {!showAll && visible.length > 4 && (
+            <div className="mt-4 flex justify-center">
+              <button
+                type="button"
+                onClick={() => setShowAll(true)}
+                className="inline-flex h-11 items-center rounded-full border border-[#E5DDD0] bg-white px-5 text-sm font-medium text-[#1F1E1D] hover:bg-[#F7F3ED]"
+              >
+                {t("salon.svc.seeAll").replace("{count}", String(visible.length))}
+              </button>
+            </div>
+          )}
+        </div>
       )}
     </div>
   );

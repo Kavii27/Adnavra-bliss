@@ -2,10 +2,11 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { Cormorant_Garamond } from "next/font/google";
-import { ArrowLeft, MapPin } from "lucide-react";
+import { MapPin } from "lucide-react";
 import { db } from "@/lib/db";
 import { getServerT } from "@/lib/i18n/server";
 import { BookingWizard } from "@/components/booking/BookingWizard";
+import { BackButton } from "@/components/business/back-button";
 
 const display = Cormorant_Garamond({
   subsets: ["latin"],
@@ -72,12 +73,7 @@ export default async function BookPage({
             ADNAVRA <span className="font-normal text-[#795831]">BLISS</span>
           </span>
         </Link>
-        <Link
-          href={`/${businessSlug}`}
-          className="inline-flex items-center gap-1.5 rounded-full border border-[#E9E1D3] px-3 py-1.5 text-[13px] font-medium text-[#4A4640] transition-colors hover:bg-[#F7F3ED] hover:text-[#1F1E1D]"
-        >
-          <ArrowLeft className="h-3.5 w-3.5" /> <span className="hidden sm:inline">{t("book.back")}</span>
-        </Link>
+        <BackButton fallbackHref={`/${businessSlug}`} />
       </nav>
 
       <div className="fixed inset-x-0 top-16 z-30 isolate flex h-36 items-end overflow-hidden bg-[#1B1714]">
