@@ -96,11 +96,17 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
  * Disabling via PATCH { isActive: false } is preferred for a campaign
  * that might run again — this is for permanently retiring one.
  */
-export async function DELETE(_request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+export async function DELETE(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const gate = await requireAdmin();
   if (gate.error) return gate.error;
   const { session, role } = gate;
+
+  const ip = getClientIp(request);
+  const rl = await rateLimit(`admin-advertisement-delete:${ip}`, { limit: 30, windowMs: 15 * 60 * 1000 });
+  if (!rl.success) {
+    return NextResponse.json({ error: "Too many requests" }, { status: 429, headers: rateLimitHeaders(rl, 30) });
+  }
 
   const existing = await db.advertisement.findUnique({ where: { id } });
   if (!existing) {
@@ -118,8 +124,8 @@ export async function DELETE(_request: NextRequest, { params }: { params: Promis
     role,
     targetType: "Advertisement",
     targetId: id,
-    ip: getAuditIp(_request.headers),
+    ip: getAuditIp(request.headers) ?? ip,
   });
 
-  return NextResponse.json({ data: { deleted: id } });
+  return NextResponse.json({ data: { deleted: id } }, { headers: rateLimitHeaders(rl, 30) });
 }

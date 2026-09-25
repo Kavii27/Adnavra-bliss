@@ -16,6 +16,11 @@ const placementKeySchema = z
   .max(40)
   .regex(/^[a-z0-9_]+$/, "Use lowercase letters, numbers, and underscores only");
 
+const multipartBooleanSchema = z.union([
+  z.boolean(),
+  z.enum(["true", "false"]).transform((value) => value === "true"),
+]);
+
 export const createAdvertisementPlacementSchema = z.object({
   key: placementKeySchema,
   name: z.string().min(1).max(80),
@@ -34,7 +39,7 @@ export const createAdvertisementFormSchema = z.object({
   startAt: z.coerce.date(),
   endAt: z.coerce.date(),
   priority: z.coerce.number().int().min(0).default(0),
-  isActive: z.coerce.boolean().default(true),
+  isActive: multipartBooleanSchema.default(true),
 });
 
 export const updateAdvertisementSchema = z.object({

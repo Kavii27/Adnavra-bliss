@@ -31,6 +31,12 @@ export async function DELETE(request: NextRequest, { params }: { params: Promise
   if (gate.error) return gate.error;
   const { session, role } = gate;
 
+  const ip = getClientIp(request);
+  const rl = await rateLimit(`admin-boost-cancel:${ip}`, { limit: 30, windowMs: 15 * 60 * 1000 });
+  if (!rl.success) {
+    return NextResponse.json({ error: "Too many requests" }, { status: 429, headers: rateLimitHeaders(rl, 30) });
+  }
+
   const existing = await db.salonBoost.findUnique({ where: { id } });
   if (!existing) {
     return NextResponse.json({ error: "Boost not found" }, { status: 404 });
@@ -53,5 +59,5 @@ export async function DELETE(request: NextRequest, { params }: { params: Promise
     ip: getAuditIp(request.headers),
   });
 
-  return NextResponse.json({ data: cancelled });
+  return NextResponse.json({ data: cancelled }, { headers: rateLimitHeaders(rl, 30) });
 }

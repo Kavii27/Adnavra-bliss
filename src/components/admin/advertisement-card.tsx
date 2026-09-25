@@ -40,6 +40,7 @@ export function AdvertisementCard({ ad, placements }: { ad: AdWithPlacement; pla
   }
 
   async function handleSave() {
+    if (saving || deleting) return;
     setSaving(true);
     setError(null);
     try {
@@ -69,6 +70,7 @@ export function AdvertisementCard({ ad, placements }: { ad: AdWithPlacement; pla
   }
 
   async function handleDelete() {
+    if (saving || deleting) return;
     setDeleting(true);
     setError(null);
     try {
@@ -99,7 +101,7 @@ export function AdvertisementCard({ ad, placements }: { ad: AdWithPlacement; pla
           <button
             type="button"
             onClick={handleDelete}
-            disabled={deleting}
+            disabled={saving || deleting}
             className="inline-flex h-7 w-7 items-center justify-center rounded-md text-[#B91C1C] transition hover:bg-[#FDECEC] disabled:opacity-40"
             aria-label="Delete advertisement"
           >
@@ -110,14 +112,14 @@ export function AdvertisementCard({ ad, placements }: { ad: AdWithPlacement; pla
         <div className="mt-3 grid gap-2">
           <label className="space-y-1">
             <span className={labelClass}>Title</span>
-            <input className={inputClass} value={fields.title} disabled={saving} onChange={(e) => update("title", e.target.value)} />
+            <input className={inputClass} value={fields.title} disabled={saving || deleting} onChange={(e) => update("title", e.target.value)} />
           </label>
           <label className="space-y-1">
             <span className={labelClass}>Placement</span>
             <select
               className={inputClass}
               value={fields.placementKey}
-              disabled={saving}
+              disabled={saving || deleting}
               onChange={(e) => update("placementKey", e.target.value)}
             >
               {placements.map((p) => (
@@ -132,7 +134,7 @@ export function AdvertisementCard({ ad, placements }: { ad: AdWithPlacement; pla
             <input
               className={inputClass}
               value={fields.destinationUrl}
-              disabled={saving}
+              disabled={saving || deleting}
               onChange={(e) => update("destinationUrl", e.target.value)}
             />
           </label>
@@ -143,7 +145,7 @@ export function AdvertisementCard({ ad, placements }: { ad: AdWithPlacement; pla
                 type="date"
                 className={inputClass}
                 value={fields.startAt}
-                disabled={saving}
+                disabled={saving || deleting}
                 onChange={(e) => update("startAt", e.target.value)}
               />
             </label>
@@ -153,7 +155,7 @@ export function AdvertisementCard({ ad, placements }: { ad: AdWithPlacement; pla
                 type="date"
                 className={inputClass}
                 value={fields.endAt}
-                disabled={saving}
+                disabled={saving || deleting}
                 onChange={(e) => update("endAt", e.target.value)}
               />
             </label>
@@ -164,21 +166,21 @@ export function AdvertisementCard({ ad, placements }: { ad: AdWithPlacement; pla
               type="number"
               className={inputClass}
               value={fields.priority}
-              disabled={saving}
+              disabled={saving || deleting}
               onChange={(e) => update("priority", Number(e.target.value))}
             />
           </label>
         </div>
 
         <div className="mt-3 rounded-xl bg-[#faf6ef] px-3 py-2">
-          <ToggleSwitch label="Enabled" checked={fields.isActive} disabled={saving} onChange={(v) => update("isActive", v)} />
+          <ToggleSwitch label="Enabled" checked={fields.isActive} disabled={saving || deleting} onChange={(v) => update("isActive", v)} />
         </div>
 
         <div className="mt-3 flex items-center gap-2">
           <button
             type="button"
             onClick={handleSave}
-            disabled={saving || !dirty}
+            disabled={saving || deleting || !dirty}
             className="inline-flex h-9 flex-1 items-center justify-center gap-1.5 rounded-lg bg-[linear-gradient(135deg,#3a2f22_0%,#8a6d4f_100%)] px-3 text-sm font-semibold text-white transition hover:opacity-90 disabled:opacity-40"
           >
             {saving && <Loader2 className="h-3.5 w-3.5 animate-spin" />}

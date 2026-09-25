@@ -15,7 +15,7 @@ import { AdminBusinessesSearch } from "@/components/admin/admin-businesses-searc
 export default async function AdminBusinessesPage({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string }>;
+  searchParams: Promise<{ q?: string; page?: string }>;
 }) {
   const session = await auth();
   const role = (session?.user as unknown as { role?: string } | undefined)?.role;
@@ -23,35 +23,52 @@ export default async function AdminBusinessesPage({
     notFound();
   }
 
-  const { q } = await searchParams;
+  const { q, page: pageParam } = await searchParams;
   const query = (q ?? "").trim();
+  const PAGE_SIZE = 50;
+  const page = Math.max(1, parseInt(pageParam ?? "1", 10) || 1);
 
-  const businesses = await db.business.findMany({
-    where: query
-      ? {
-          OR: [
-            { name: { contains: query, mode: "insensitive" } },
-            { slug: { contains: query, mode: "insensitive" } },
-            { city: { contains: query, mode: "insensitive" } },
-          ],
-        }
-      : undefined,
-    orderBy: { createdAt: "desc" },
-    take: 100,
-    select: {
-      id: true,
-      name: true,
-      slug: true,
-      city: true,
-      createdAt: true,
-      subscription: { select: { plan: true, status: true } },
-      users: {
-        where: { role: "OWNER" },
-        select: { email: true },
-        take: 3,
+  const where = query
+    ? {
+        OR: [
+          { name: { contains: query, mode: "insensitive" as const } },
+          { slug: { contains: query, mode: "insensitive" as const } },
+          { city: { contains: query, mode: "insensitive" as const } },
+        ],
+      }
+    : undefined;
+
+  const [businesses, total] = await Promise.all([
+    db.business.findMany({
+      where,
+      orderBy: { createdAt: "desc" },
+      skip: (page - 1) * PAGE_SIZE,
+      take: PAGE_SIZE,
+      select: {
+        id: true,
+        name: true,
+        slug: true,
+        city: true,
+        createdAt: true,
+        subscription: { select: { plan: true, status: true } },
+        users: {
+          where: { role: "OWNER" },
+          select: { email: true },
+          take: 3,
+        },
       },
-    },
-  });
+    }),
+    db.business.count({ where }),
+  ]);
+
+  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+
+  function pageHref(targetPage: number) {
+    const params = new URLSearchParams();
+    if (query) params.set("q", query);
+    params.set("page", String(targetPage));
+    return `/admin/businesses?${params.toString()}`;
+  }
 
   return (
     <div>
@@ -158,6 +175,32 @@ export default async function AdminBusinessesPage({
           </table>
         </div>
       )}
+
+      <div className="mt-6 flex flex-col items-stretch justify-between gap-3 text-sm sm:flex-row sm:items-center">
+        <span className="text-center text-[#a89880] sm:text-left">
+          Page {page} of {totalPages} · {total} {total === 1 ? "business" : "businesses"}
+        </span>
+        <div className="flex gap-2">
+          {page > 1 && (
+            <Link
+              href={pageHref(page - 1)}
+              aria-label="Previous page"
+              className="inline-flex min-h-11 w-full items-center justify-center rounded-full border border-[#E3E8F0] px-4 py-2 font-medium text-[#3a2f22] hover:bg-[#faf6ef] sm:w-auto"
+            >
+              Prev
+            </Link>
+          )}
+          {page < totalPages && (
+            <Link
+              href={pageHref(page + 1)}
+              aria-label="Next page"
+              className="inline-flex min-h-11 w-full items-center justify-center rounded-full border border-[#E3E8F0] px-4 py-2 font-medium text-[#3a2f22] hover:bg-[#faf6ef] sm:w-auto"
+            >
+              Next
+            </Link>
+          )}
+        </div>
+      </div>
     </div>
   );
 }

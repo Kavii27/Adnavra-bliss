@@ -95,21 +95,21 @@ export function SubscriptionPlanCard({ plan }: { plan: SubscriptionPlan }) {
   return (
     <div className={`relative flex flex-col rounded-2xl border p-6 transition ${visual.cardClass}`}>
       {!fields.isActive && (
-        <span className="absolute right-5 top-5 rounded-full bg-black/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-current opacity-70">
+        <span className="absolute right-4 top-4 z-10 rounded-full bg-black/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-current opacity-70">
           Disabled
         </span>
       )}
 
-      <div className="flex items-center gap-3">
+      <div className="flex min-w-0 items-center gap-3">
         <span
-          className={`flex h-11 w-11 items-center justify-center rounded-xl ${
+          className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl ${
             visual.isDark ? "bg-white/10" : "bg-[#EAF3F2]"
           }`}
         >
           <Icon className={`h-5 w-5 ${visual.isDark ? "text-[#c9a26d]" : "text-[#8a6d4f]"}`} />
         </span>
-        <div>
-          <p className={`text-lg font-semibold leading-tight tracking-tight ${visual.headingClass}`}>{plan.name}</p>
+        <div className={`min-w-0 ${!fields.isActive ? "pr-16" : ""}`}>
+          <p className={`truncate text-lg font-semibold leading-tight tracking-tight ${visual.headingClass}`}>{fields.name}</p>
           <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide ${visual.badgeClass}`}>
             {visual.label}
           </span>
@@ -210,22 +210,28 @@ export function SubscriptionPlanCard({ plan }: { plan: SubscriptionPlan }) {
         </label>
       </div>
 
-      <div className={`mt-5 flex flex-wrap items-center gap-x-5 gap-y-3 rounded-xl px-4 py-3 ${visual.isDark ? "bg-white/5" : "bg-[#faf6ef]"}`}>
-        <ToggleSwitch label="Active" checked={fields.isActive} disabled={saving} dark={visual.isDark} onChange={(v) => update("isActive", v)} />
-        <ToggleSwitch
-          label="Featured-eligible"
-          checked={fields.isFeaturedEligible}
-          disabled={saving}
-          dark={visual.isDark}
-          onChange={(v) => update("isFeaturedEligible", v)}
-        />
-        <ToggleSwitch
-          label="Priority-eligible"
-          checked={fields.isPriorityEligible}
-          disabled={saving}
-          dark={visual.isDark}
-          onChange={(v) => update("isPriorityEligible", v)}
-        />
+      <div className={`mt-5 grid grid-cols-1 gap-3 rounded-xl px-4 py-4 min-[480px]:grid-cols-3 ${visual.isDark ? "bg-white/5" : "bg-[#faf6ef]"}`}>
+        <div className="flex items-center justify-between min-[480px]:flex-col min-[480px]:items-start min-[480px]:gap-2">
+          <ToggleSwitch label="Active" checked={fields.isActive} disabled={saving} dark={visual.isDark} onChange={(v) => update("isActive", v)} />
+        </div>
+        <div className="flex items-center justify-between min-[480px]:flex-col min-[480px]:items-start min-[480px]:gap-2">
+          <ToggleSwitch
+            label="Featured-eligible"
+            checked={fields.isFeaturedEligible}
+            disabled={saving}
+            dark={visual.isDark}
+            onChange={(v) => update("isFeaturedEligible", v)}
+          />
+        </div>
+        <div className="flex items-center justify-between min-[480px]:flex-col min-[480px]:items-start min-[480px]:gap-2">
+          <ToggleSwitch
+            label="Priority-eligible"
+            checked={fields.isPriorityEligible}
+            disabled={saving}
+            dark={visual.isDark}
+            onChange={(v) => update("isPriorityEligible", v)}
+          />
+        </div>
       </div>
 
       <div className="mt-5 flex items-center gap-2">

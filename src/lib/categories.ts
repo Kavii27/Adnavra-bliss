@@ -43,12 +43,28 @@ const BUSINESS_TYPE_LABELS: Record<string, string> = Object.fromEntries(
   BUSINESS_TYPES.map((t) => [t.slug, t.label]),
 );
 
+const LEGACY_CATEGORY_ALIASES: Record<string, string> = {
+  "hair-salon": "hair-styling",
+  "hair-saloon": "hair-styling",
+  barber: "mens-grooming",
+  "beauty-salon": "facials-skincare",
+  medspa: "spa-wellness",
+  "spa-sauna": "spa-wellness",
+  waxing: "hair-removal",
+  "eyebrows-lashes": "eyebrows-eyelashes",
+};
+
+function canonicalTaxonomySlug(slug: string): string {
+  return LEGACY_CATEGORY_ALIASES[slug] ?? slug;
+}
+
 /** Human-readable label for any category/type slug stored on a business. */
 export function getCategoryLabel(slug: string): string {
+  const canonicalSlug = canonicalTaxonomySlug(slug);
   return (
-    BUSINESS_TYPE_LABELS[slug] ??
-    SERVICE_CATEGORY_LABELS[slug] ??
-    slug
+    BUSINESS_TYPE_LABELS[canonicalSlug] ??
+    SERVICE_CATEGORY_LABELS[canonicalSlug] ??
+    canonicalSlug
       .split("-")
       .map((w) => (w ? w.charAt(0).toUpperCase() + w.slice(1) : w))
       .join(" ")
@@ -57,7 +73,7 @@ export function getCategoryLabel(slug: string): string {
 
 /** True when the slug belongs to the salon-type taxonomy (vs service categories). */
 export function isBusinessTypeSlug(slug: string): boolean {
-  return slug in BUSINESS_TYPE_LABELS;
+  return canonicalTaxonomySlug(slug) in BUSINESS_TYPE_LABELS;
 }
 
 /**
@@ -69,5 +85,6 @@ export function isBusinessTypeSlug(slug: string): boolean {
  * title-cased slug via `t()`'s own fallback chain.
  */
 export function taxonomyLabelKey(slug: string): string {
-  return isBusinessTypeSlug(slug) ? `type.${slug}` : `cat.${slug}`;
+  const canonicalSlug = canonicalTaxonomySlug(slug);
+  return isBusinessTypeSlug(canonicalSlug) ? `type.${canonicalSlug}` : `cat.${canonicalSlug}`;
 }

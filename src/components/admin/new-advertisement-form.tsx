@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { AlertCircle, Loader2, Plus } from "lucide-react";
+import { ToggleSwitch } from "@/components/admin/toggle-switch";
 
 const inputClass =
   "h-9 w-full rounded-lg border border-[#E3E8F0] bg-white px-2.5 text-sm text-[#3a2f22] outline-none focus:border-[#c9a26d] disabled:opacity-50";
@@ -10,6 +11,7 @@ const labelClass = "text-[11px] font-semibold uppercase tracking-wide text-[#a89
 
 export function NewAdvertisementForm({ placements }: { placements: { key: string; name: string }[] }) {
   const router = useRouter();
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [file, setFile] = useState<File | null>(null);
   const [placementKey, setPlacementKey] = useState(placements[0]?.key ?? "");
   const [title, setTitle] = useState("");
@@ -45,6 +47,7 @@ export function NewAdvertisementForm({ placements }: { placements: { key: string
       if (!res.ok) throw new Error(json?.error ?? "Failed to create advertisement");
 
       setFile(null);
+      if (fileInputRef.current) fileInputRef.current.value = "";
       setTitle("");
       setDescription("");
       setDestinationUrl("");
@@ -66,6 +69,7 @@ export function NewAdvertisementForm({ placements }: { placements: { key: string
         <label className="col-span-2 space-y-1 lg:col-span-4">
           <span className={labelClass}>Banner image</span>
           <input
+            ref={fileInputRef}
             type="file"
             accept="image/jpeg,image/png,image/webp"
             disabled={saving}
@@ -124,15 +128,9 @@ export function NewAdvertisementForm({ placements }: { placements: { key: string
             onChange={(e) => setPriority(Number(e.target.value))}
           />
         </label>
-        <label className="flex items-end gap-2 pb-1.5">
-          <input
-            type="checkbox"
-            checked={isActive}
-            disabled={saving}
-            onChange={(e) => setIsActive(e.target.checked)}
-          />
-          <span className="text-xs font-medium text-[#3a2f22]">Enabled</span>
-        </label>
+        <div className="flex min-h-9 items-end pb-1.5">
+          <ToggleSwitch label="Enabled" checked={isActive} disabled={saving} onChange={setIsActive} />
+        </div>
       </div>
 
       <button

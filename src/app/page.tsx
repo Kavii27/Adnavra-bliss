@@ -11,6 +11,7 @@ import { TrustStatsBar } from "@/components/customer/home/trust-stats-bar";
 import { OwnerCtaBanner } from "@/components/customer/home/owner-cta-banner";
 import { db } from "@/lib/db";
 import { fetchVenuesWhere } from "@/lib/marketplace-venues";
+import { getHomepageBannerSetting } from "@/lib/platform-settings";
 
 type Venue = {
   id: string;
@@ -107,14 +108,16 @@ async function fetchCategoryCounts(): Promise<Record<string, number>> {
 }
 
 export default async function MarketplaceHome() {
-  const [recommended, nearYou, featured, categoryCounts] = await Promise.all([
+  const [recommended, nearYou, featured, categoryCounts, homepageBanner] = await Promise.all([
     fetchVenues("asc", 8, 0),
     // "Near you" — teaser row on the homepage; the full /near-you page uses real geolocation.
     // For now use a different offset so the rail is not literally identical to "Recommended".
     fetchVenues("desc", 8, 8),
     fetchVenuesWhere({ marketplacePriority: true }, "desc", 8),
     fetchCategoryCounts(),
+    getHomepageBannerSetting().catch(() => null),
   ]);
+  const banner = homepageBanner?.banner;
 
   // Fallback for nearYou when there are not enough rows to offset
   const nearYouDisplay = nearYou.length > 0 ? nearYou : recommended.slice(0, 8);
@@ -133,7 +136,7 @@ export default async function MarketplaceHome() {
 
       <div className="relative">
         <HomeHeader />
-        <AdBanner />
+        <AdBanner imageUrl={banner?.imageUrl} href={banner?.destinationUrl} />
 
         {/* Hero — search + trust stats */}
         <section className="relative border-b border-[#E5DDD0]">

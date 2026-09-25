@@ -20,6 +20,7 @@ export function AdminBusinessesSearch({ initialQuery }: { initialQuery: string }
     const params = new URLSearchParams(searchParams.toString());
     if (next.trim()) params.set("q", next.trim());
     else params.delete("q");
+    params.delete("page");
     startTransition(() => {
       router.replace(`/admin/businesses?${params.toString()}`);
     });
