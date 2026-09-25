@@ -83,6 +83,7 @@ function LoginForm() {
           <Link href="/" className="inline-flex items-center gap-2 text-lg font-semibold tracking-tight text-[#3a2f22]">
             <Image src="/logo.png" alt="ADNAVRA logo" width={28} height={28} className="h-7 w-7 rounded-md object-contain" />
             ADNAVRA{" "}
+            <span className="font-medium tracking-[0.22em] text-[#a89880] text-sm">BLISS</span>{" "}
             <span className="text-[#a89880] font-normal ml-2 text-sm">
               {isAdminLogin ? "platform console" : "for professionals"}
             </span>
@@ -169,42 +170,11 @@ function LoginForm() {
             </Button>
           </form>
 
-          <div className="mt-6 flex items-center gap-3">
-            <div className="h-px flex-1 bg-[#f3ebdd]" />
-            <span className="text-xs text-[#8A7F6E]">OR</span>
-            <div className="h-px flex-1 bg-[#f3ebdd]" />
-          </div>
-
-          <div className="mt-6 space-y-3">
-            <button
-              type="button"
-              onClick={() => signIn("google", { callbackUrl })}
-              className="w-full inline-flex items-center justify-center gap-2 rounded-md border border-[#e6dcc8] bg-[#f6efe3] h-10 text-sm font-medium text-[#3a2f22] hover:bg-[#f3ebdd]"
-            >
-              Continue with Google
-            </button>
-            <button
-              type="button"
-              disabled
-              className="w-full inline-flex items-center justify-center gap-2 rounded-md border border-[#e6dcc8] bg-[#f6efe3] h-10 text-sm font-medium text-[#3a2f22]/50 cursor-not-allowed"
-            >
-              Continue with WhatsApp <span className="text-xs">(coming soon)</span>
-            </button>
-          </div>
-
           {!isAdminLogin && (
             <p className="mt-8 text-center text-sm text-[#a89880]">
               No account?{" "}
               <Link href="/signup" className="font-medium text-[#C9A66B] hover:underline">
                 Create one
-              </Link>
-            </p>
-          )}
-          {!isAdminLogin && (
-            <p className="mt-3 text-center text-sm text-[#a89880]">
-              Looking to book an appointment?{" "}
-              <Link href="/customer/login" className="font-medium text-[#3a2f22] hover:underline">
-                Go to ADNAVRA for customers
               </Link>
             </p>
           )}

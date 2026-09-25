@@ -157,29 +157,6 @@ function CustomerLoginForm() {
             </Button>
           </form>
 
-          <div className="mt-6 flex items-center gap-3">
-            <div className="h-px flex-1 bg-[#E5DDD0]" />
-            <span className="text-xs text-[#8A7F6E]">OR</span>
-            <div className="h-px flex-1 bg-[#E5DDD0]" />
-          </div>
-
-          <div className="mt-6 space-y-3">
-            <button
-              type="button"
-              onClick={() => signIn("google", { callbackUrl })}
-              className="w-full inline-flex items-center justify-center gap-2 rounded-md border border-[#E5DDD0] bg-white h-10 text-sm font-medium text-[#1F1E1D] hover:bg-[#FDF9F3]"
-            >
-              Continue with Google
-            </button>
-            <button
-              type="button"
-              disabled
-              className="w-full inline-flex items-center justify-center gap-2 rounded-md border border-[#E5DDD0] bg-[#FDF9F3] h-10 text-sm font-medium text-[#8A7F6E] cursor-not-allowed"
-            >
-              Continue with WhatsApp <span className="text-xs">(coming soon)</span>
-            </button>
-          </div>
-
           <p className="mt-8 text-center text-sm text-[#4A4640]">
             No account?{" "}
             <Link href={`/customer/signup?callbackUrl=${encodeURIComponent(callbackUrl)}`} className="font-medium text-[#795831] hover:underline">

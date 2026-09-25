@@ -4,7 +4,6 @@ import { Suspense, useState, useTransition } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
-import { signIn } from "next-auth/react";
 import { Loader2, AlertCircle, CheckCircle2, Eye, EyeOff } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -81,17 +80,10 @@ function SignupForm() {
         <div className="w-full max-w-md">
           <Link href="/" className="inline-flex items-center gap-2 text-lg font-semibold tracking-tight text-[#3a2f22]">
             <Image src="/logo.png" alt="ADNAVRA logo" width={28} height={28} className="h-7 w-7 rounded-md object-contain" />
-            ADNAVRA <span className="text-[#a89880] font-normal ml-2 text-sm">for professionals</span>
+            ADNAVRA <span className="font-medium tracking-[0.22em] text-[#a89880] text-sm">BLISS</span> <span className="text-[#a89880] font-normal ml-2 text-sm">for professionals</span>
           </Link>
           <h1 className="mt-6 text-2xl font-semibold text-[#3a2f22]">Create your account</h1>
           <p className="mt-1 text-sm text-[#a89880]">Start managing bookings for your salon</p>
-          <p className="mt-2 text-sm text-[#a89880]">
-            Creating a business account. Looking to book an appointment instead?{" "}
-            <Link href="/customer/signup" className="font-medium text-[#C9A66B] hover:underline">
-              Go to the customer site
-            </Link>
-            .
-          </p>
 
           <form onSubmit={handleSubmit} className="mt-8 space-y-4">
             {error && (
@@ -235,39 +227,10 @@ function SignupForm() {
             </Button>
           </form>
 
-          <div className="mt-6 flex items-center gap-3">
-            <div className="h-px flex-1 bg-[#f3ebdd]" />
-            <span className="text-xs text-[#8A7F6E]">OR</span>
-            <div className="h-px flex-1 bg-[#f3ebdd]" />
-          </div>
-
-          <div className="mt-6 space-y-3">
-            <button
-              type="button"
-              onClick={() => signIn("google", { callbackUrl })}
-              className="w-full inline-flex items-center justify-center gap-2 rounded-md border border-[#e6dcc8] bg-[#f6efe3] h-10 text-sm font-medium text-[#3a2f22] hover:bg-[#f3ebdd]"
-            >
-              Continue with Google
-            </button>
-            <button
-              type="button"
-              disabled
-              className="w-full inline-flex items-center justify-center gap-2 rounded-md border border-[#e6dcc8] bg-[#f6efe3] h-10 text-sm font-medium text-[#3a2f22]/50 cursor-not-allowed"
-            >
-              Continue with WhatsApp <span className="text-xs">(coming soon)</span>
-            </button>
-          </div>
-
           <p className="mt-8 text-center text-sm text-[#a89880]">
             Already have an account?{" "}
             <Link href="/login" className="font-medium text-[#C9A66B] hover:underline">
               Sign in
-            </Link>
-          </p>
-          <p className="mt-3 text-center text-sm text-[#a89880]">
-            Looking to book instead?{" "}
-            <Link href="/customer/signup" className="font-medium text-[#3a2f22] hover:underline">
-              Go to ADNAVRA for customers
             </Link>
           </p>
         </div>
