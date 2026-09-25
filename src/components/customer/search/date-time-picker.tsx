@@ -1,8 +1,9 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Calendar as CalendarIcon, ChevronLeft, ChevronRight, Clock, X } from "lucide-react";
+import { Calendar as CalendarIcon, Clock, X } from "lucide-react";
 import { useLocale } from "@/lib/i18n/locale-context";
+import { DatePickerModal, fromISODate, toISODate } from "@/components/shared/date-picker-modal";
 
 export type TimeBand = "any" | "morning" | "afternoon" | "evening" | "custom";
 
@@ -18,28 +19,8 @@ type DateTimePickerProps = {
   onChange: (next: DateTimeValue) => void;
 };
 
-function toISODate(d: Date): string {
-  const y = d.getFullYear();
-  const m = String(d.getMonth() + 1).padStart(2, "0");
-  const day = String(d.getDate()).padStart(2, "0");
-  return `${y}-${m}-${day}`;
-}
-
-function fromISO(iso: string): Date {
-  const [y, m, day] = iso.split("-").map(Number);
-  return new Date(y, m - 1, day);
-}
-
 function isSameDay(a: Date, b: Date): boolean {
   return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
-}
-
-function startOfMonth(d: Date): Date {
-  return new Date(d.getFullYear(), d.getMonth(), 1);
-}
-
-function daysInMonth(d: Date): number {
-  return new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate();
 }
 
 function monthLabel(d: Date): string {
@@ -68,7 +49,7 @@ export function DateTimePicker({ value, onChange }: DateTimePickerProps) {
     return d;
   }, [today]);
 
-  const [cursor, setCursor] = useState<Date>(() => startOfMonth(today));
+  const [calendarOpen, setCalendarOpen] = useState(false);
   const [customFrom, setCustomFrom] = useState(value?.from ?? "09:00");
   const [customTo, setCustomTo] = useState(value?.to ?? "17:00");
 
@@ -78,11 +59,7 @@ export function DateTimePicker({ value, onChange }: DateTimePickerProps) {
   useEffect(() => {
     if (value?.from) setCustomFrom(value.from);
     if (value?.to) setCustomTo(value.to);
-    if (value?.date) {
-      const d = fromISO(value.date);
-      setCursor(startOfMonth(d));
-    }
-  }, [value?.from, value?.to, value?.date]);
+  }, [value?.from, value?.to]);
 
   useEffect(() => {
     function onClick(e: MouseEvent) {
@@ -99,12 +76,12 @@ export function DateTimePicker({ value, onChange }: DateTimePickerProps) {
     };
   }, []);
 
-  const selectedDate: Date | null = value?.date ? fromISO(value.date) : null;
+  const selectedDate: Date | null = value?.date ? fromISODate(value.date) : null;
   const band: TimeBand = value?.band ?? "any";
 
   function displayLabel(): string {
     if (!value?.date) return t("search.anyTime");
-    const d = fromISO(value.date);
+    const d = fromISODate(value.date) ?? today;
     const isToday = isSameDay(d, today);
     const isTomorrow = isSameDay(d, tomorrow);
     const dateLabel = isToday ? t("search.today") : isTomorrow ? t("search.tomorrow") : d.toLocaleDateString("en-GB", { day: "numeric", month: "short" });
@@ -143,18 +120,6 @@ export function DateTimePicker({ value, onChange }: DateTimePickerProps) {
     if (!value?.date) return;
     onChange({ date: value.date, band: "custom", from: customFrom, to: customTo });
   }
-
-  // Calendar grid: 0=Sun .. 6=Sat ; shift to Mon-first? Fresha-style shows Mon first — use locale en-GB Monday-start
-  const calendar = useMemo(() => {
-    const first = startOfMonth(cursor);
-    // getDay() 0 Sun .. use (getDay()+6)%7 to get Mon=0
-    const startOffset = (first.getDay() + 6) % 7;
-    const total = daysInMonth(cursor);
-    const cells: (Date | null)[] = [];
-    for (let i = 0; i < startOffset; i++) cells.push(null);
-    for (let day = 1; day <= total; day++) cells.push(new Date(cursor.getFullYear(), cursor.getMonth(), day));
-    return cells;
-  }, [cursor]);
 
   const isClearable = value !== null;
 
@@ -229,65 +194,21 @@ export function DateTimePicker({ value, onChange }: DateTimePickerProps) {
               </button>
             </div>
 
-            {/* Right: Calendar */}
+            {/* Right: date — the day grid itself now lives in the shared modal */}
             <div className="p-4">
-              <div className="flex items-center justify-between">
-                <button
-                  type="button"
-                  onClick={() => setCursor(new Date(cursor.getFullYear(), cursor.getMonth() - 1, 1))}
-                  aria-label={t("search.prevMonth")}
-                  className="inline-flex h-8 w-8 items-center justify-center rounded-full hover:bg-[#F7F3ED]"
-                >
-                  <ChevronLeft className="h-4 w-4 text-[#4A4640]" />
-                </button>
-                <p className="text-sm font-semibold text-[#1F1E1D]">{monthLabel(cursor)}</p>
-                <button
-                  type="button"
-                  onClick={() => setCursor(new Date(cursor.getFullYear(), cursor.getMonth() + 1, 1))}
-                  aria-label={t("search.nextMonth")}
-                  className="inline-flex h-8 w-8 items-center justify-center rounded-full hover:bg-[#F7F3ED]"
-                >
-                  <ChevronRight className="h-4 w-4 text-[#4A4640]" />
-                </button>
-              </div>
-
-              <div className="mt-3 grid grid-cols-7 gap-1 text-center">
-                {[
-                  "search.wdMon",
-                  "search.wdTue",
-                  "search.wdWed",
-                  "search.wdThu",
-                  "search.wdFri",
-                  "search.wdSat",
-                  "search.wdSun",
-                ].map((k) => (
-                  <span key={k} className="py-1 text-[11px] font-medium text-[#8A8377]">
-                    {t(k)}
-                  </span>
-                ))}
-                {calendar.map((cell, idx) => {
-                  if (!cell) return <span key={`e-${idx}`} />;
-                  const iso = toISODate(cell);
-                  const isPast = cell < today;
-                  const isSelected = selectedDate ? isSameDay(cell, selectedDate) : false;
-                  const isTodayMark = isSameDay(cell, today);
-                  return (
-                    <button
-                      key={iso}
-                      type="button"
-                      disabled={isPast}
-                      onClick={() => setDate(iso)}
-                      className={`relative flex h-8 w-8 items-center justify-center rounded-full text-xs transition mx-auto
-                        ${isPast ? "text-[#C9C1B4] cursor-not-allowed" : "hover:bg-[#F7F3ED] text-[#1F1E1D]"}
-                        ${isSelected ? "!bg-[#795831] !text-white" : ""}
-                        ${!isSelected && isTodayMark ? "ring-1 ring-[#795831] ring-inset" : ""}
-                      `}
-                    >
-                      {cell.getDate()}
-                    </button>
-                  );
-                })}
-              </div>
+              <button
+                type="button"
+                onClick={() => setCalendarOpen(true)}
+                className="flex min-h-11 w-full items-center gap-2 rounded-lg border border-[#E5DDD0] bg-white px-3 py-2 text-left text-sm transition-colors hover:border-[#CCC6BD] hover:bg-[#F7F3ED]"
+              >
+                <CalendarIcon className="h-4 w-4 shrink-0 text-[#8A8377]" />
+                <span className={`min-w-0 flex-1 truncate font-semibold ${selectedDate ? "text-[#1F1E1D]" : "text-[#8A8377]"}`}>
+                  {selectedDate ? monthLabel(selectedDate) : t("datepicker.chooseDate")}
+                </span>
+                {selectedDate ? (
+                  <span className="shrink-0 text-xs font-medium text-[#795831]">{t("datepicker.changeDate")}</span>
+                ) : null}
+              </button>
 
               {/* Time bands */}
               <div className="mt-5 border-t border-[#F1EDE7] pt-4">
@@ -351,6 +272,33 @@ export function DateTimePicker({ value, onChange }: DateTimePickerProps) {
           </div>
         </div>
       ) : null}
+
+      <DatePickerModal
+        open={calendarOpen}
+        onClose={() => setCalendarOpen(false)}
+        value={selectedDate}
+        minDate={today}
+        firstDayOfWeek={1}
+        weekdayLabels={[
+          t("search.wdMon"),
+          t("search.wdTue"),
+          t("search.wdWed"),
+          t("search.wdThu"),
+          t("search.wdFri"),
+          t("search.wdSat"),
+          t("search.wdSun"),
+        ]}
+        labels={{
+          title: t("datepicker.title"),
+          month: t("datepicker.month"),
+          year: t("datepicker.year"),
+          cancel: t("datepicker.cancel"),
+          ok: t("datepicker.ok"),
+          prevMonth: t("search.prevMonth"),
+          nextMonth: t("search.nextMonth"),
+        }}
+        onSelect={(d) => setDate(toISODate(d))}
+      />
     </div>
   );
 }

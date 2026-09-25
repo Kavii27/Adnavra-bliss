@@ -6,6 +6,7 @@ import { Loader2, AlertCircle, Check, Clock, MapPin, User, Calendar, ChevronLeft
 import { SERVICE_CATEGORIES, taxonomyLabelKey } from "@/lib/categories";
 import { useLocale } from "@/lib/i18n/locale-context";
 import { ServiceImage } from "@/components/business/service-image";
+import { DatePickerModal, fromISODate, toISODate } from "@/components/shared/date-picker-modal";
 
 function PrimaryCta({
   onClick,
@@ -177,6 +178,16 @@ function getDateStrip(base: Date, offsetDays: number): string[] {
   return out;
 }
 
+function dateOffsetFor(isoDate: string): number {
+  const target = fromISODate(isoDate);
+  if (!target) return 0;
+  const start = new Date();
+  start.setHours(0, 0, 0, 0);
+  const diffDays = Math.round((target.getTime() - start.getTime()) / 86_400_000);
+  if (diffDays <= 0) return 0;
+  return Math.floor(diffDays / 7) * 7;
+}
+
 function dayLabel(dateStr: string): { dow: string; dayNum: string; isToday: boolean; isTomorrow: boolean } {
   const d = new Date(dateStr + "T00:00:00Z");
   const nowStr = new Date().toISOString().slice(0, 10);
@@ -260,6 +271,7 @@ export function BookingWizard({
   const [slotError, setSlotError] = useState<string | null>(null);
   const [slots, setSlots] = useState<Slot[]>([]);
   const [dateOffset, setDateOffset] = useState(0);
+  const [datePickerOpen, setDatePickerOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [success, setSuccess] = useState<{ reference: string } | null>(null);
@@ -440,6 +452,11 @@ export function BookingWizard({
 
   const SERIF = "font-[family-name:var(--font-display)]";
   const GOLD = "#D9BE8C";
+  const today = useMemo(() => {
+    const d = new Date();
+    d.setHours(0, 0, 0, 0);
+    return d;
+  }, []);
 
   // Success state — booking starts PENDING, so say "request sent", not "confirmed"
   if (success) {
@@ -754,10 +771,21 @@ export function BookingWizard({
                       </div>
                     ) : (
                       <>
-                        {/* Date strip: 7 visible days, arrows to page */}
-                        <label className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.16em] text-[#9A7B4F]">
-                          <Calendar className="h-3.5 w-3.5" /> {t("booking.time.chooseDate")}
-                        </label>
+                        {/* Date strip: 7 visible days, arrows to page, calendar to jump further out */}
+                        <div className="flex items-center justify-between gap-2">
+                          <label className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.16em] text-[#9A7B4F]">
+                            <Calendar className="h-3.5 w-3.5" /> {t("booking.time.chooseDate")}
+                          </label>
+                          <button
+                            type="button"
+                            onClick={() => setDatePickerOpen(true)}
+                            aria-label={t("datepicker.chooseDate")}
+                            className="inline-flex min-h-11 shrink-0 items-center gap-1.5 rounded-full border border-[#E5DDD0] bg-white px-3 text-xs font-medium text-[#4A4640] transition-colors hover:border-[#CCC6BD] hover:bg-[#F7F3ED]"
+                          >
+                            <Calendar className="h-4 w-4" />
+                            <span className="hidden sm:inline">{t("datepicker.changeDate")}</span>
+                          </button>
+                        </div>
                         <div className="mt-3 flex items-center gap-1.5 sm:gap-2">
                           <button
                             onClick={() => setDateOffset((v) => Math.max(0, v - 7))}
@@ -1146,6 +1174,27 @@ export function BookingWizard({
           )}
         </aside>
       </div>
+
+      <DatePickerModal
+        open={datePickerOpen}
+        onClose={() => setDatePickerOpen(false)}
+        value={fromISODate(selectedDate)}
+        minDate={today}
+        onSelect={(d) => {
+          const iso = toISODate(d);
+          setSelectedDate(iso);
+          setDateOffset(dateOffsetFor(iso));
+        }}
+        labels={{
+          title: t("datepicker.title"),
+          month: t("datepicker.month"),
+          year: t("datepicker.year"),
+          cancel: t("datepicker.cancel"),
+          ok: t("datepicker.ok"),
+          prevMonth: t("datepicker.prevMonth"),
+          nextMonth: t("datepicker.nextMonth"),
+        }}
+      />
     </div>
   );
 }

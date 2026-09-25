@@ -2,12 +2,20 @@
 
 import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { AlertCircle, Loader2, Plus } from "lucide-react";
+import { AlertCircle, Calendar, Loader2, Plus } from "lucide-react";
 import { ToggleSwitch } from "@/components/admin/toggle-switch";
+import { DatePickerModal, fromISODate, toISODate } from "@/components/shared/date-picker-modal";
 
 const inputClass =
   "h-9 w-full rounded-lg border border-[#E3E8F0] bg-white px-2.5 text-sm text-[#3a2f22] outline-none focus:border-[#c9a26d] disabled:opacity-50";
 const labelClass = "text-[11px] font-semibold uppercase tracking-wide text-[#a89880]";
+const dateTriggerClass =
+  "flex min-h-11 w-full items-center gap-2 rounded-lg border border-[#E3E8F0] bg-white px-2.5 text-left text-sm text-[#3a2f22] transition-colors hover:border-[#c9a26d] disabled:opacity-50";
+
+function formatDate(iso: string): string {
+  const d = fromISODate(iso);
+  return d ? d.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }) : "Pick a date";
+}
 
 export function NewAdvertisementForm({ placements }: { placements: { key: string; name: string }[] }) {
   const router = useRouter();
@@ -19,6 +27,7 @@ export function NewAdvertisementForm({ placements }: { placements: { key: string
   const [destinationUrl, setDestinationUrl] = useState("");
   const [startAt, setStartAt] = useState("");
   const [endAt, setEndAt] = useState("");
+  const [dateField, setDateField] = useState<"startAt" | "endAt" | null>(null);
   const [priority, setPriority] = useState(0);
   const [isActive, setIsActive] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -110,14 +119,30 @@ export function NewAdvertisementForm({ placements }: { placements: { key: string
             onChange={(e) => setDestinationUrl(e.target.value)}
           />
         </label>
-        <label className="space-y-1">
+        <div className="space-y-1">
           <span className={labelClass}>Start date</span>
-          <input type="date" className={inputClass} value={startAt} disabled={saving} onChange={(e) => setStartAt(e.target.value)} />
-        </label>
-        <label className="space-y-1">
+          <button
+            type="button"
+            disabled={saving}
+            onClick={() => setDateField("startAt")}
+            className={dateTriggerClass}
+          >
+            <Calendar className="h-4 w-4 shrink-0 text-[#a89880]" />
+            <span className={startAt ? "truncate" : "truncate text-[#a89880]"}>{formatDate(startAt)}</span>
+          </button>
+        </div>
+        <div className="space-y-1">
           <span className={labelClass}>End date</span>
-          <input type="date" className={inputClass} value={endAt} disabled={saving} onChange={(e) => setEndAt(e.target.value)} />
-        </label>
+          <button
+            type="button"
+            disabled={saving}
+            onClick={() => setDateField("endAt")}
+            className={dateTriggerClass}
+          >
+            <Calendar className="h-4 w-4 shrink-0 text-[#a89880]" />
+            <span className={endAt ? "truncate" : "truncate text-[#a89880]"}>{formatDate(endAt)}</span>
+          </button>
+        </div>
         <label className="space-y-1">
           <span className={labelClass}>Priority</span>
           <input
@@ -147,6 +172,18 @@ export function NewAdvertisementForm({ placements }: { placements: { key: string
           <AlertCircle className="h-3.5 w-3.5 shrink-0" /> {error}
         </p>
       )}
+
+      <DatePickerModal
+        open={dateField !== null}
+        onClose={() => setDateField(null)}
+        value={fromISODate(dateField === "endAt" ? endAt : startAt)}
+        minDate={dateField === "endAt" ? fromISODate(startAt) : null}
+        onSelect={(d) => {
+          const iso = toISODate(d);
+          if (dateField === "endAt") setEndAt(iso);
+          else setStartAt(iso);
+        }}
+      />
     </div>
   );
 }

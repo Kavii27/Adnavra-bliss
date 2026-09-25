@@ -914,6 +914,15 @@ export const dictionaries: Record<Locale, Record<string, string>> = {
     "search.noResults": "No salons found in this area yet. Try a larger radius or a different location.",
     "search.loadingSearch": "Loading search...",
     "search.save": "Save",
+    "datepicker.title": "Select date",
+    "datepicker.month": "Month",
+    "datepicker.year": "Year",
+    "datepicker.cancel": "Cancel",
+    "datepicker.ok": "OK",
+    "datepicker.prevMonth": "Previous month",
+    "datepicker.nextMonth": "Next month",
+    "datepicker.chooseDate": "Choose date",
+    "datepicker.changeDate": "Change date",
     // …add every remaining customer-facing string as you touch each
     // component in this task list; this file grows alongside the rest of
     // the work rather than being written all at once upfront.
@@ -1824,5 +1833,14 @@ export const dictionaries: Record<Locale, Record<string, string>> = {
     "search.noResults": "මෙම ප්‍රදේශයේ තවම සැලූන් හමු නොවීය. විශාල අරයක් හෝ වෙනත් ස්ථානයක් උත්සාහ කරන්න.",
     "search.loadingSearch": "සෙවුම පූරණය වෙමින්...",
     "search.save": "සුරකින්න",
+    "datepicker.title": "දිනය තෝරන්න",
+    "datepicker.month": "මාසය",
+    "datepicker.year": "වර්ෂය",
+    "datepicker.cancel": "අවලංගු කරන්න",
+    "datepicker.ok": "හරි",
+    "datepicker.prevMonth": "පෙර මාසය",
+    "datepicker.nextMonth": "ඊළඟ මාසය",
+    "datepicker.chooseDate": "දිනය තෝරන්න",
+    "datepicker.changeDate": "දිනය වෙනස් කරන්න",
   },
 };

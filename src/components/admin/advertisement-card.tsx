@@ -3,8 +3,9 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import type { Prisma } from "@prisma/client";
-import { AlertCircle, BarChart3, Check, Loader2, Trash2 } from "lucide-react";
+import { AlertCircle, BarChart3, Calendar, Check, Loader2, Trash2 } from "lucide-react";
 import { ToggleSwitch } from "@/components/admin/toggle-switch";
+import { DatePickerModal, fromISODate, toISODate } from "@/components/shared/date-picker-modal";
 
 type AdWithPlacement = Prisma.AdvertisementGetPayload<{ include: { placement: true } }> & {
   stats: { impressions: number; clicks: number };
@@ -13,6 +14,13 @@ type AdWithPlacement = Prisma.AdvertisementGetPayload<{ include: { placement: tr
 const inputClass =
   "h-9 w-full rounded-lg border border-[#E3E8F0] bg-[#faf6ef] px-2.5 text-sm text-[#3a2f22] outline-none focus:border-[#c9a26d] disabled:opacity-50";
 const labelClass = "text-[11px] font-semibold uppercase tracking-wide text-[#a89880]";
+const dateTriggerClass =
+  "flex min-h-11 w-full items-center gap-1.5 rounded-lg border border-[#E3E8F0] bg-[#faf6ef] px-2.5 text-left text-sm text-[#3a2f22] transition-colors hover:border-[#c9a26d] disabled:opacity-50";
+
+function formatDate(iso: string): string {
+  const d = fromISODate(iso);
+  return d ? d.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }) : "Pick a date";
+}
 
 export function AdvertisementCard({ ad, placements }: { ad: AdWithPlacement; placements: { key: string; name: string }[] }) {
   const router = useRouter();
@@ -31,6 +39,7 @@ export function AdvertisementCard({ ad, placements }: { ad: AdWithPlacement; pla
   const [deleting, setDeleting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
+  const [dateField, setDateField] = useState<"startAt" | "endAt" | null>(null);
 
   const dirty = JSON.stringify(fields) !== JSON.stringify(initial);
 
@@ -139,26 +148,30 @@ export function AdvertisementCard({ ad, placements }: { ad: AdWithPlacement; pla
             />
           </label>
           <div className="grid grid-cols-2 gap-2">
-            <label className="space-y-1">
+            <div className="space-y-1">
               <span className={labelClass}>Start</span>
-              <input
-                type="date"
-                className={inputClass}
-                value={fields.startAt}
+              <button
+                type="button"
                 disabled={saving || deleting}
-                onChange={(e) => update("startAt", e.target.value)}
-              />
-            </label>
-            <label className="space-y-1">
+                onClick={() => setDateField("startAt")}
+                className={dateTriggerClass}
+              >
+                <Calendar className="h-3.5 w-3.5 shrink-0 text-[#a89880]" />
+                <span className="truncate">{formatDate(fields.startAt)}</span>
+              </button>
+            </div>
+            <div className="space-y-1">
               <span className={labelClass}>End</span>
-              <input
-                type="date"
-                className={inputClass}
-                value={fields.endAt}
+              <button
+                type="button"
                 disabled={saving || deleting}
-                onChange={(e) => update("endAt", e.target.value)}
-              />
-            </label>
+                onClick={() => setDateField("endAt")}
+                className={dateTriggerClass}
+              >
+                <Calendar className="h-3.5 w-3.5 shrink-0 text-[#a89880]" />
+                <span className="truncate">{formatDate(fields.endAt)}</span>
+              </button>
+            </div>
           </div>
           <label className="space-y-1">
             <span className={labelClass}>Priority</span>
@@ -197,6 +210,14 @@ export function AdvertisementCard({ ad, placements }: { ad: AdWithPlacement; pla
             <AlertCircle className="h-3.5 w-3.5 shrink-0" /> {error}
           </p>
         )}
+
+        <DatePickerModal
+          open={dateField !== null}
+          onClose={() => setDateField(null)}
+          value={fromISODate(dateField === "endAt" ? fields.endAt : fields.startAt)}
+          minDate={dateField === "endAt" ? fromISODate(fields.startAt) : null}
+          onSelect={(d) => update(dateField === "endAt" ? "endAt" : "startAt", toISODate(d))}
+        />
       </div>
     </div>
   );

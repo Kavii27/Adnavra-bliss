@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState, type FormEvent } from "react";
-import { Loader2, AlertCircle, X } from "lucide-react";
+import { AlertCircle, Calendar, Loader2, X } from "lucide-react";
+import { DatePickerModal, fromISODate, toISODate } from "@/components/shared/date-picker-modal";
 
 type StaffOption = { id: string; name: string };
 type ServiceOption = { id: string; name: string; duration: number; price: number };
@@ -17,6 +18,12 @@ const inputClass =
   "min-h-11 w-full rounded-lg border border-[#e6dcc8] bg-white px-3 py-2 text-sm text-[#3a2f22] placeholder:text-[#a89880] focus:outline-none focus:ring-2 focus:ring-[var(--color-sidebar-active)]";
 const labelClass = "mb-1 block text-xs font-medium text-[#3a2f22]";
 
+function toDisplayDate(iso: string): string {
+  const d = fromISODate(iso);
+  if (!d) return iso;
+  return d.toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short", year: "numeric" });
+}
+
 /**
  * Manual booking entry for staff (walk-ins / phone bookings).
  * POSTs to the existing /api/bookings endpoint with the staff session —
@@ -28,6 +35,7 @@ export function AddBookingModal({ businessId, staff, defaultDate, onClose, onCre
   const [serviceId, setServiceId] = useState("");
   const [staffMemberId, setStaffMemberId] = useState("");
   const [date, setDate] = useState(defaultDate);
+  const [datePickerOpen, setDatePickerOpen] = useState(false);
   const [time, setTime] = useState("09:00");
   const [customerName, setCustomerName] = useState("");
   const [customerPhone, setCustomerPhone] = useState("");
@@ -172,8 +180,17 @@ export function AddBookingModal({ businessId, staff, defaultDate, onClose, onCre
             </div>
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               <div>
-                <label htmlFor="ab-date" className={labelClass}>Date</label>
-                <input id="ab-date" type="date" value={date} onChange={(e) => setDate(e.target.value)} className={inputClass} />
+                <span className={labelClass}>Date</span>
+                <button
+                  type="button"
+                  onClick={() => setDatePickerOpen(true)}
+                  className={`${inputClass} flex items-center gap-2 text-left`}
+                >
+                  <Calendar className="h-4 w-4 shrink-0 text-[#a89880]" />
+                  <span className="truncate">
+                    {date ? toDisplayDate(date) : "Pick a date"}
+                  </span>
+                </button>
               </div>
               <div>
                 <label htmlFor="ab-time" className={labelClass}>Time</label>
@@ -232,6 +249,13 @@ export function AddBookingModal({ businessId, staff, defaultDate, onClose, onCre
             </div>
           </form>
         )}
+
+        <DatePickerModal
+          open={datePickerOpen}
+          onClose={() => setDatePickerOpen(false)}
+          value={fromISODate(date)}
+          onSelect={(d) => setDate(toISODate(d))}
+        />
       </div>
     </div>
   );
