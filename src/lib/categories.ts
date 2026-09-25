@@ -1,4 +1,4 @@
-import { Scissors, Sparkles, HandMetal, Eraser, Eye, Smile, Waves, Flower2 } from "lucide-react";
+import { Scissors, Sparkles, HandMetal, Eraser, Eye, Smile, Waves, Flower2, Users, UserRound, Gem, Home, Baby } from "lucide-react";
 
 export const SERVICE_CATEGORIES = [
   { slug: "hair-styling", label: "Hair & styling", icon: Scissors },
@@ -21,13 +21,13 @@ export const CATEGORY_SLUGS = SERVICE_CATEGORIES.map((c) => c.slug) as unknown a
 // enforced by Zod in src/schemas/business.ts). Search filtering matches
 // `salonTypes` via `has`/`hasSome` alongside the existing `categories` filter.
 export const BUSINESS_TYPES = [
-  { slug: "unisex", label: "Unisex" },
-  { slug: "gents", label: "Gents only" },
-  { slug: "ladies", label: "Ladies only" },
-  { slug: "bridal", label: "Bridal & occasion" },
-  { slug: "home-visits", label: "Home visits" },
-  { slug: "spa-resort", label: "Spa & resort" },
-  { slug: "kids", label: "Kids friendly" },
+  { slug: "unisex", label: "Unisex", icon: Users },
+  { slug: "gents", label: "Gents only", icon: UserRound },
+  { slug: "ladies", label: "Ladies only", icon: Sparkles },
+  { slug: "bridal", label: "Bridal & occasion", icon: Gem },
+  { slug: "home-visits", label: "Home visits", icon: Home },
+  { slug: "spa-resort", label: "Spa & resort", icon: Flower2 },
+  { slug: "kids", label: "Kids friendly", icon: Baby },
 ] as const;
 
 export type BusinessTypeSlug = (typeof BUSINESS_TYPES)[number]["slug"];

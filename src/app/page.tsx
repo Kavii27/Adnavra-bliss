@@ -5,10 +5,12 @@ import { SiteFooter } from "@/components/marketing/site-footer";
 import { VenueRailRow } from "@/components/customer/home/venue-rail-row";
 import { SearchBar } from "@/components/customer/search/search-bar";
 import { BrowseByCategory } from "@/components/customer/home/browse-by-category";
+import { BrowseBySalonType } from "@/components/customer/home/browse-by-salon-type";
 import { HowItWorks } from "@/components/customer/home/how-it-works";
 import { TrustStatsBar } from "@/components/customer/home/trust-stats-bar";
 import { OwnerCtaBanner } from "@/components/customer/home/owner-cta-banner";
 import { db } from "@/lib/db";
+import { fetchVenuesWhere } from "@/lib/marketplace-venues";
 
 type Venue = {
   id: string;
@@ -105,17 +107,17 @@ async function fetchCategoryCounts(): Promise<Record<string, number>> {
 }
 
 export default async function MarketplaceHome() {
-  const [recommended, newest, nearYou, categoryCounts] = await Promise.all([
+  const [recommended, nearYou, featured, categoryCounts] = await Promise.all([
     fetchVenues("asc", 8, 0),
-    fetchVenues("desc", 8, 0),
-    // "Near you" — client-side re-fetch will replace this once location is known (Phase 4).
-    // For now use a different offset so the rail is not literally identical to "New".
+    // "Near you" — teaser row on the homepage; the full /near-you page uses real geolocation.
+    // For now use a different offset so the rail is not literally identical to "Recommended".
     fetchVenues("desc", 8, 8),
+    fetchVenuesWhere({ marketplacePriority: true }, "desc", 8),
     fetchCategoryCounts(),
   ]);
 
   // Fallback for nearYou when there are not enough rows to offset
-  const nearYouDisplay = nearYou.length > 0 ? nearYou : newest.slice(0, 8);
+  const nearYouDisplay = nearYou.length > 0 ? nearYou : recommended.slice(0, 8);
 
   const businessCount = await db.business.count().catch(() => 0);
 
@@ -152,9 +154,16 @@ export default async function MarketplaceHome() {
 
       {/* Browse categories & services — moved here from the navbar */}
       <BrowseByCategory counts={categoryCounts} limit={8} />
+      <BrowseBySalonType limit={8} />
 
-      {/* Salons & spas — three stacked rows, each with its own "See all >" link (no filter tabs) */}
+      {/* Salons & spas — stacked rows, each with its own "See all >" link (no filter tabs) */}
       <div id="salons" className="scroll-mt-28 max-w-[1400px] mx-auto">
+        <VenueRailRow
+          title="Featured salons"
+          href="/featured"
+          businesses={featured}
+          emptyText="Featured salons will appear here once a salon upgrades to a featured plan."
+        />
         <VenueRailRow
           title="Recommended"
           href="/recommended"
@@ -166,12 +175,6 @@ export default async function MarketplaceHome() {
           href="/near-you"
           businesses={nearYouDisplay}
           emptyText="Salons near you will appear here once you share a location."
-        />
-        <VenueRailRow
-          title="New to Adnavra Bliss"
-          href="/new-to-adnavra-bliss"
-          businesses={newest}
-          emptyText="New arrivals will show here as salons sign up."
         />
       </div>
 

@@ -33,7 +33,7 @@ function mostCommonCategory(categories: (string | null)[]): string | null {
 
 type WhereClause = NonNullable<Parameters<typeof db.business.findMany>[0]>["where"];
 
-async function fetchVenuesWhere(
+export async function fetchVenuesWhere(
   where: WhereClause,
   order: "asc" | "desc",
   take: number,
