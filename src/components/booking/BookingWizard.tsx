@@ -484,13 +484,14 @@ export function BookingWizard({
 
   return (
     <div className="w-full">
-      {/* Stepper — truly `fixed` to the viewport (not `sticky`), so it is 100% immune to scroll
-          position, content height, or any pixel-matching between separate elements. Pinned at
-          top-52 (208px = nav 64px + hero 144px, both also `fixed` in book/page.tsx). Height is
-          forced to a fixed h-28 (112px) so the spacer directly below it can reserve the exact
-          same space in normal flow — no measuring, no guessing, no drift. */}
-      <div className="fixed inset-x-0 top-52 z-20 flex h-28 items-center bg-[#FAF7F2] px-4 sm:px-6 lg:px-12">
-        <div className="w-full overflow-x-auto rounded-2xl border border-[#E9E1D3] bg-white px-4 py-5 shadow-[0_2px_16px_rgba(30,28,26,0.04)] sm:px-8">
+      {/* Stepper — `sticky` (not `fixed`) so it stays in normal document flow and
+          can never overlap content when mobile browser chrome expands/collapses.
+          It sticks at top-52 (208px = nav 64px + hero 144px, both `fixed` in
+          book/page.tsx), exactly where the old fixed band sat. min-h-28 (not h-28)
+          so taller labels (e.g. Sinhala strings in Phase 3) grow the band instead
+          of clipping. No spacer needed — sticky reserves its own space in flow. */}
+      <div className="sticky top-52 z-20 flex min-h-28 items-center bg-[#FAF7F2]">
+        <div className="w-full overflow-x-auto overscroll-contain rounded-2xl border border-[#E9E1D3] bg-white px-4 py-5 shadow-[0_2px_16px_rgba(30,28,26,0.04)] sm:px-8">
           <div className="flex min-w-[480px] items-center sm:min-w-0">
             {STEP_ORDER.map((s, idx) => {
               const isActive = s === step;
@@ -532,9 +533,9 @@ export function BookingWizard({
           </div>
         </div>
       </div>
-      {/* Spacer: reserves the exact h-28 the fixed stepper above occupies, so the grid below
-          doesn't render underneath it. Plus a little breathing room (pb-8-equivalent via mb). */}
-      <div className="h-28 mb-8" aria-hidden="true" />
+      {/* Breathing room between the in-flow sticky stepper above and the wizard
+          grid below (the parent flex-col gap-6 supplies the rest). */}
+      <div className="mb-2" aria-hidden="true" />
 
       {/* Left wizard + right summary. The summary is `fixed` (see below), which removes it from
           normal flow entirely, so we can't rely on CSS grid to reserve its column — instead the
@@ -1019,8 +1020,8 @@ export function BookingWizard({
         </div>
 
         {/* Right: summary panel (live) — truly `fixed` at lg+ so it is always fully visible while
-            scrolling, never clipped or cut off. top-96 (384px) clears the fixed header stack
-            (nav 64 + hero 144 + stepper 112 = 320px). bottom-6 + overflow-y-auto is a safety net
+            scrolling, never clipped or cut off. top-96 (384px) clears the header stack
+            (nav 64 + hero 144 + sticky stepper ~112 = ~320px). bottom-6 + overflow-y-auto is a safety net
             so very short viewports scroll the card's own content instead of hiding it. Width and
             right offset match the margin reserved on the left card above. On mobile (below lg) it
             stays a normal in-flow block, unaffected. */}
