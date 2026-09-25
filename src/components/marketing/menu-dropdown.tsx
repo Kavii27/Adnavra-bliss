@@ -39,7 +39,7 @@ export function MenuDropdown({ audience }: { audience: Audience }) {
     <div className="relative" ref={ref}>
       <button
         onClick={() => setOpen((v) => !v)}
-        className="inline-flex items-center gap-2 h-10 rounded-full border border-[#ccc6bd]/60 px-4 text-sm font-medium text-[#050504] hover:bg-[#f1ede7]"
+        className="inline-flex items-center gap-2 h-11 rounded-full border border-[#ccc6bd]/60 px-4 text-sm font-medium text-[#050504] hover:bg-[#f1ede7]"
         aria-expanded={open}
         aria-label="Menu"
       >
@@ -47,8 +47,8 @@ export function MenuDropdown({ audience }: { audience: Audience }) {
         Menu
       </button>
       {open && (
-        <div className="absolute right-0 mt-2 w-72 rounded-xl border border-[#ccc6bd]/40 bg-[#fdf9f3] shadow-[0_8px_30px_rgba(28,28,24,0.12)] p-2 z-50">
-          <p className="px-3 pt-2 pb-1 text-xs font-semibold uppercase tracking-wide text-[#7b766f]">
+        <div className="fixed inset-x-0 top-16 z-50 mx-3 rounded-xl border border-[#ccc6bd]/40 bg-[#fdf9f3] shadow-[0_8px_30px_rgba(28,28,24,0.12)] p-2 sm:absolute sm:inset-x-auto sm:right-0 sm:top-auto sm:mt-2 sm:mx-0 sm:w-72 max-h-[calc(100dvh-6rem)] overflow-y-auto overscroll-contain">
+          <p className="px-3 pt-2 pb-1 text-xs font-semibold uppercase tracking-wide text-[#7b766f] text-center sm:text-left">
             {sectionLabel}
           </p>
           {links.map((l) => (
@@ -56,7 +56,7 @@ export function MenuDropdown({ audience }: { audience: Audience }) {
               key={l.href}
               href={l.href}
               onClick={() => setOpen(false)}
-              className={`block rounded-md px-3 py-2 text-sm ${
+              className={`block rounded-md px-3 py-3 sm:py-2 text-center sm:text-left text-[15px] sm:text-sm ${
                 l.label === "Log in or sign up" ? "font-semibold text-[#795831]" : "text-[#050504] hover:bg-[#f1ede7]"
               }`}
             >
@@ -67,7 +67,7 @@ export function MenuDropdown({ audience }: { audience: Audience }) {
             <Link
               href={crossHref}
               onClick={() => setOpen(false)}
-              className="flex items-center justify-between rounded-md px-3 py-2 text-sm font-semibold text-[#050504] hover:bg-[#f1ede7]"
+              className="flex items-center justify-center sm:justify-between gap-2 rounded-md px-3 py-3 sm:py-2 text-[15px] sm:text-sm font-semibold text-[#050504] hover:bg-[#f1ede7]"
             >
               {crossLabel}
               <ArrowRight className="h-4 w-4" />

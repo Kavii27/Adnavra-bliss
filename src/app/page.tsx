@@ -2,6 +2,7 @@ import { Dot } from "lucide-react";
 import Image from "next/image";
 import { Suspense } from "react";
 import { HomeHeader } from "@/components/customer/home/home-header";
+import { AdBanner } from "@/components/customer/home/ad-banner";
 import { SiteFooter } from "@/components/marketing/site-footer";
 import { VenueRailRow } from "@/components/customer/home/venue-rail-row";
 import { SearchBar } from "@/components/customer/search/search-bar";
@@ -132,6 +133,7 @@ export default async function MarketplaceHome() {
 
       <div className="relative">
         <HomeHeader />
+        <AdBanner />
 
         {/* Hero — headline + search on the left, photo on the right, tops aligned */}
         <section className="relative border-b border-[#E5DDD0]">

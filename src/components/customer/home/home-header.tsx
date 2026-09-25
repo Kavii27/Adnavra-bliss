@@ -85,36 +85,47 @@ export function HomeHeader() {
         <button
           type="button"
           aria-label="Toggle menu"
+          aria-expanded={mobileOpen}
           onClick={() => setMobileOpen((v) => !v)}
-          className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-white/15 text-white lg:hidden"
+          className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/15 text-white lg:hidden"
         >
           {mobileOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
         </button>
       </header>
 
-      {/* Mobile menu */}
+      {/* Mobile menu — CarMarket-style full-width panel below the header */}
       {mobileOpen && (
-        <div className="mx-auto mt-2 max-w-[1600px] rounded-2xl border border-white/10 bg-[#2A1D12] px-6 py-4 lg:hidden">
-          <nav className="flex flex-col gap-1">
+        <div className="mx-auto mt-2 max-w-[1600px] rounded-2xl border border-white/10 bg-[#2A1D12] px-2 py-3 lg:hidden max-h-[calc(100dvh-6rem)] overflow-y-auto overscroll-contain">
+          <nav className="flex flex-col divide-y divide-white/10">
             {NAV_LINKS.map((l) => (
               <Link
                 key={l.label}
                 href={l.href}
                 onClick={() => setMobileOpen(false)}
-                className="rounded-lg px-2 py-2.5 text-sm font-medium text-white/85 hover:bg-white/5"
+                className="px-4 py-3.5 text-center text-[15px] font-medium text-white/90 hover:bg-white/5"
               >
                 {l.label}
               </Link>
             ))}
+          </nav>
+          <div className="mt-3 flex flex-col gap-2 px-2">
+            <Link
+              href="/customer/login"
+              onClick={() => setMobileOpen(false)}
+              className="inline-flex h-11 items-center justify-center rounded-full border border-white/20 text-sm font-semibold text-white"
+            >
+              Log in
+            </Link>
             <Link
               href="/login"
               onClick={() => setMobileOpen(false)}
-              className="mt-2 inline-flex items-center justify-center rounded-full bg-[#C9A063] px-4 py-2.5 text-sm font-semibold text-[#2A1D12]"
+              className="inline-flex h-11 items-center justify-center rounded-full bg-[#C9A063] text-sm font-semibold text-[#2A1D12]"
             >
-              Access Portal
+              For business — Access Portal
             </Link>
-            </nav>
+            {/* LanguageSwitcher goes here — see Phase 3.3 */}
           </div>
+        </div>
         )}
       </div>
     </>
