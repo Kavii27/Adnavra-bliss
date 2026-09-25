@@ -1,8 +1,7 @@
 "use client";
-import { MapContainer, TileLayer, Marker, useMapEvents } from "react-leaflet";
+import { MapContainer, TileLayer, Marker, useMap, useMapEvents } from "react-leaflet";
 import L from "leaflet";
-import { useState } from "react";
-import { LocateFixed } from "lucide-react";
+import { useEffect, useState } from "react";
 
 const icon = L.icon({
   iconUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
@@ -10,6 +9,17 @@ const icon = L.icon({
   iconSize: [25, 41],
   iconAnchor: [12, 41],
 });
+
+function MapCenterUpdater({ center }: { center: [number, number] }) {
+  const map = useMap();
+  const [latitude, longitude] = center;
+
+  useEffect(() => {
+    map.setView([latitude, longitude], map.getZoom(), { animate: false });
+  }, [latitude, longitude, map]);
+
+  return null;
+}
 
 function DraggableMarker({
   position,
@@ -19,22 +29,30 @@ function DraggableMarker({
   onMove: (lat: number, lng: number) => void;
 }) {
   const [pos, setPos] = useState(position);
+  const [latitude, longitude] = position;
+
+  useEffect(() => {
+    setPos([latitude, longitude]);
+  }, [latitude, longitude]);
+
   useMapEvents({
-    click(e) {
-      setPos([e.latlng.lat, e.latlng.lng]);
-      onMove(e.latlng.lat, e.latlng.lng);
+    click(event) {
+      const nextPosition: [number, number] = [event.latlng.lat, event.latlng.lng];
+      setPos(nextPosition);
+      onMove(event.latlng.lat, event.latlng.lng);
     },
   });
+
   return (
     <Marker
       position={pos}
       draggable
       icon={icon}
       eventHandlers={{
-        dragend: (e) => {
-          const m = e.target.getLatLng();
-          setPos([m.lat, m.lng]);
-          onMove(m.lat, m.lng);
+        dragend: (event) => {
+          const markerPosition = event.target.getLatLng();
+          setPos([markerPosition.lat, markerPosition.lng]);
+          onMove(markerPosition.lat, markerPosition.lng);
         },
       }}
     />
@@ -50,55 +68,19 @@ export default function MapPicker({
   longitude: number;
   onMove: (lat: number, lng: number) => void;
 }) {
-  // Default to Colombo, Sri Lanka if no coordinates are set yet
   const center: [number, number] = [latitude || 6.9271, longitude || 79.8612];
-  const [locating, setLocating] = useState(false);
-  const [geoError, setGeoError] = useState<string | null>(null);
-
-  function useMyLocation() {
-    if (!navigator.geolocation) {
-      setGeoError("Geolocation is not supported in this browser.");
-      return;
-    }
-    setLocating(true);
-    setGeoError(null);
-    navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        setLocating(false);
-        onMove(pos.coords.latitude, pos.coords.longitude);
-      },
-      () => {
-        setLocating(false);
-        setGeoError("Couldn't get your location. Drag the map instead.");
-      },
-      { enableHighAccuracy: true, timeout: 8000 }
-    );
-  }
 
   return (
-    <div className="isolate rounded-lg overflow-hidden border border-[#e6dcc8]" style={{ height: 320 }}>
+    <div className="isolate h-80 overflow-hidden rounded-lg border border-[#e6dcc8]">
       <div className="relative h-full w-full">
-        <MapContainer center={center} zoom={13} style={{ height: "100%", width: "100%" }}>
+        <MapContainer center={center} zoom={13} className="h-full w-full">
           <TileLayer
             attribution='&copy; OpenStreetMap contributors'
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           />
+          <MapCenterUpdater center={center} />
           <DraggableMarker position={center} onMove={onMove} />
         </MapContainer>
-        <button
-          type="button"
-          onClick={useMyLocation}
-          disabled={locating}
-          className="absolute right-3 top-3 z-[500] inline-flex items-center gap-1.5 rounded-lg border border-[#e6dcc8] bg-[#faf6ef]/95 px-3 py-1.5 text-xs font-medium text-[#3a2f22] shadow hover:bg-[#f6efe3] disabled:opacity-60"
-        >
-          <LocateFixed className="h-3.5 w-3.5" />
-          {locating ? "Locating…" : "Use my location"}
-        </button>
-        {geoError && (
-          <p className="absolute bottom-3 left-3 z-[500] rounded-md bg-[#3a2f22]/90 px-2.5 py-1.5 text-xs text-[#faf6ef]">
-            {geoError}
-          </p>
-        )}
       </div>
     </div>
   );
