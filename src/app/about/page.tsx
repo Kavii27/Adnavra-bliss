@@ -163,14 +163,6 @@ const pillars = [
   },
 ];
 
-const journeySteps = [
-  { n: "01", tagKey: "about.journey.s1.tag", titleKey: "about.journey.s1.title", descKey: "about.journey.s1.desc" },
-  { n: "02", tagKey: "about.journey.s2.tag", titleKey: "about.journey.s2.title", descKey: "about.journey.s2.desc" },
-  { n: "03", tagKey: "about.journey.s3.tag", titleKey: "about.journey.s3.title", descKey: "about.journey.s3.desc" },
-  { n: "04", tagKey: "about.journey.s4.tag", titleKey: "about.journey.s4.title", descKey: "about.journey.s4.desc" },
-  { n: "05", tagKey: "about.journey.s5.tag", titleKey: "about.journey.s5.title", descKey: "about.journey.s5.desc" },
-];
-
 const features = [
   { icon: Store, titleKey: "about.feat.f1.title", descKey: "about.feat.f1.desc", tagKey: "about.feat.f1.tag" },
   { icon: Users, titleKey: "about.feat.f2.title", descKey: "about.feat.f2.desc", tagKey: "about.feat.f2.tag" },
@@ -266,11 +258,25 @@ export default function AboutPage() {
                   {t("about.hero.sub")}
                 </p>
 
-                <div className="mt-6 inline-flex max-w-full items-center gap-3 rounded-xl border border-[#E5DDD0] bg-white px-5 py-3">
-                  <Image src="/logo.png" alt="ADNAVRA" width={28} height={28} className="h-7 w-7 shrink-0 rounded-md object-contain" />
-                  <p className="text-sm text-[#4A4640">
-                    ADNAVRA BLISS is a product of <span className="font-semibold text-[#1F1E1D]">ADNAVRA (Pvt) Ltd</span>, Sri Lanka.
-                  </p>
+                <div className="flex max-w-[540px] items-start gap-4 rounded-r-2xl border-l-2 border-[#B85C38] bg-[#F9EFE8] px-5 py-4">
+                  <Image
+                    src="/logo.png"
+                    alt="ADNAVRA"
+                    width={40}
+                    height={40}
+                    className="mt-0.5 h-10 w-10 shrink-0 object-contain"
+                  />
+                  <div>
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[#B85C38]">
+                      Proudly presented by
+                    </p>
+                    <p className="mt-1 font-[family-name:var(--font-playfair)] text-[24px] font-semibold leading-tight tracking-[-0.025em] text-[#1E1C1A] sm:text-[28px]">
+                      A product of ADNAVRA (Pvt) Ltd
+                    </p>
+                    <p className="mt-1 text-[13px] leading-relaxed text-[#4A4540]">
+                      Thoughtfully created in Sri Lanka for better salon experiences.
+                    </p>
+                  </div>
                 </div>
 
                 <div className="flex flex-wrap items-center gap-4 pt-1">
@@ -810,38 +816,6 @@ export default function AboutPage() {
         </section>
 
         {/* ============================================================ */}
-        {/* FEATURES: CLIENT JOURNEY                                        */}
-        {/* ============================================================ */}
-        <section className="w-full max-w-7xl mx-auto px-5 md:px-8 lg:px-14 py-24 space-y-12">
-          <div className="text-center max-w-2xl mx-auto space-y-2">
-            <Eyebrow>{t("about.journey.eyebrow")}</Eyebrow>
-            <h2 className="font-[family-name:var(--font-playfair)] text-[28px] sm:text-[38px] text-[#2A1D12] font-semibold">
-              {t("about.journey.title")}
-            </h2>
-            <p className="text-[16px] text-[#4a4640]">
-              {t("about.journey.sub")}
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
-            {journeySteps.map((s) => (
-              <div
-                key={s.n}
-                className="p-6 rounded-xl bg-[#f7f3ed] space-y-2 hover:shadow-md transition-shadow"
-              >
-                <span className="text-[11px] text-[#795831] font-semibold">
-                  {s.n} • {t(s.tagKey)}
-                </span>
-                <h4 className="text-[16px] text-[#2A1D12] font-semibold">
-                  {t(s.titleKey)}
-                </h4>
-                <p className="text-[13px] text-[#4a4640]">{t(s.descKey)}</p>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        {/* ============================================================ */}
         {/* FEATURES: QR MIRROR CONCIERGE                                   */}
         {/* ============================================================ */}
         <section className="w-full bg-[#f7f3ed] py-24">
@@ -1042,9 +1016,6 @@ export default function AboutPage() {
               <h2 className="font-[family-name:var(--font-playfair)] text-[28px] sm:text-[42px] text-[#2A1D12] font-semibold leading-tight">
                 {t("about.cta.title")}
               </h2>
-              <p className="text-[16px] text-[#4a4640]">
-                {t("about.cta.sub")}
-              </p>
             </div>
             <div className="flex flex-wrap items-center justify-center gap-4 pt-1">
               <Link

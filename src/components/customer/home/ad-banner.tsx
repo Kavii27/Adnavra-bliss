@@ -1,14 +1,11 @@
 import Image from "next/image";
-import Link from "next/link";
 import { getServerT } from "@/lib/i18n/server";
 
 export async function AdBanner({
   imageUrl = "/banner.jpg",
-  href = "/for-business",
   alt,
 }: {
   imageUrl?: string | null;
-  href?: string;
   alt?: string;
 }) {
   const t = await getServerT();
@@ -16,10 +13,7 @@ export async function AdBanner({
   if (!imageUrl) return null;
   return (
     <section className="mx-auto max-w-[1400px] px-4 pt-4 sm:px-6 lg:px-12">
-      <Link
-        href={href}
-        className="block overflow-hidden rounded-xl border border-[#E5DDD0] shadow-[0_4px_16px_rgba(31,30,29,0.08)] sm:rounded-2xl"
-      >
+      <div className="block overflow-hidden rounded-xl border border-[#E5DDD0] shadow-[0_4px_16px_rgba(31,30,29,0.08)] sm:rounded-2xl">
         {/* Mobile: natural aspect ratio, uncropped (banner.jpg is 2752x1420).
             Tablet/desktop: cropped banner strip. */}
         <Image
@@ -34,7 +28,7 @@ export async function AdBanner({
         <div className="relative hidden w-full bg-[#F1E9DC] sm:block sm:aspect-[17/9] lg:aspect-[14/3]">
           <Image src={imageUrl} alt={resolvedAlt} fill priority className="object-cover [object-position:center_calc(50%+10px)]" sizes="100vw" />
         </div>
-      </Link>
+      </div>
     </section>
   );
 }

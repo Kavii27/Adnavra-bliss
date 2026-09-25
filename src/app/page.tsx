@@ -136,7 +136,7 @@ export default async function MarketplaceHome() {
 
       <div className="relative">
         <HomeHeader />
-        <AdBanner imageUrl={banner?.imageUrl} href={banner?.destinationUrl} />
+        <AdBanner imageUrl={banner?.imageUrl} />
 
         {/* Hero — search + trust stats */}
         <section className="relative border-b border-[#E5DDD0]">
