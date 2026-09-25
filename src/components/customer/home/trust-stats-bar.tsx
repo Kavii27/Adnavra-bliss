@@ -1,4 +1,4 @@
-import { ShieldCheck, BadgePercent, MessageCircle } from "lucide-react";
+import { ShieldCheck, BadgePercent, Mail } from "lucide-react";
 import { Reveal } from "./reveal";
 
 const STATS = [
@@ -13,8 +13,8 @@ const STATS = [
     desc: "Direct salon rates with zero card surcharges",
   },
   {
-    icon: MessageCircle,
-    title: "Instant WhatsApp & SMS Confirm",
+    icon: Mail,
+    title: "Instant Email Confirm",
     desc: "Calendar-ready reminders with location maps",
   },
 ] as const;
