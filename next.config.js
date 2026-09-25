@@ -3,6 +3,13 @@ const path = require("path");
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   outputFileTracingRoot: path.join(__dirname),
+  async redirects() {
+    return [
+      // /features was merged into /about — keep old bookmarks working
+      { source: "/features", destination: "/about", permanent: true },
+      { source: "/features/:path*", destination: "/about", permanent: true },
+    ];
+  },
   async headers() {
     // CSP is set dynamically per-request in src/middleware.ts with a cryptographic nonce.
     // Static fallback must include unsafe-inline/unsafe-eval or the page white-screens when middleware

@@ -8,14 +8,14 @@ const COLUMNS = [
     links: [
       { href: "/about", label: "About ADNAVRA" },
       { href: "/contact", label: "Contact us" },
-      { href: "/contact", label: "Help and support" },
+      { href: "/help", label: "Help and support" },
     ],
   },
   {
     title: "For business",
     links: [
       { href: "/for-business", label: "For salons" },
-      { href: "/features", label: "Features" },
+      { href: "/about#features", label: "Features" },
       { href: "/signup", label: "Get started" },
     ],
   },
@@ -60,7 +60,7 @@ export function SiteFooter() {
             <p className="text-[#050504] text-sm font-semibold">{col.title}</p>
             <ul className="mt-3 space-y-2">
               {col.links.map((l) => (
-                <li key={l.href}>
+                <li key={`${l.href}-${l.label}`}>
                   <Link href={l.href} className="text-sm hover:text-[#050504] transition-colors">
                     {l.label}
                   </Link>

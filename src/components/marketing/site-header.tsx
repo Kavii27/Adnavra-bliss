@@ -6,11 +6,7 @@ import { useEffect, useState } from "react";
 import { Menu, X, ArrowRight } from "lucide-react";
 import { MenuDropdown } from "./menu-dropdown";
 
-const NAV_LINKS = [
-  { href: "/about#business-types", label: "Business types" },
-  { href: "/about#features", label: "Features" },
-  { href: "/for-business", label: "Partners" },
-];
+const NAV_LINKS = [{ href: "/about", label: "About" }];
 
 export function SiteHeader() {
   const [open, setOpen] = useState(false);
