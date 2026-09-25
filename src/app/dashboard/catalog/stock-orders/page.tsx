@@ -238,7 +238,7 @@ function StockOrdersInner() {
 
       {showForm && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50" onClick={() => setShowForm(false)}>
-          <div className="bg-[#0F1729] rounded-xl border border-[#e6dcc8] p-6 w-full max-w-xl shadow-xl max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+          <div className="bg-[#0F1729] rounded-xl border border-[#e6dcc8] p-6 w-full max-w-xl shadow-xl max-h-[90dvh] overflow-y-auto overscroll-contain" onClick={(e) => e.stopPropagation()}>
             <h2 className="text-lg font-semibold text-[#3a2f22]">New stock order</h2>
             <div className="mt-4 space-y-4">
               <div>

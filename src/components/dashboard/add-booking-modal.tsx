@@ -121,7 +121,7 @@ export function AddBookingModal({ businessId, staff, defaultDate, onClose, onCre
       aria-label="Add booking"
     >
       <div
-        className="max-h-[90vh] w-full max-w-md overflow-y-auto rounded-xl border border-[#e6dcc8] bg-[#faf6ef] p-5"
+        className="max-h-[90dvh] w-full max-w-md overflow-y-auto overscroll-contain rounded-xl border border-[#e6dcc8] bg-[#faf6ef] p-5"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between">

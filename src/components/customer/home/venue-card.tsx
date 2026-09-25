@@ -50,7 +50,7 @@ export function VenueCard({
   return (
     <Link
       href={`/${slug}`}
-      className="group card-lift relative flex w-full flex-col overflow-hidden rounded-xl border border-[#E5DDD0] bg-white hover:border-[#CCC6BD]"
+      className="group card-lift relative flex h-full w-full flex-col overflow-hidden rounded-xl border border-[#E5DDD0] bg-white hover:border-[#CCC6BD]"
     >
       {/* Image / logo area */}
       <div className="relative h-[156px] w-full overflow-hidden bg-[#F7F3ED]">
@@ -115,7 +115,7 @@ export function VenueCard({
             )}
           </div>
           <span className="icon-pop inline-flex items-center gap-1 rounded-lg bg-[#2A1D12] px-3 py-2 text-[11px] font-semibold text-white group-hover:bg-[#17100A]">
-            Book <ArrowUpRight className="h-3.5 w-3.5" />
+            Visit <ArrowUpRight className="h-3.5 w-3.5" />
           </span>
         </div>
       </div>

@@ -213,7 +213,7 @@ function SearchInner() {
   }
 
   return (
-    <div className="flex flex-col h-[calc(100vh-64px)]">
+    <div className="flex flex-col h-[calc(100dvh-64px)]">
       {/* Compact SearchBar - Task 4.4 */}
       <div className="relative overflow-visible z-10 border-b border-[#E5DDD0] bg-white px-4 lg:px-6 py-3">
         <Suspense fallback={<div className="h-[48px] rounded-xl bg-[#FDF9F3] border border-[#E5DDD0] animate-pulse" />}>
