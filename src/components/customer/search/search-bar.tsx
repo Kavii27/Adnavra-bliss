@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Search } from "lucide-react";
 import { TreatmentsDropdown } from "./treatments-dropdown";
+import { SalonAutocomplete } from "./salon-autocomplete";
 import { LocationAutocomplete, type LocationValue } from "./location-autocomplete";
 import { SERVICE_CATEGORIES } from "@/lib/categories";
 import { DateTimePicker, type DateTimeValue } from "./date-time-picker";
@@ -58,10 +59,11 @@ export function SearchBar({ variant }: SearchBarProps) {
     return null;
   })();
 
-  const [q, setQ] = useState(() => {
-    if (initialQ) return initialQ;
-    // Deep link like ?category=hair with no q — mirror the category label
-    // into the input so the field still shows what's active.
+  // `salon` is the salon-name free text (?q=). `treatmentText` only mirrors
+  // the picked category label for display — typing in the treatment field
+  // filters the category list and never becomes search text.
+  const [salon, setSalon] = useState(initialQ);
+  const [treatmentText, setTreatmentText] = useState(() => {
     if (initialCategory) {
       return SERVICE_CATEGORIES.find((c) => c.slug === initialCategory)?.label ?? "";
     }
@@ -86,31 +88,28 @@ export function SearchBar({ variant }: SearchBarProps) {
     return { date: initialDate, band: safeBand };
   });
 
-  // Keep q + category slug in sync if URL changes externally (back nav)
+  // Keep salon + category in sync if URL changes externally (back nav)
   useEffect(() => {
     const nextQ = searchParams.get("q") ?? "";
-    if (nextQ !== q) setQ(nextQ);
+    if (nextQ !== salon) setSalon(nextQ);
     const c = searchParams.get("category");
-    if (c !== categorySlug) setCategorySlug(c);
+    if (c !== categorySlug) {
+      setCategorySlug(c);
+      setTreatmentText(c ? SERVICE_CATEGORIES.find((cat) => cat.slug === c)?.label ?? "" : "");
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams]);
 
-  // q is free text (salon name / treatment word); categorySlug is the
-  // explicit category filter. Picking a category mirrors its label into the
-  // input for display, but handleSubmit suppresses that mirrored text so we
-  // don't over-filter (name CONTAINS label AND category) on category browse.
-  // Typing anything else clears categorySlug (see TreatmentsDropdown).
+  // `salon` is the only free text sent to the API (?q= matches salon names).
+  // `categorySlug` is the explicit category filter; `treatmentText` is
+  // display-only. Picking a category mirrors its label into the treatment
+  // input via TreatmentsDropdown's onQueryChange.
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     const params = new URLSearchParams();
-    const trimmedQ = q.trim();
-    // Don't send the mirrored category label as free text — the category
-    // param already captures it. Only send q when it's genuine free text.
-    const mirroredLabel = categorySlug
-      ? SERVICE_CATEGORIES.find((c) => c.slug === categorySlug)?.label
-      : undefined;
-    if (trimmedQ && trimmedQ !== mirroredLabel) params.set("q", trimmedQ);
+    const trimmedSalon = salon.trim();
+    if (trimmedSalon) params.set("q", trimmedSalon);
     if (categorySlug) params.set("category", categorySlug);
     if (location) {
       params.set("location", `${location.lat},${location.lng}`);
@@ -141,8 +140,18 @@ export function SearchBar({ variant }: SearchBarProps) {
           : "flex flex-col sm:flex-row items-stretch bg-white rounded-xl border border-[#E5DDD0] shadow-sm overflow-visible"
       }
     >
-      {/* Treatments segment — free-text input lives inside the dropdown trigger */}
+      {/* Salon segment — free-text salon name with live suggestions */}
       <div className="flex flex-col justify-center flex-1 min-w-0 px-5 py-2.5">
+        {isHero && (
+          <span className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[#B3ACA0]">
+            Salon
+          </span>
+        )}
+        <SalonAutocomplete value={salon} onChange={setSalon} />
+      </div>
+
+      <div className="hidden lg:block w-px bg-[#E5DDD0] my-3 shrink-0" />
+      <div className="flex flex-col justify-center flex-1 min-w-0 px-5 py-2.5 border-t lg:border-t-0 border-[#E5DDD0]">
         {isHero && (
           <span className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[#B3ACA0]">
             Treatment
@@ -153,8 +162,8 @@ export function SearchBar({ variant }: SearchBarProps) {
           onChange={(slug) => {
             setCategorySlug(slug);
           }}
-          query={q}
-          onQueryChange={setQ}
+          query={treatmentText}
+          onQueryChange={setTreatmentText}
         />
       </div>
 

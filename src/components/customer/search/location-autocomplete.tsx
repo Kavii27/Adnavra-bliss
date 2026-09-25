@@ -59,19 +59,26 @@ export function LocationAutocomplete({ value, onChange }: LocationAutocompletePr
     return () => clearTimeout(t);
   }, [query]);
 
+  // All locations sorted A–Z for the empty state; filtered matches below
+  // are also returned A–Z (name matches first, then district matches).
+  const sortedAll = useMemo(
+    () => [...SRI_LANKA_LOCATIONS].sort((a, b) => a.name.localeCompare(b.name)),
+    []
+  );
+
   const filtered = useMemo(() => {
-    if (!debounced) return SRI_LANKA_LOCATIONS.slice(0, 6);
+    if (!debounced) return sortedAll;
     const q = debounced;
     const byName: SriLankaLocation[] = [];
     const byDistrict: SriLankaLocation[] = [];
-    for (const loc of SRI_LANKA_LOCATIONS) {
+    for (const loc of sortedAll) {
       const nameMatch = loc.name.toLowerCase().includes(q);
       const districtMatch = loc.district.toLowerCase().includes(q);
       if (nameMatch) byName.push(loc);
       else if (districtMatch) byDistrict.push(loc);
     }
-    return [...byName, ...byDistrict].slice(0, 6);
-  }, [debounced]);
+    return [...byName, ...byDistrict];
+  }, [debounced, sortedAll]);
 
   useEffect(() => {
     function onClick(e: MouseEvent) {
@@ -184,6 +191,11 @@ export function LocationAutocomplete({ value, onChange }: LocationAutocompletePr
           <div className="border-t border-[#F1EDE7]" />
 
           <div className="max-h-[280px] overflow-y-auto p-2">
+            {!debounced ? (
+              <p className="px-3 pb-1 pt-2 text-xs font-semibold uppercase tracking-wide text-[#8A8377]">
+                All locations A–Z
+              </p>
+            ) : null}
             {filtered.length === 0 ? (
               <p className="px-3 py-6 text-center text-sm text-[#8A8377]">No towns match &ldquo;{debounced}&rdquo;.</p>
             ) : (

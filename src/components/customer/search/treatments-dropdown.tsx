@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { Search, X } from "lucide-react";
 import { SERVICE_CATEGORIES } from "@/lib/categories";
 
-type Tab = "all" | "treatments" | "venues" | "professionals";
+type Tab = "all" | "treatments";
 
 type TreatmentsDropdownProps = {
   value: string | null;
@@ -44,16 +44,24 @@ export function TreatmentsDropdown({ value, onChange, query, onQueryChange }: Tr
   const tabs: { id: Tab; label: string }[] = [
     { id: "all", label: "All" },
     { id: "treatments", label: "Treatments" },
-    { id: "venues", label: "Venues" },
-    { id: "professionals", label: "Professionals" },
   ];
 
-  const isTreatmentsTab = activeTab === "treatments" || activeTab === "all";
+  // Typing filters the category list below. Salon names have their own
+  // dedicated field now (SalonAutocomplete), so free text here never
+  // touches the category filter or the search query.
+  const typedFilter = (() => {
+    const t = query.trim().toLowerCase();
+    if (!t) return null;
+    if (t === (activeCategory?.label ?? "").toLowerCase()) return null;
+    return SERVICE_CATEGORIES.filter((c) => c.label.toLowerCase().includes(t));
+  })();
+  const visibleCategories = typedFilter ?? SERVICE_CATEGORIES;
 
   return (
     <div ref={ref} className="relative flex-1 min-w-0 overflow-visible">
-      {/* Trigger — controlled text input so customers can type a salon
-          name or treatment; picking a category mirrors its label here. */}
+      {/* Trigger — text input filters the treatment list; picking a
+          category mirrors its label here. Salon search lives in its own
+          field (SalonAutocomplete). */}
       <div
         onClick={() => setOpen(true)}
         className="flex w-full min-w-0 items-center gap-2 px-4 py-2.5 text-left outline-none"
@@ -62,18 +70,12 @@ export function TreatmentsDropdown({ value, onChange, query, onQueryChange }: Tr
         <input
           value={query}
           onChange={(e) => {
-            const next = e.target.value;
-            onQueryChange(next);
-            // Typing free text diverges from the picked category — drop the
-            // category filter so the two don't fight over what's active.
-            if (value && next !== activeCategory?.label) {
-              onChange(null, next);
-            }
+            onQueryChange(e.target.value);
             setOpen(true);
           }}
           onFocus={() => setOpen(true)}
-          placeholder="Search treatments or salons"
-          aria-label="Search treatments or salons"
+          placeholder="Search treatments"
+          aria-label="Search treatments"
           className="min-w-0 flex-1 truncate bg-transparent text-sm text-[#1F1E1D] outline-none placeholder:text-[#8A8377]"
         />
         {value || query ? (
@@ -126,27 +128,30 @@ export function TreatmentsDropdown({ value, onChange, query, onQueryChange }: Tr
           </div>
 
           <div className="max-h-[340px] overflow-y-auto p-2">
-            {isTreatmentsTab ? (
-              <>
-                <p className="px-3 pb-1 pt-2 text-xs font-semibold uppercase tracking-wide text-[#8A8377]">Treatments</p>
-                {/* All treatments clear row */}
-                <button
-                  type="button"
-                  onClick={() => handleSelect(null, "All treatments")}
-                  className={`flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left transition hover:bg-[#F7F3ED] ${
-                    value === null ? "bg-[#F7F3ED]" : ""
-                  }`}
-                >
-                  <span className="flex h-9 w-9 items-center justify-center rounded-full bg-[#F1EDE7] shrink-0">
-                    <Search className="h-4 w-4 text-[#795831]" />
-                  </span>
-                  <span className="flex-1">
-                    <span className="block text-sm font-medium text-[#1F1E1D]">All treatments</span>
-                    <span className="block text-xs text-[#8A8377]">Browse everything</span>
-                  </span>
-                </button>
+            <p className="px-3 pb-1 pt-2 text-xs font-semibold uppercase tracking-wide text-[#8A8377]">Treatments</p>
+            {/* All treatments clear row */}
+            <button
+              type="button"
+              onClick={() => handleSelect(null, "All treatments")}
+              className={`flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left transition hover:bg-[#F7F3ED] ${
+                value === null ? "bg-[#F7F3ED]" : ""
+              }`}
+            >
+              <span className="flex h-9 w-9 items-center justify-center rounded-full bg-[#F1EDE7] shrink-0">
+                <Search className="h-4 w-4 text-[#795831]" />
+              </span>
+              <span className="flex-1">
+                <span className="block text-sm font-medium text-[#1F1E1D]">All treatments</span>
+                <span className="block text-xs text-[#8A8377]">Browse everything</span>
+              </span>
+            </button>
 
-                {SERVICE_CATEGORIES.map((cat) => {
+            {visibleCategories.length === 0 ? (
+              <p className="px-3 py-6 text-center text-sm text-[#8A8377]">
+                No treatments match &ldquo;{query.trim()}&rdquo;.
+              </p>
+            ) : (
+              visibleCategories.map((cat) => {
                   const Icon = cat.icon;
                   const isActive = value === cat.slug;
                   return (
@@ -169,49 +174,7 @@ export function TreatmentsDropdown({ value, onChange, query, onQueryChange }: Tr
                       {isActive ? <span className="h-2 w-2 rounded-full bg-[#795831]" aria-hidden /> : null}
                     </button>
                   );
-                })}
-              </>
-            ) : activeTab === "venues" ? (
-              <div className="px-3 py-6 text-center">
-                <p className="text-sm font-medium text-[#1F1E1D]">Search venues</p>
-                <p className="mt-1 text-xs leading-relaxed text-[#8A8377]">
-                  Type a salon name in the search bar and results will appear on the search page.
-                </p>
-                <div className="mt-4 space-y-1">
-                  {SERVICE_CATEGORIES.slice(0, 4).map((cat) => {
-                    const Icon = cat.icon;
-                    return (
-                      <button
-                        key={cat.slug}
-                        type="button"
-                        onClick={() => {
-                          setActiveTab("treatments");
-                        }}
-                        className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left hover:bg-[#F7F3ED]"
-                      >
-                        <span className="flex h-9 w-9 items-center justify-center rounded-full bg-[#F1EDE7] shrink-0">
-                          <Icon className="h-4 w-4 text-[#795831]" />
-                        </span>
-                        <span className="text-sm text-[#1F1E1D]">{cat.label}</span>
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-            ) : (
-              <div className="px-3 py-6 text-center">
-                <p className="text-sm font-medium text-[#1F1E1D]">Professionals</p>
-                <p className="mt-1 text-xs leading-relaxed text-[#8A8377]">
-                  Search by professional is coming soon. Browse treatments to find salons for now.
-                </p>
-                <button
-                  type="button"
-                  onClick={() => setActiveTab("treatments")}
-                  className="mt-4 text-xs font-medium text-[#795831] hover:underline"
-                >
-                  Browse treatments
-                </button>
-              </div>
+                })
             )}
           </div>
         </div>
