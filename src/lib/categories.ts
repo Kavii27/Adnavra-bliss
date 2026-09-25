@@ -1,13 +1,14 @@
 import { Scissors, Sparkles, HandMetal, Eraser, Eye, Smile, Waves, Flower2, Users, UserRound, Gem, Home, Baby } from "lucide-react";
 
 export const SERVICE_CATEGORIES = [
-  { slug: "hair-styling", label: "Hair & styling", icon: Scissors },
-  { slug: "nails", label: "Nails", icon: HandMetal },
-  { slug: "hair-removal", label: "Hair removal", icon: Eraser },
-  { slug: "eyebrows-eyelashes", label: "Eyebrows & eyelashes", icon: Eye },
-  { slug: "facials-skincare", label: "Facials & skincare", icon: Smile },
-  { slug: "massage", label: "Massage", icon: Waves },
-  { slug: "spa-wellness", label: "Spa & wellness", icon: Flower2 },
+  { slug: "hair-styling", label: "Hair & styling", icon: Scissors, imageUrl: "/home-images/hairstyle.jpg" },
+  { slug: "mens-grooming", label: "Men's grooming", icon: UserRound, imageUrl: "/home-images/mensgroom.jpg" },
+  { slug: "nails", label: "Nails", icon: HandMetal, imageUrl: "/home-images/nails.jpg" },
+  { slug: "hair-removal", label: "Hair removal", icon: Eraser, imageUrl: "/home-images/hairremove.jpg" },
+  { slug: "eyebrows-eyelashes", label: "Eyebrows & eyelashes", icon: Eye, imageUrl: "/home-images/eyebrows.jpg" },
+  { slug: "facials-skincare", label: "Facials & skincare", icon: Smile, imageUrl: "/home-images/facial.jpg" },
+  { slug: "massage", label: "Massage", icon: Waves, imageUrl: "/home-images/massage.jpg" },
+  { slug: "spa-wellness", label: "Spa & wellness", icon: Flower2, imageUrl: "/home-images/spa.jpg" },
 ] as const;
 
 export type ServiceCategorySlug = (typeof SERVICE_CATEGORIES)[number]["slug"];
