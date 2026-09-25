@@ -34,7 +34,7 @@ export function BrowseBySalonType({
           <Link
             key={bt.slug}
             href={`/salon-types/${encodeURIComponent(bt.slug)}`}
-            className="group card-lift relative flex min-h-[152px] flex-col justify-between gap-6 rounded-xl border border-[#E5DDD0] bg-white p-5 hover:border-[#795831]"
+            className="group card-lift relative flex min-h-[192px] flex-col justify-start gap-8 rounded-xl border border-[#E5DDD0] bg-white p-5 hover:border-[#795831]"
           >
             <div className="flex items-start justify-between">
               <span className="num-ghost text-3xl font-semibold text-[#EDE6D8] tabular-nums leading-none">

@@ -8,7 +8,6 @@ export const SERVICE_CATEGORIES = [
   { slug: "facials-skincare", label: "Facials & skincare", icon: Smile },
   { slug: "massage", label: "Massage", icon: Waves },
   { slug: "spa-wellness", label: "Spa & wellness", icon: Flower2 },
-  { slug: "makeup", label: "Makeup", icon: Sparkles },
 ] as const;
 
 export type ServiceCategorySlug = (typeof SERVICE_CATEGORIES)[number]["slug"];
@@ -28,6 +27,7 @@ export const BUSINESS_TYPES = [
   { slug: "home-visits", label: "Home visits", icon: Home },
   { slug: "spa-resort", label: "Spa & resort", icon: Flower2 },
   { slug: "kids", label: "Kids friendly", icon: Baby },
+  { slug: "makeup", label: "Makeup", icon: Sparkles },
 ] as const;
 
 export type BusinessTypeSlug = (typeof BUSINESS_TYPES)[number]["slug"];
