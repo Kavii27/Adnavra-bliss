@@ -1,9 +1,8 @@
-import { notFound, redirect } from "next/navigation";
+import { notFound } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { Cormorant_Garamond } from "next/font/google";
 import { ArrowLeft, MapPin } from "lucide-react";
-import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { getServerT } from "@/lib/i18n/server";
 import { BookingWizard } from "@/components/booking/BookingWizard";
@@ -57,21 +56,8 @@ export default async function BookPage({
   const coverUrl = venue.images[0]?.url ?? null;
   const locationLine = [venue.city, venue.district].filter(Boolean).join(", ");
 
-  const session = await auth();
-  const role = (session?.user as unknown as { role: string } | undefined)?.role ?? null;
-
-  // Require a logged-in CUSTOMER before booking.
-  // Owners/staff/admin must still create a real customer account; never reuse staff session as customer.
-  if (!session?.user || role !== "CUSTOMER") {
-    const qs = new URLSearchParams();
-    if (serviceId) qs.set("serviceId", serviceId);
-    if (staffId) qs.set("staffId", staffId);
-    if (date) qs.set("date", date);
-    if (slot) qs.set("slot", slot);
-    const suffix = qs.toString() ? `?${qs.toString()}` : "";
-    const cb = `/${businessSlug}/book${suffix}`;
-    redirect(`/customer/login?callbackUrl=${encodeURIComponent(cb)}`);
-  }
+  // Phase 4: guest-friendly booking — no login redirect. Name + contact are
+  // collected in the wizard's "Your details" step instead.
 
   return (
     <main className={`${display.variable} min-h-screen bg-[#FAF7F2]`}>

@@ -336,12 +336,18 @@ model Booking {
   // Human-friendly reference shown to customer (e.g. ADN-8K2F9Q)
   reference String        @unique @default(cuid())
 
+  // Links every service in the same appointment together. Null for
+  // legacy single-service bookings (backward compatible, no backfill needed).
+  groupId    String?
+  groupTotal Int? // sum of all services' prices in the group, minor units — denormalized for fast display
+
   notes String? @db.Text
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@index([businessId])
+  @@index([groupId])
   @@index([serviceId])
   @@index([staffMemberId])
   @@index([customerId])

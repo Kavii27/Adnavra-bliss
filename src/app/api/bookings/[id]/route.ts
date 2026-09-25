@@ -97,6 +97,23 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
     },
   });
 
+  // Phase 4.5: approving/declining one card applies to the whole multi-treatment
+  // group at once, then the customer is notified (best-effort, never blocks).
+  if (parsed.data.status && (parsed.data.status === "CONFIRMED" || parsed.data.status === "CANCELLED")) {
+    try {
+      if (existing.groupId) {
+        await db.booking.updateMany({
+          where: { groupId: existing.groupId, businessId: existing.businessId },
+          data: { status: parsed.data.status },
+        });
+      }
+      const { notifyCustomerOfDecision } = await import("@/lib/notify");
+      await notifyCustomerOfDecision({ bookingId: id, status: parsed.data.status });
+    } catch (e) {
+      console.error("[booking notify]", e instanceof Error ? e.message : e);
+    }
+  }
+
   const actorId = (session.user as unknown as { id: string }).id;
   const actorEmail = session.user.email ?? null;
   await auditLog({

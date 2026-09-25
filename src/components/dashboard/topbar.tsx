@@ -312,7 +312,7 @@ function NotificationBell() {
                 ))}
                 {count !== null && count > pending.length && (
                   <li className="px-4 py-3 text-center">
-                    <Link href="/dashboard/sales/appointments" onClick={() => setOpen(false)} className="text-xs font-medium text-[#9A7B4F] hover:text-[#1F1E1D]">
+                    <Link href="/dashboard/sales/appointments?status=PENDING" onClick={() => setOpen(false)} className="text-xs font-medium text-[#9A7B4F] hover:text-[#1F1E1D]">
                       View all {count} pending bookings
                     </Link>
                   </li>
@@ -322,15 +322,14 @@ function NotificationBell() {
               <div className="px-4 py-6">
                 <p className="text-sm text-[#8A8377]">No new notifications.</p>
                 <p className="mt-2 text-xs leading-relaxed text-[#6B7280]">
-                  Pending bookings that need your confirmation will appear here. Right now all bookings are created as{" "}
-                  <span className="text-[#8A8377]">CONFIRMED</span> automatically, so there is no action needed. A dedicated notification feed is on the roadmap.
+                  New booking requests will appear here for your review.
                 </p>
                 <Link
-                  href="/dashboard/sales/appointments"
+                  href="/dashboard/sales/appointments?status=PENDING"
                   onClick={() => setOpen(false)}
                   className="mt-3 inline-flex text-xs font-medium text-[#9A7B4F] hover:text-[#1F1E1D]"
                 >
-                  Go to appointments
+                  Review pending bookings
                 </Link>
               </div>
             )}

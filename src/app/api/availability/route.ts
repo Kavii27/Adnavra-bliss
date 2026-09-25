@@ -9,6 +9,9 @@ const querySchema = z.object({
   serviceId: z.string().cuid(),
   date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Use YYYY-MM-DD"),
   staffMemberId: z.string().cuid().optional(),
+  // Phase 4: multi-service groups run back-to-back — the wizard passes the
+  // summed duration so slots fit the WHOLE group, not just the first service.
+  totalDurationMin: z.coerce.number().int().min(5).max(1440).optional(),
 });
 
 /**
@@ -34,7 +37,7 @@ export async function GET(request: NextRequest) {
   if (!parsed.success) {
     return NextResponse.json({ error: "Invalid input", details: parsed.error.flatten() }, { status: 400 });
   }
-  const { businessId, serviceId, date, staffMemberId } = parsed.data;
+  const { businessId, serviceId, date, staffMemberId, totalDurationMin } = parsed.data;
 
   const business = await db.business.findUnique({ where: { id: businessId }, select: { openingHours: true } });
   if (!business) return NextResponse.json({ error: "Business not found" }, { status: 404 });
@@ -82,9 +85,11 @@ export async function GET(request: NextRequest) {
 
   // Includes reserved (already-booked) slots tagged `reserved: true` so the UI can
   // show them as unavailable instead of just silently omitting them.
+  // totalDurationMin (multi-service group span) wins over the single service duration.
+  const effectiveDuration = totalDurationMin ?? service.duration;
   const slots = getAllSlotsWithStatus({
     date,
-    serviceDurationMin: service.duration,
+    serviceDurationMin: effectiveDuration,
     openingHours: effectiveOpening,
     existingBookings: existingSlots,
   });
@@ -93,7 +98,7 @@ export async function GET(request: NextRequest) {
     data: {
       slots: slots.map((s) => ({ start: s.start.toISOString(), end: s.end.toISOString(), reserved: s.reserved })),
       openingHours: effectiveOpening,
-      service: { id: service.id, name: service.name, duration: service.duration, price: service.price },
+      service: { id: service.id, name: service.name, duration: effectiveDuration, price: service.price },
     },
   });
 }

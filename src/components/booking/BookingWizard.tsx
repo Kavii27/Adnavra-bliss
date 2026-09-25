@@ -2,7 +2,6 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { useSession } from "next-auth/react";
 import { Loader2, AlertCircle, Check, Clock, MapPin, User, Calendar, ChevronLeft, ChevronRight, Scissors, Info } from "lucide-react";
 import { SERVICE_CATEGORIES, taxonomyLabelKey } from "@/lib/categories";
 import { useLocale } from "@/lib/i18n/locale-context";
@@ -52,9 +51,16 @@ function SecondaryCta({
   );
 }
 
-type Step = "services" | "professional" | "time" | "confirm";
+type Step = "services" | "professional" | "time" | "details" | "confirm";
 
-const STEP_ORDER: Step[] = ["services", "professional", "time", "confirm"];
+const STEP_ORDER: Step[] = ["services", "professional", "time", "details", "confirm"];
+const STEP_LABELS: Record<Step, string> = {
+  services: "Services",
+  professional: "Professional",
+  time: "Time",
+  details: "Your details",
+  confirm: "Confirm",
+};
 
 function periodKey(label: string): string {
   if (label === "Afternoon") return "booking.period.afternoon";
@@ -182,6 +188,15 @@ function dayLabel(dateStr: string): { dow: string; dayNum: string; isToday: bool
   return { dow, dayNum, isToday: dateStr === nowStr, isTomorrow: dateStr === tomorrowStr };
 }
 
+function stepLabel(t: (key: string) => string, s: Step): string {
+  if (s === "details") {
+    const v = t("booking.step.details");
+    return v === "booking.step.details" ? (STEP_LABELS[s] ?? s) : v;
+  }
+  const v = t(`booking.step.${s}`);
+  return v === `booking.step.${s}` ? (STEP_LABELS[s] ?? s) : v;
+}
+
 export function BookingWizard({
   businessSlug,
   initialServiceId,
@@ -198,22 +213,28 @@ export function BookingWizard({
   const [step, setStep] = useState<Step>("services");
   const { t } = useLocale();
 
-  // Step 4: require a CUSTOMER account before a booking is confirmed.
-  // The /[businessSlug]/book page already redirects logged-out visitors, but the
-  // wizard also gates its own confirm step so a mid-flow session expiry (or any
-  // other embed of this component) shows a sign-in prompt — never a dead-end
-  // error after clicking confirm.
-  const { data: session, status: sessionStatus } = useSession();
-  const sessionRole = (session?.user as unknown as { role?: string } | undefined)?.role ?? null;
-  const isCustomer = sessionStatus === "authenticated" && sessionRole === "CUSTOMER";
+  // Phase 4: guest-friendly — no session gate. Identity comes from the
+  // "Your details" step (name + phone required, email optional).
 
   // Data
   const [business, setBusiness] = useState<BusinessLite | null>(null);
   const [services, setServices] = useState<Service[]>([]);
   const [staff, setStaff] = useState<StaffLite[]>([]);
 
-  // Selections — single-service cart per Phase 7 default (radio-style)
-  const [selectedServiceId, setSelectedServiceId] = useState<string | null>(initialServiceId ?? null);
+  // Selections — multi-service cart (checkbox-style, order preserved)
+  const [selectedServiceIds, setSelectedServiceIds] = useState<string[]>(
+    initialServiceId ? [initialServiceId] : [],
+  );
+  function toggleService(id: string) {
+    setSelectedServiceIds((cur) => (cur.includes(id) ? cur.filter((x) => x !== id) : [...cur, id]));
+  }
+  const selectedServices = useMemo(
+    () => selectedServiceIds.map((id) => services.find((s) => s.id === id)).filter((s): s is Service => !!s),
+    [selectedServiceIds, services],
+  );
+  const totalDuration = useMemo(() => selectedServices.reduce((sum, s) => sum + s.duration, 0), [selectedServices]);
+  const totalPrice = useMemo(() => selectedServices.reduce((sum, s) => sum + s.price, 0), [selectedServices]);
+
   const [selectedStaffId, setSelectedStaffId] = useState<string | null>(initialStaffId ?? null); // null = Any professional
   const [selectedDate, setSelectedDate] = useState<string>(() => {
     if (initialDate && /^\d{4}-\d{2}-\d{2}$/.test(initialDate)) return initialDate;
@@ -224,6 +245,12 @@ export function BookingWizard({
   const [notes, setNotes] = useState("");
   const [logoFailed, setLogoFailed] = useState(false);
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
+
+  // Contact fields — replaces the old account-based identity
+  const [customerName, setCustomerName] = useState("");
+  const [customerPhone, setCustomerPhone] = useState("");
+  const [customerEmail, setCustomerEmail] = useState(""); // optional
+  const contactValid = customerName.trim().length > 0 && customerPhone.trim().length >= 7;
 
   // UI state
   const [bizLoading, setBizLoading] = useState(true);
@@ -237,27 +264,13 @@ export function BookingWizard({
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [success, setSuccess] = useState<{ reference: string } | null>(null);
 
-  const selectedService = useMemo(() => services.find((s) => s.id === selectedServiceId) ?? null, [services, selectedServiceId]);
   const selectedStaffName = useMemo(() => {
     if (!selectedStaffId) return t("booking.pro.any");
     return staff.find((s) => s.id === selectedStaffId)?.name ?? t("booking.pro.any");
   }, [selectedStaffId, staff, t]);
 
-  // Step 4: sign-in return URL preserving the current selection, so callbackUrl
-  // lands the customer back on the same step instead of restarting the flow.
-  const currentUrlWithSelection = useMemo(() => {
-    const params = new URLSearchParams();
-    if (selectedServiceId) params.set("serviceId", selectedServiceId);
-    if (selectedStaffId) params.set("staffId", selectedStaffId);
-    if (selectedDate) params.set("date", selectedDate);
-    if (selectedSlot) params.set("slot", selectedSlot.start);
-    const qs = params.toString();
-    return `/${businessSlug}/book${qs ? `?${qs}` : ""}`;
-  }, [businessSlug, selectedServiceId, selectedStaffId, selectedDate, selectedSlot]);
-
-  // Restore a deep-linked slot (from callbackUrl) once slots load. Never auto-select a
-  // slot someone else has since booked — just clear the pending marker so the customer
-  // sees it greyed out as "Reserved" instead of silently landing on a taken time.
+  // Restore a deep-linked slot once slots load. Never auto-select a
+  // slot someone else has since booked — just clear the pending marker.
   useEffect(() => {
     if (!pendingSlotStart || selectedSlot || slots.length === 0) return;
     const match = slots.find((s) => s.start === pendingSlotStart);
@@ -288,11 +301,6 @@ export function BookingWizard({
             if (!cancelled && sr.ok) {
               const list: Service[] = (sj.data ?? []) as Service[];
               setServices(list);
-              // default service selection if not provided
-              if (!initialServiceId && list.length > 0 && !selectedServiceId) {
-                // keep null until user picks — force explicit choice (no auto-select) per wizard UX,
-                // but if initialServiceId was not set keep null; user must pick.
-              }
             }
           } catch {
             /* services error handled via empty state */
@@ -328,18 +336,16 @@ export function BookingWizard({
     return () => {
       cancelled = true;
     };
-    // initialServiceId intentionally not in deps to avoid re-trigger
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [businessSlug]);
 
-  // Fetch slots when business/service/date/staff changes and step is time
+  // Fetch slots when business/services/date/staff changes.
+  // Uses the GROUP total duration so the slot fits every selected treatment back-to-back.
+  const firstServiceId = selectedServiceIds[0] ?? null;
   useEffect(() => {
-    if (!business?.id || !selectedServiceId || !selectedDate) {
+    if (!business?.id || !firstServiceId || !selectedDate) {
       setSlots([]);
       return;
     }
-    // Only fetch when relevant step is active or user has selected a date
-    // Always fetch so summary can be prepared even before entering time step
     let cancelled = false;
     async function fetchSlots() {
       setSlotsLoading(true);
@@ -348,13 +354,11 @@ export function BookingWizard({
       try {
         const params = new URLSearchParams({
           businessId: business!.id,
-          serviceId: selectedServiceId as string,
+          serviceId: firstServiceId as string,
           date: selectedDate,
         });
+        if (totalDuration > 0) params.set("totalDurationMin", String(totalDuration));
         if (selectedStaffId) params.set("staffMemberId", selectedStaffId);
-        // TODO: filter by staffMemberId once per-staff schedules exist — availability route currently
-        // respects staffMemberId for booking overlap but does not yet model per-staff working windows.
-        // This param is already forwarded and will be used when that feature ships.
         const r = await fetch(`/api/availability?${params.toString()}`);
         const j = await r.json();
         if (cancelled) return;
@@ -376,17 +380,20 @@ export function BookingWizard({
     return () => {
       cancelled = true;
     };
-    // business object stable after load; tracking id is sufficient for slot refresh
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [business?.id, selectedServiceId, selectedDate, selectedStaffId]);
+  }, [business?.id, firstServiceId, selectedDate, selectedStaffId, totalDuration]);
 
   // Navigation helpers
   const currentIndex = STEP_ORDER.indexOf(step);
   function goNext() {
-    if (step === "services" && !selectedServiceId) return;
+    if (step === "services" && selectedServiceIds.length === 0) return;
     if (step === "time" && !selectedSlot) return;
+    if (step === "details" && !contactValid) return;
     const next = STEP_ORDER[currentIndex + 1];
-    if (next) setStep(next);
+    if (next) {
+      setStep(next);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
   }
   function goBack() {
     if (currentIndex === 0) return;
@@ -395,19 +402,24 @@ export function BookingWizard({
   }
 
   async function handleConfirm() {
-    if (!business?.id || !selectedServiceId || !selectedSlot) return;
+    if (!business?.id || selectedServiceIds.length === 0 || !selectedSlot) return;
+    if (!contactValid) {
+      setStep("details");
+      return;
+    }
     setSubmitting(true);
     setSubmitError(null);
     try {
       const payload: Record<string, unknown> = {
         businessId: business.id,
-        serviceId: selectedServiceId,
+        serviceIds: selectedServiceIds,
         startAt: selectedSlot.start,
+        customerName: customerName.trim(),
+        customerPhone: customerPhone.trim(),
         notes: notes.trim() || undefined,
       };
       if (selectedStaffId) payload.staffMemberId = selectedStaffId;
-      // Customer identity is now derived from the authenticated CUSTOMER session server-side
-      // (customerName/customerPhone backfilled per Phase 7.6). No free-text name/phone form.
+      if (customerEmail.trim()) payload.customerEmail = customerEmail.trim();
       const r = await fetch("/api/bookings", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -415,14 +427,10 @@ export function BookingWizard({
       });
       const j = await r.json();
       if (!r.ok) {
-        if (j.error === "auth_required" || r.status === 401) {
-          setSubmitError(t("booking.error.signin"));
-        } else {
-          setSubmitError(j.error ?? t("booking.error.failed"));
-        }
+        setSubmitError(j.error ?? t("booking.error.failed"));
         return;
       }
-      setSuccess({ reference: j.reference ?? j.data?.reference ?? "" });
+      setSuccess({ reference: j.reference ?? j.data?.[0]?.reference ?? "" });
     } catch {
       setSubmitError(t("booking.error.network"));
     } finally {
@@ -433,7 +441,7 @@ export function BookingWizard({
   const SERIF = "font-[family-name:var(--font-display)]";
   const GOLD = "#D9BE8C";
 
-  // Success state — replaces wizard content per Task 7.7
+  // Success state — booking starts PENDING, so say "request sent", not "confirmed"
   if (success) {
     return (
       <div className="mx-auto max-w-2xl px-1">
@@ -445,9 +453,9 @@ export function BookingWizard({
             >
               <Check className="h-7 w-7 text-[#1B1714]" strokeWidth={3} />
             </div>
-            <h2 className={`${SERIF} mt-5 text-3xl font-medium text-white sm:text-4xl`}>{t("booking.success.title")}</h2>
+            <h2 className={`${SERIF} mt-5 text-3xl font-medium text-white sm:text-4xl`}>{t("booking.success.requestTitle")}</h2>
             <p className="mx-auto mt-2 max-w-sm text-sm text-white/70">
-              {t("booking.success.lead")} {business?.name ?? businessSlug} {t("booking.success.tail")}
+              {t("booking.success.requestLead")} {business?.name ?? businessSlug} {t("booking.success.requestTail")}
             </p>
           </div>
           <div className="px-6 py-8 text-center sm:px-10">
@@ -460,16 +468,16 @@ export function BookingWizard({
             <p className="mt-4 text-xs text-[#8A8377]">{t("booking.reference.hint")}</p>
             <div className="mt-7 flex flex-col items-center justify-center gap-3 sm:flex-row">
               <Link
-                href="/customer/account/activity"
+                href={`/${businessSlug}`}
                 className="inline-flex h-11 w-full items-center justify-center rounded-full bg-[#1F1B17] px-6 text-[12px] font-bold uppercase tracking-[0.12em] text-white transition-colors hover:bg-[#795831] sm:w-auto"
               >
-                {t("booking.success.viewActivity")}
+                {t("booking.backToVenue")}
               </Link>
               <Link
-                href={`/${businessSlug}`}
+                href="/"
                 className="inline-flex h-11 w-full items-center justify-center rounded-full border border-[#E5DDD0] bg-white px-6 text-[12px] font-bold uppercase tracking-[0.12em] text-[#1F1E1D] transition-colors hover:bg-[#F7F3ED] sm:w-auto"
               >
-                {t("booking.backToVenue")}
+                {t("nav.home")}
               </Link>
             </div>
           </div>
@@ -482,16 +490,12 @@ export function BookingWizard({
   const visibleDates = getDateStrip(new Date(), dateOffset);
 
   return (
-    <div className="w-full">
-      {/* Stepper — `sticky` (not `fixed`) so it stays in normal document flow and
-          can never overlap content when mobile browser chrome expands/collapses.
-          It sticks at top-52 (208px = nav 64px + hero 144px, both `fixed` in
-          book/page.tsx), exactly where the old fixed band sat. min-h-28 (not h-28)
-          so taller labels (e.g. Sinhala strings in Phase 3) grow the band instead
-          of clipping. No spacer needed — sticky reserves its own space in flow. */}
-      <div className="sticky top-52 z-20 flex min-h-28 items-center bg-[#FAF7F2]">
+    <div className="flex min-h-[100dvh] w-full flex-col">
+      {/* Stepper — sticky in normal flow so it never overlaps content.
+          min-h instead of fixed h so longer labels (e.g. Sinhala) grow instead of clipping. */}
+      <div className="sticky top-52 z-20 flex min-h-28 shrink-0 items-center bg-[#FAF7F2]">
         <div className="w-full overflow-x-auto overscroll-contain rounded-2xl border border-[#E9E1D3] bg-white px-4 py-5 shadow-[0_2px_16px_rgba(30,28,26,0.04)] sm:px-8">
-          <div className="flex min-w-[480px] items-center sm:min-w-0">
+          <div className="flex min-w-[520px] items-center sm:min-w-0">
             {STEP_ORDER.map((s, idx) => {
               const isActive = s === step;
               const isCompleted = idx < currentIndex;
@@ -520,7 +524,7 @@ export function BookingWizard({
                         isActive || isCompleted ? "text-[#1F1E1D]" : "text-[#B4AC9E]"
                       }`}
                     >
-                      {t(`booking.step.${s}`)}
+                      {stepLabel(t, s)}
                     </span>
                   </button>
                   {idx < STEP_ORDER.length - 1 && (
@@ -532,31 +536,28 @@ export function BookingWizard({
           </div>
         </div>
       </div>
-      {/* Breathing room between the in-flow sticky stepper above and the wizard
-          grid below (the parent flex-col gap-6 supplies the rest). */}
-      <div className="mb-2" aria-hidden="true" />
+      <div className="mb-2 shrink-0" aria-hidden="true" />
 
-      {/* Left wizard + right summary. The summary is `fixed` (see below), which removes it from
-          normal flow entirely, so we can't rely on CSS grid to reserve its column — instead the
-          left card gets an explicit right margin at lg+ matching the fixed sidebar's width + gap. */}
+      {/* Left wizard + right summary. The summary is fixed at lg+ so it stays
+          visible while scrolling; the left card reserves its column via margin. */}
       <div className="flex flex-col gap-6 lg:block">
-        {/* Left: step content */}
-        <div className="flex min-h-[560px] flex-col overflow-hidden rounded-2xl border border-[#E9E1D3] bg-white shadow-[0_8px_32px_rgba(30,28,26,0.08)] lg:mr-[432px] xl:mr-[452px]">
+        {/* Left: step content — scrolls independently, pb clears the fixed mobile bar */}
+        <div className="flex min-h-[560px] flex-1 flex-col overflow-hidden rounded-2xl border border-[#E9E1D3] bg-white shadow-[0_8px_32px_rgba(30,28,26,0.08)] lg:mr-[432px] xl:mr-[452px]">
           {/* Loading state */}
           {bizLoading ? (
-            <div className="flex-1 flex items-center justify-center gap-2 text-sm text-[#8A8377] py-12">
+            <div className="flex flex-1 items-center justify-center gap-2 py-12 text-sm text-[#8A8377]">
               <Loader2 className="h-4 w-4 animate-spin" /> {t("booking.loading.details")}
             </div>
           ) : (
             <>
-              {/* Step 1: Services */}
+              {/* Step 1: Services (multi-select) */}
               {step === "services" && (
-                <div className="flex-1 flex flex-col">
-                  <div className="border-b border-[#F1EDE7] px-6 pt-7 pb-5 sm:px-9">
-                    <h2 className={`${SERIF} text-3xl font-medium tracking-tight text-[#1F1E1D]`}>{t("booking.selectService.title")}</h2>
-                    <p className="mt-1 text-sm text-[#8A8377]">{t("booking.selectService.sub")}</p>
+                <div className="flex flex-1 flex-col">
+                  <div className="shrink-0 border-b border-[#F1EDE7] px-6 pb-5 pt-7 sm:px-9">
+                    <h2 className={`${SERIF} text-3xl font-medium tracking-tight text-[#1F1E1D]`}>{t("booking.selectServices")}</h2>
+                    <p className="mt-1 text-sm text-[#8A8377]">{t("booking.selectServices.sub")}</p>
                     {groups.length > 1 && (
-                      <div className="mt-5 -mb-1 flex gap-2 overflow-x-auto pb-1">
+                      <div className="mb-1 mt-5 flex gap-2 overflow-x-auto overscroll-contain pb-1">
                         <button
                           type="button"
                           onClick={() => setActiveCategory(null)}
@@ -581,9 +582,9 @@ export function BookingWizard({
                       </div>
                     )}
                   </div>
-                  <div className="flex-1 overflow-y-auto">
+                  <div className="flex-1 overflow-y-auto overscroll-contain">
                     {servicesLoading ? (
-                      <div className="flex items-center gap-2 text-sm text-[#8A8377] p-6">
+                      <div className="flex items-center gap-2 p-6 text-sm text-[#8A8377]">
                         <Loader2 className="h-4 w-4 animate-spin" /> {t("booking.loading.services")}
                       </div>
                     ) : services.length === 0 ? (
@@ -598,47 +599,27 @@ export function BookingWizard({
                           .map((g) => (
                             <div key={g.key}>
                               <h3 className="text-xs font-semibold uppercase tracking-[0.16em] text-[#9A7B4F]">{g.key === "featured" ? t("booking.group.featured") : t(taxonomyLabelKey(g.key))}</h3>
-                              <div className="mt-3 grid gap-4 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
+                              <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
                                 {g.services.map((s) => {
-                                  const isSelected = selectedServiceId === s.id;
+                                  const isSelected = selectedServiceIds.includes(s.id);
                                   return (
                                     <button
                                       key={s.id}
                                       type="button"
-                                      onClick={() => setSelectedServiceId(s.id)}
+                                      onClick={() => toggleService(s.id)}
                                       aria-pressed={isSelected}
-                                      className={`group relative overflow-hidden rounded-2xl border text-left transition-all ${
-                                        isSelected
-                                          ? "border-[#1F1B17] shadow-[0_10px_28px_rgba(30,28,26,0.16)]"
-                                          : "border-[#E9E1D3] bg-white hover:-translate-y-0.5 hover:shadow-[0_10px_24px_rgba(30,28,26,0.1)]"
+                                      className={`relative flex items-start gap-3 rounded-2xl border p-4 text-left transition ${
+                                        isSelected ? "border-[#795831] bg-[#F7F3ED] ring-2 ring-[#795831]/30" : "border-[#E5DDD0] bg-white hover:border-[#C9B99C]"
                                       }`}
                                     >
-                                      <div className="relative aspect-[16/10] w-full overflow-hidden">
-                                        <ServiceImage
-                                          name={s.name}
-                                          category={s.category}
-                                          imageUrl={s.imageUrl}
-                                          className="h-full w-full transition-transform duration-500 group-hover:scale-105"
-                                        />
-                                        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/55 via-black/0 to-black/0" />
-                                        <span
-                                          className={`absolute right-3 top-3 flex h-8 w-8 items-center justify-center rounded-full border text-sm font-semibold shadow transition-colors ${
-                                            isSelected ? "border-[#D9BE8C] bg-[#1F1B17] text-[#D9BE8C]" : "border-white/70 bg-white/90 text-[#795831] backdrop-blur"
-                                          }`}
-                                        >
-                                          {isSelected ? <Check className="h-4 w-4" /> : "+"}
-                                        </span>
-                                        <span className="absolute bottom-3 left-3 rounded-full bg-black/55 px-2.5 py-1 text-[11px] font-semibold text-white backdrop-blur">
-                                          {formatPrice(s.price)}
-                                        </span>
+                                      <ServiceImage name={s.name} category={s.category} imageUrl={s.imageUrl} className="h-16 w-16 shrink-0 rounded-lg" />
+                                      <div className="min-w-0 flex-1">
+                                        <p className="truncate font-medium text-[#1F1E1D]">{s.name}</p>
+                                        <p className="mt-0.5 text-xs text-[#8A8377]">{s.duration} {t("booking.min")} · {formatPrice(s.price)}</p>
                                       </div>
-                                      <div className="p-4">
-                                        <p className={`${SERIF} text-lg font-semibold leading-tight text-[#1F1E1D]`}>{s.name}</p>
-                                        {s.description && <p className="mt-1 text-xs leading-relaxed text-[#4A4640] line-clamp-2">{s.description}</p>}
-                                        <p className="mt-2 flex items-center gap-1.5 text-xs text-[#8A8377]">
-                                          <Clock className="h-3.5 w-3.5" /> {s.duration} {t("booking.min")}
-                                        </p>
-                                      </div>
+                                      <span className={`mt-1 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 ${isSelected ? "border-[#795831] bg-[#795831]" : "border-[#D9CFBE]"}`}>
+                                        {isSelected && <Check className="h-3 w-3 text-white" />}
+                                      </span>
                                     </button>
                                   );
                                 })}
@@ -648,22 +629,36 @@ export function BookingWizard({
                       </div>
                     )}
                   </div>
-                  <div className="border-t border-[#F1EDE7] px-6 py-5 flex justify-end sm:px-9">
-                    <PrimaryCta onClick={goNext} disabled={!selectedServiceId}>
-                      {t("booking.continue")}
-                    </PrimaryCta>
-                  </div>
+                  {/* Sticky mobile summary bar — running count/price */}
+                  {selectedServiceIds.length > 0 && (
+                    <div className="shrink-0 border-t border-[#E5DDD0] bg-white/95 px-4 py-3 backdrop-blur sm:mt-4 sm:rounded-xl sm:border sm:bg-[#F7F3ED] sm:py-4">
+                      <div className="flex items-center justify-between gap-3">
+                        <div className="min-w-0">
+                          <p className="text-xs text-[#8A8377]">{selectedServiceIds.length} treatment{selectedServiceIds.length > 1 ? "s" : ""} · {totalDuration} {t("booking.min")}</p>
+                          <p className="font-semibold text-[#1F1E1D]">{formatPrice(totalPrice)}</p>
+                        </div>
+                        <PrimaryCta onClick={goNext}>{t("booking.continue")}</PrimaryCta>
+                      </div>
+                    </div>
+                  )}
+                  {selectedServiceIds.length === 0 && (
+                    <div className="flex shrink-0 justify-end border-t border-[#F1EDE7] px-6 py-5 sm:px-9">
+                      <PrimaryCta onClick={goNext} disabled>
+                        {t("booking.continue")}
+                      </PrimaryCta>
+                    </div>
+                  )}
                 </div>
               )}
 
               {/* Step 2: Professional */}
               {step === "professional" && (
-                <div className="flex-1 flex flex-col">
-                  <div className="border-b border-[#F1EDE7] px-6 pt-7 pb-4 sm:px-9">
+                <div className="flex flex-1 flex-col">
+                  <div className="shrink-0 border-b border-[#F1EDE7] px-6 pb-4 pt-7 sm:px-9">
                     <h2 className={`${SERIF} text-3xl font-medium tracking-tight text-[#1F1E1D]`}>{t("booking.pro.title")}</h2>
                     <p className="mt-1 text-sm text-[#8A8377]">{t("booking.pro.sub")}</p>
                   </div>
-                  <div className="flex-1 p-6 sm:p-9">
+                  <div className="flex-1 overflow-y-auto overscroll-contain p-6 sm:p-9">
                     {staffLoading ? (
                       <div className="flex items-center gap-2 text-sm text-[#8A8377]">
                         <Loader2 className="h-4 w-4 animate-spin" /> {t("booking.loading.team")}
@@ -734,7 +729,7 @@ export function BookingWizard({
                       </>
                     )}
                   </div>
-                  <div className="flex justify-between gap-3 border-t border-[#F1EDE7] px-6 py-5 sm:px-9">
+                  <div className="flex shrink-0 justify-between gap-3 border-t border-[#F1EDE7] px-6 py-5 sm:px-9">
                     <SecondaryCta onClick={goBack}>{t("booking.back")}</SecondaryCta>
                     <PrimaryCta onClick={goNext}>{t("booking.continue")}</PrimaryCta>
                   </div>
@@ -743,19 +738,19 @@ export function BookingWizard({
 
               {/* Step 3: Time */}
               {step === "time" && (
-                <div className="flex-1 flex flex-col">
-                  <div className="border-b border-[#F1EDE7] px-6 pt-7 pb-4 sm:px-9">
+                <div className="flex flex-1 flex-col">
+                  <div className="shrink-0 border-b border-[#F1EDE7] px-6 pb-4 pt-7 sm:px-9">
                     <h2 className={`${SERIF} text-3xl font-medium tracking-tight text-[#1F1E1D]`}>{t("booking.time.title")}</h2>
                     <p className="mt-1 text-sm text-[#8A8377]">
-                      {selectedService ? <>{selectedService.name} · {selectedService.duration} {t("booking.min")}</> : t("booking.time.pickPrompt")}
+                      {selectedServices.length > 0 ? <>{selectedServices.length} treatment{selectedServices.length > 1 ? "s" : ""} · {totalDuration} {t("booking.min")}</> : t("booking.time.pickPrompt")}
                       {selectedStaffId ? ` · ${selectedStaffName}` : ""}
                     </p>
                   </div>
 
-                  <div className="flex min-h-0 flex-1 flex-col p-6 sm:p-9">
-                    {!selectedServiceId ? (
-                      <div className="rounded-lg border border-[#FDECEC] bg-[#FDECEC] p-4 flex gap-2 text-sm text-[#B91C1C]">
-                        <AlertCircle className="h-4 w-4 shrink-0 mt-0.5" /> {t("booking.time.needService")}
+                  <div className="flex min-h-0 flex-1 flex-col overflow-y-auto overscroll-contain p-6 sm:p-9">
+                    {selectedServiceIds.length === 0 ? (
+                      <div className="flex gap-2 rounded-lg border border-[#FDECEC] bg-[#FDECEC] p-4 text-sm text-[#B91C1C]">
+                        <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" /> {t("booking.time.needService")}
                       </div>
                     ) : (
                       <>
@@ -807,11 +802,11 @@ export function BookingWizard({
                         {/* Slots — grouped by time of day */}
                         <div className="mt-6 min-h-[180px] flex-1">
                           {slotsLoading ? (
-                            <div className="flex items-center gap-2 text-sm text-[#8A8377] py-6">
+                            <div className="flex items-center gap-2 py-6 text-sm text-[#8A8377]">
                               <Loader2 className="h-4 w-4 animate-spin" /> {t("booking.loading.times")}
                             </div>
                           ) : slotError && slots.length === 0 ? (
-                            <p className="text-sm text-[#B91C1C] flex items-center gap-1.5 py-3">
+                            <p className="flex items-center gap-1.5 py-3 text-sm text-[#B91C1C]">
                               <AlertCircle className="h-4 w-4" /> {slotError}
                             </p>
                           ) : slots.length > 0 ? (
@@ -866,7 +861,7 @@ export function BookingWizard({
                     )}
                   </div>
 
-                  <div className="flex justify-between gap-3 border-t border-[#F1EDE7] px-6 py-5 sm:px-9">
+                  <div className="flex shrink-0 justify-between gap-3 border-t border-[#F1EDE7] px-6 py-5 sm:px-9">
                     <SecondaryCta onClick={goBack}>{t("booking.back")}</SecondaryCta>
                     <PrimaryCta onClick={goNext} disabled={!selectedSlot}>
                       {t("booking.continue")}
@@ -875,49 +870,128 @@ export function BookingWizard({
                 </div>
               )}
 
-              {/* Step 4: Confirm */}
+              {/* Step 4: Your details (replaces the old sign-in gate) */}
+              {step === "details" && (
+                <div className="flex flex-1 flex-col">
+                  <div className="shrink-0 border-b border-[#F1EDE7] px-6 pb-4 pt-7 sm:px-9">
+                    <h2 className={`${SERIF} text-3xl font-medium tracking-tight text-[#1F1E1D]`}>{t("booking.yourDetails")}</h2>
+                    <p className="mt-1 text-sm text-[#8A8377]">{t("booking.details.sub")}</p>
+                  </div>
+                  <div className="flex-1 space-y-4 overflow-y-auto overscroll-contain p-6 sm:p-9">
+                    <div className="max-w-md space-y-4">
+                      <div>
+                        <label htmlFor="wizard-name" className="text-sm font-medium text-[#1F1E1D]">{t("booking.name")} *</label>
+                        <input
+                          id="wizard-name"
+                          value={customerName}
+                          onChange={(e) => setCustomerName(e.target.value)}
+                          required
+                          autoComplete="name"
+                          className="mt-1 h-12 w-full rounded-xl border border-[#E5DDD0] px-4 text-[15px] outline-none focus:border-[#795831]"
+                          placeholder={t("booking.details.namePh")}
+                        />
+                      </div>
+                      <div>
+                        <label htmlFor="wizard-phone" className="text-sm font-medium text-[#1F1E1D]">{t("booking.phone")} *</label>
+                        <input
+                          id="wizard-phone"
+                          value={customerPhone}
+                          onChange={(e) => setCustomerPhone(e.target.value)}
+                          required
+                          type="tel"
+                          autoComplete="tel"
+                          className="mt-1 h-12 w-full rounded-xl border border-[#E5DDD0] px-4 text-[15px] outline-none focus:border-[#795831]"
+                          placeholder={t("booking.details.phonePh")}
+                        />
+                        <p className="mt-1 text-xs text-[#8A8377]">{t("booking.details.phoneHint")}</p>
+                      </div>
+                      <div>
+                        <label htmlFor="wizard-email" className="text-sm font-medium text-[#1F1E1D]">{t("booking.email")}</label>
+                        <input
+                          id="wizard-email"
+                          value={customerEmail}
+                          onChange={(e) => setCustomerEmail(e.target.value)}
+                          type="email"
+                          autoComplete="email"
+                          className="mt-1 h-12 w-full rounded-xl border border-[#E5DDD0] px-4 text-[15px] outline-none focus:border-[#795831]"
+                          placeholder="you@example.com"
+                        />
+                      </div>
+                      {!contactValid && (
+                        <p className="text-xs text-[#8A8377]">{t("booking.details.requiredHint")}</p>
+                      )}
+                    </div>
+                  </div>
+                  <div className="flex shrink-0 justify-between gap-3 border-t border-[#F1EDE7] px-6 py-5 sm:px-9">
+                    <SecondaryCta onClick={goBack}>{t("booking.back")}</SecondaryCta>
+                    <PrimaryCta onClick={goNext} disabled={!contactValid}>
+                      {t("booking.continue")}
+                    </PrimaryCta>
+                  </div>
+                </div>
+              )}
+
+              {/* Step 5: Confirm */}
               {step === "confirm" && (
-                <div className="flex-1 flex flex-col">
-                  <div className="border-b border-[#F1EDE7] px-6 pt-7 pb-4 sm:px-9">
+                <div className="flex flex-1 flex-col">
+                  <div className="shrink-0 border-b border-[#F1EDE7] px-6 pb-4 pt-7 sm:px-9">
                     <h2 className={`${SERIF} text-3xl font-medium tracking-tight text-[#1F1E1D]`}>{t("booking.confirm.title")}</h2>
                     <p className="mt-1 text-sm text-[#8A8377]">{t("booking.confirm.review")}</p>
                   </div>
-                  <div className="flex-1 space-y-5 overflow-y-auto p-6 sm:p-9">
+                  <div className="flex-1 space-y-5 overflow-y-auto overscroll-contain p-6 sm:p-9">
                     {/* Summary inline for mobile before aside */}
-                    {selectedService && selectedSlot && (
+                    {selectedServices.length > 0 && selectedSlot && (
                       <div className="flex items-center gap-3 rounded-xl border border-[#E9E1D3] bg-[#FBF7EF] p-4 lg:hidden">
-                        <ServiceImage name={selectedService.name} category={selectedService.category} imageUrl={selectedService.imageUrl} className="h-12 w-12 shrink-0 rounded-lg" />
-                        <div className="min-w-0">
-                          <p className={`${SERIF} truncate text-lg font-semibold text-[#1F1E1D]`}>{selectedService.name}</p>
+                        <div className="min-w-0 flex-1">
+                          <p className={`${SERIF} truncate text-lg font-semibold text-[#1F1E1D]`}>
+                            {selectedServices.length} treatment{selectedServices.length > 1 ? "s" : ""} · {totalDuration} {t("booking.min")}
+                          </p>
                           <p className="text-xs text-[#4A4640]">
                             {formatDateLabel(selectedSlot.start)} · {selectedStaffName}
                           </p>
-                          <p className="text-sm font-semibold text-[#1F1E1D]">{t("booking.total")} {formatPrice(selectedService.price)}</p>
+                          <p className="text-sm font-semibold text-[#1F1E1D]">{t("booking.total")} {formatPrice(totalPrice)}</p>
                         </div>
                       </div>
                     )}
 
-                    {!selectedSlot || !selectedService ? (
-                      <div className="rounded-lg border border-[#FDECEC] bg-[#FDECEC] p-4 flex gap-2 text-sm text-[#B91C1C]">
-                        <AlertCircle className="h-4 w-4 shrink-0 mt-0.5" /> {t("booking.confirm.needSelection")}
+                    {!selectedSlot || selectedServices.length === 0 ? (
+                      <div className="flex gap-2 rounded-lg border border-[#FDECEC] bg-[#FDECEC] p-4 text-sm text-[#B91C1C]">
+                        <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" /> {t("booking.confirm.needSelection")}
                       </div>
                     ) : (
                       <>
-                        <div className="flex items-center gap-4 rounded-2xl border border-[#E9E1D3] bg-white p-4">
-                          <ServiceImage
-                            name={selectedService!.name}
-                            category={selectedService!.category}
-                            imageUrl={selectedService!.imageUrl}
-                            className="h-16 w-16 shrink-0 rounded-xl sm:h-20 sm:w-20"
-                          />
-                          <div className="min-w-0 flex-1">
-                            <p className={`${SERIF} text-lg font-semibold leading-tight text-[#1F1E1D] sm:text-xl`}>{selectedService!.name}</p>
-                            <p className="mt-1 text-xs text-[#8A8377]">
-                              {selectedService!.duration} {t("booking.min")} · {selectedStaffName}
-                            </p>
-                            <p className="mt-1 text-xs text-[#4A4640]">{formatDateLabel(selectedSlot!.start)}</p>
-                          </div>
-                          <span className={`${SERIF} shrink-0 text-lg font-semibold text-[#1F1E1D]`}>{formatPrice(selectedService!.price)}</span>
+                        <ul className="divide-y divide-[#F1EBDF] rounded-2xl border border-[#E9E1D3] bg-white px-4">
+                          {selectedServices.map((s) => (
+                            <li key={s.id} className="flex items-center gap-3 py-3">
+                              <ServiceImage
+                                name={s.name}
+                                category={s.category}
+                                imageUrl={s.imageUrl}
+                                className="h-12 w-12 shrink-0 rounded-xl sm:h-14 sm:w-14"
+                              />
+                              <div className="min-w-0 flex-1">
+                                <p className="truncate text-sm font-medium text-[#1F1E1D]">{s.name}</p>
+                                <p className="text-xs text-[#8A8377]">
+                                  {s.duration} {t("booking.min")} · {selectedStaffName}
+                                </p>
+                                <p className="text-xs text-[#4A4640]">{formatDateLabel(selectedSlot!.start)}</p>
+                              </div>
+                              <span className="shrink-0 text-sm font-semibold text-[#1F1E1D]">{formatPrice(s.price)}</span>
+                            </li>
+                          ))}
+                        </ul>
+                        <div className="flex items-center justify-between border-t border-[#E5DDD0] pt-3">
+                          <span className="font-semibold text-[#1F1E1D]">{t("booking.total")}</span>
+                          <span className={`${SERIF} text-xl font-semibold text-[#1F1E1D]`}>{formatPrice(totalPrice)}</span>
+                        </div>
+
+                        {/* Contact recap */}
+                        <div className="rounded-2xl border border-[#E9E1D3] bg-[#FBF7EF] p-4 text-sm">
+                          <p className="font-semibold text-[#1F1E1D]">{customerName || "—"}</p>
+                          <p className="text-[#4A4640]">{customerPhone || "—"}{customerEmail.trim() ? ` · ${customerEmail.trim()}` : ""}</p>
+                          <button type="button" onClick={() => setStep("details")} className="mt-1 text-xs font-medium text-[#795831] hover:underline">
+                            {t("booking.details.edit")}
+                          </button>
                         </div>
 
                         <div className="flex gap-3 rounded-xl border border-[#E9E1D3] bg-[#FBF7EF] p-4">
@@ -933,14 +1007,14 @@ export function BookingWizard({
                             <Info className="mt-0.5 h-4 w-4 shrink-0 text-[#9A7B4F]" />
                             <div>
                               <h3 className="text-sm font-semibold text-[#1F1E1D]">{t("booking.info.title")}</h3>
-                              <p className="mt-1 text-sm leading-relaxed text-[#4A4640] whitespace-pre-wrap">{business.description}</p>
+                              <p className="mt-1 whitespace-pre-wrap text-sm leading-relaxed text-[#4A4640]">{business.description}</p>
                             </div>
                           </div>
                         )}
 
                         <div>
                           <label htmlFor="wizard-notes" className="text-sm font-medium text-[#1F1E1D]">
-                            {t("booking.notes.label")} <span className="text-[#8A8377] font-normal">{t("booking.notes.optional")}</span>
+                            {t("booking.notes.label")} <span className="font-normal text-[#8A8377]">{t("booking.notes.optional")}</span>
                           </label>
                           <textarea
                             id="wizard-notes"
@@ -949,68 +1023,32 @@ export function BookingWizard({
                             rows={3}
                             maxLength={1000}
                             placeholder={t("booking.notes.placeholder")}
-                            className="mt-2 flex w-full rounded-lg border border-[#E5DDD0] bg-[#FDF9F3] px-3 py-2 text-sm text-[#1F1E1D] placeholder:text-[#8A8377] focus:outline-none focus:border-[#1F1E1D] focus:ring-1 focus:ring-[#1F1E1D]"
+                            className="mt-2 flex w-full rounded-lg border border-[#E5DDD0] bg-[#FDF9F3] px-3 py-2 text-sm text-[#1F1E1D] placeholder:text-[#8A8377] focus:border-[#1F1E1D] focus:outline-none focus:ring-1 focus:ring-[#1F1B17]"
                           />
-                          <p className="mt-1 text-xs text-[#8A8377] text-right">{notes.length}/1000</p>
+                          <p className="mt-1 text-right text-xs text-[#8A8377]">{notes.length}/1000</p>
                         </div>
 
                         {submitError && (
-                          <p className="text-sm text-[#B91C1C] flex items-center gap-1.5">
+                          <p className="flex items-center gap-1.5 text-sm text-[#B91C1C]">
                             <AlertCircle className="h-4 w-4 shrink-0" /> {submitError}
                           </p>
-                        )}
-
-                        {/* Step 4: sign-in gate — render before the confirm button,
-                            never a dead-end error after clicking it. */}
-                        {sessionStatus !== "loading" && !isCustomer && (
-                          <div className="rounded-xl border border-[#E9E1D3] bg-[#FBF7EF] p-4 text-center">
-                            <p className="text-sm font-medium text-[#1F1E1D]">{t("booking.signin.title")}</p>
-                            <p className="mt-1 text-xs text-[#8A8377]">{t("booking.signin.sub")}</p>
-                            <div className="mt-3 flex flex-wrap justify-center gap-2">
-                              <Link
-                                href={`/customer/login?callbackUrl=${encodeURIComponent(currentUrlWithSelection)}`}
-                                className="rounded-full bg-[#1F1B17] px-4 py-2 text-sm font-medium text-white hover:bg-[#795831] transition-colors"
-                              >
-                                {t("nav.login")}
-                              </Link>
-                              <Link
-                                href={`/customer/signup?callbackUrl=${encodeURIComponent(currentUrlWithSelection)}`}
-                                className="rounded-full border border-[#E5DDD0] bg-white px-4 py-2 text-sm font-medium text-[#1F1E1D] hover:bg-[#FDF9F3] transition-colors"
-                              >
-                                {t("booking.signup")}
-                              </Link>
-                            </div>
-                          </div>
                         )}
                       </>
                     )}
                   </div>
-                  <div className="flex flex-wrap justify-between gap-3 border-t border-[#F1EDE7] px-6 py-5 sm:px-9">
+                  <div className="flex shrink-0 flex-wrap justify-between gap-3 border-t border-[#F1EDE7] px-6 py-5 sm:px-9">
                     <SecondaryCta onClick={goBack} disabled={submitting}>
                       {t("booking.back")}
                     </SecondaryCta>
-                    {sessionStatus === "loading" ? (
-                      <PrimaryCta disabled className="min-w-[160px]">
-                        <Loader2 className="h-4 w-4 animate-spin" /> {t("booking.signin.checking")}
-                      </PrimaryCta>
-                    ) : !isCustomer ? (
-                      <Link
-                        href={`/customer/login?callbackUrl=${encodeURIComponent(currentUrlWithSelection)}`}
-                        className="inline-flex h-12 min-w-[160px] items-center justify-center rounded-full bg-[#1F1B17] px-7 text-[12px] font-bold uppercase tracking-[0.14em] text-white shadow-[0_4px_14px_rgba(30,28,26,0.25)] transition-all hover:scale-[1.02] hover:bg-[#795831]"
-                      >
-                        {t("booking.signin.cta")}
-                      </Link>
-                    ) : (
-                      <PrimaryCta onClick={handleConfirm} disabled={submitting || !selectedSlot || !selectedService} className="min-w-[160px]">
-                        {submitting ? (
-                          <>
-                            <Loader2 className="h-4 w-4 animate-spin" /> {t("booking.confirming")}
-                          </>
-                        ) : (
-                          t("booking.confirm")
-                        )}
-                      </PrimaryCta>
-                    )}
+                    <PrimaryCta onClick={handleConfirm} disabled={submitting || !selectedSlot || selectedServices.length === 0} className="min-w-[160px]">
+                      {submitting ? (
+                        <>
+                          <Loader2 className="h-4 w-4 animate-spin" /> {t("booking.confirming")}
+                        </>
+                      ) : (
+                        t("booking.confirm")
+                      )}
+                    </PrimaryCta>
                   </div>
                 </div>
               )}
@@ -1018,13 +1056,9 @@ export function BookingWizard({
           )}
         </div>
 
-        {/* Right: summary panel (live) — truly `fixed` at lg+ so it is always fully visible while
-            scrolling, never clipped or cut off. top-96 (384px) clears the header stack
-            (nav 64 + hero 144 + sticky stepper ~112 = ~320px). bottom-6 + overflow-y-auto is a safety net
-            so very short viewports scroll the card's own content instead of hiding it. Width and
-            right offset match the margin reserved on the left card above. On mobile (below lg) it
-            stays a normal in-flow block, unaffected. */}
-        <aside className="h-fit overflow-hidden rounded-2xl border border-[#E9E1D3] bg-white shadow-[0_8px_32px_rgba(30,28,26,0.1)] lg:fixed lg:top-96 lg:bottom-6 lg:right-12 lg:w-[400px] lg:overflow-y-auto xl:w-[420px]">
+        {/* Right: summary panel (live) — fixed at lg+ so it stays visible while
+            scrolling. On mobile it is a normal in-flow block below the wizard. */}
+        <aside className="h-fit overflow-hidden rounded-2xl border border-[#E9E1D3] bg-white shadow-[0_8px_32px_rgba(30,28,26,0.1)] lg:fixed lg:bottom-6 lg:right-12 lg:top-96 lg:w-[400px] lg:overflow-y-auto lg:overscroll-contain xl:w-[420px]">
           {bizLoading ? (
             <div className="flex items-center gap-2 p-6 text-sm text-[#8A8377]">
               <Loader2 className="h-4 w-4 animate-spin" /> {t("booking.loading.venue")}
@@ -1063,11 +1097,24 @@ export function BookingWizard({
               <div className="space-y-4 p-5">
                 <div className="space-y-3">
                   <h3 className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#9A7B4F]">{t("booking.summary.selection")}</h3>
-                  <div className="space-y-2.5 text-sm">
-                    <div className="flex justify-between gap-4">
-                      <span className="text-[#8A8377]">{t("booking.summary.service")}</span>
-                      <span className="text-right font-medium text-[#1F1E1D]">{selectedService ? selectedService.name : "—"}</span>
+                  {selectedServices.length > 0 ? (
+                    <ul className="divide-y divide-[#F1EBDF]">
+                      {selectedServices.map((s) => (
+                        <li key={s.id} className="flex items-center justify-between gap-3 py-2 text-sm">
+                          <span className="min-w-0 truncate text-[#4A4640]">{s.name} · {s.duration} {t("booking.min")}</span>
+                          <span className="shrink-0 font-medium text-[#1F1E1D]">{formatPrice(s.price)}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <div className="space-y-2.5 text-sm">
+                      <div className="flex justify-between gap-4">
+                        <span className="text-[#8A8377]">{t("booking.summary.service")}</span>
+                        <span className="text-right font-medium text-[#1F1E1D]">—</span>
+                      </div>
                     </div>
+                  )}
+                  <div className="space-y-2.5 text-sm">
                     <div className="flex justify-between gap-4">
                       <span className="text-[#8A8377]">{t("booking.step.professional")}</span>
                       <span className="text-right font-medium text-[#1F1E1D]">{selectedStaffName}</span>
@@ -1087,12 +1134,10 @@ export function BookingWizard({
 
                 <div className="flex items-center justify-between rounded-xl bg-[#FBF7EF] px-4 py-3">
                   <span className="text-sm font-semibold text-[#1F1E1D]">{t("booking.total")}</span>
-                  <span className={`${SERIF} text-xl font-semibold text-[#1F1E1D]`}>{selectedService ? formatPrice(selectedService.price) : "—"}</span>
+                  <span className={`${SERIF} text-xl font-semibold text-[#1F1E1D]`}>{selectedServices.length > 0 ? formatPrice(totalPrice) : "—"}</span>
                 </div>
                 <p className="text-xs leading-relaxed text-[#8A8377]">
-                  {isCustomer
-                    ? t("booking.summary.loggedIn")
-                    : t("booking.summary.guest")}
+                  {t("booking.summary.guestPending")}
                 </p>
               </div>
             </div>

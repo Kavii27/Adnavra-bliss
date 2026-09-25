@@ -2,11 +2,14 @@ import { z } from "zod";
 
 export const createBookingSchema = z.object({
   businessId: z.string().cuid(),
-  serviceId: z.string().cuid(),
+  // Multi-service: one appointment = one or more services, booked back-to-back.
+  // Legacy single-service callers can send serviceId instead — normalized in the route.
+  serviceIds: z.array(z.string().cuid()).min(1, "Select at least one treatment").max(10).optional(),
+  serviceId: z.string().cuid().optional(),
   staffMemberId: z.string().cuid().optional().nullable(),
-  customerName: z.string().min(1).max(100).trim().optional(),
+  customerName: z.string().min(1, "Name is required").max(100).trim(),
+  customerPhone: z.string().min(7, "Contact number is required").max(20).trim(),
   customerEmail: z.string().email().optional().nullable().or(z.literal("")),
-  customerPhone: z.string().min(7).max(20).trim().optional().nullable(),
   startAt: z.coerce.date(),
   notes: z.string().max(1000).optional().nullable(),
 });
