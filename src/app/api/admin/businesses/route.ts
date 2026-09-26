@@ -88,6 +88,21 @@ export async function POST(request: NextRequest) {
     await tx.subscription.create({
       data: { businessId: business.id, plan: "STARTER", status: "ACTIVE" },
     });
+
+    // Also seed the NEW subscription system so this salon appears with a
+    // real plan on /admin/salon-subscriptions and /admin/businesses
+    // immediately, instead of "No plan assigned" until an admin manually
+    // assigns one. Picks whatever active plan has the lowest rank
+    // (normally "Silver") as the default starter tier.
+    const defaultPlan = await tx.subscriptionPlan.findFirst({
+      where: { isActive: true },
+      orderBy: { rank: "asc" },
+    });
+    if (defaultPlan) {
+      await tx.businessSubscription.create({
+        data: { businessId: business.id, planId: defaultPlan.id, status: "ACTIVE" },
+      });
+    }
     const owner = await tx.user.create({
       data: {
         email: ownerEmail,

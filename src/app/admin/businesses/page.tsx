@@ -2,10 +2,29 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { ArrowRight, Plus, Store } from "lucide-react";
+import type { Prisma } from "@prisma/client";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { Button } from "@/components/ui/button";
 import { AdminBusinessesSearch } from "@/components/admin/admin-businesses-search";
+import { AdminBusinessesSort } from "@/components/admin/admin-businesses-sort";
+import { DeleteBusinessButton } from "@/components/admin/delete-business-button";
+
+type SortOption = "newest" | "oldest" | "name_asc" | "name_desc";
+
+function resolveOrderBy(sort: SortOption): Prisma.BusinessOrderByWithRelationInput {
+  switch (sort) {
+    case "oldest":
+      return { createdAt: "asc" };
+    case "name_asc":
+      return { name: "asc" };
+    case "name_desc":
+      return { name: "desc" };
+    case "newest":
+    default:
+      return { createdAt: "desc" };
+  }
+}
 
 /**
  * Admin businesses list (Task 3.1).
@@ -15,7 +34,7 @@ import { AdminBusinessesSearch } from "@/components/admin/admin-businesses-searc
 export default async function AdminBusinessesPage({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string; page?: string }>;
+  searchParams: Promise<{ q?: string; page?: string; sort?: string }>;
 }) {
   const session = await auth();
   const role = (session?.user as unknown as { role?: string } | undefined)?.role;
@@ -23,8 +42,10 @@ export default async function AdminBusinessesPage({
     notFound();
   }
 
-  const { q, page: pageParam } = await searchParams;
+  const { q, page: pageParam, sort: sortParam } = await searchParams;
   const query = (q ?? "").trim();
+  const sort: SortOption =
+    sortParam === "oldest" || sortParam === "name_asc" || sortParam === "name_desc" ? sortParam : "newest";
   const PAGE_SIZE = 50;
   const page = Math.max(1, parseInt(pageParam ?? "1", 10) || 1);
 
@@ -41,7 +62,7 @@ export default async function AdminBusinessesPage({
   const [businesses, total] = await Promise.all([
     db.business.findMany({
       where,
-      orderBy: { createdAt: "desc" },
+      orderBy: resolveOrderBy(sort),
       skip: (page - 1) * PAGE_SIZE,
       take: PAGE_SIZE,
       select: {
@@ -50,7 +71,7 @@ export default async function AdminBusinessesPage({
         slug: true,
         city: true,
         createdAt: true,
-        subscription: { select: { plan: true, status: true } },
+        businessSubscription: { select: { status: true, plan: { select: { name: true } } } },
         users: {
           where: { role: "OWNER" },
           select: { email: true },
@@ -66,6 +87,7 @@ export default async function AdminBusinessesPage({
   function pageHref(targetPage: number) {
     const params = new URLSearchParams();
     if (query) params.set("q", query);
+    params.set("sort", sort);
     params.set("page", String(targetPage));
     return `/admin/businesses?${params.toString()}`;
   }
@@ -87,9 +109,12 @@ export default async function AdminBusinessesPage({
         </Link>
       </div>
 
-      <div className="mt-6">
+      <div className="mt-6 flex flex-wrap items-center gap-3">
         <Suspense>
           <AdminBusinessesSearch initialQuery={query} />
+        </Suspense>
+        <Suspense>
+          <AdminBusinessesSort initialSort={sort} />
         </Suspense>
       </div>
 
@@ -115,26 +140,29 @@ export default async function AdminBusinessesPage({
         </div>
       ) : (
         <div className="mt-4 overflow-x-auto rounded-lg border border-[#E3E8F0] bg-white">
-          <table className="w-full min-w-[720px] text-left text-sm">
+          <table className="w-full table-fixed text-left text-sm">
             <thead>
               <tr className="border-b border-[#E3E8F0] bg-[#faf6ef] text-xs uppercase tracking-wide text-[#a89880]">
-                <th scope="col" className="px-4 py-3 font-semibold">
+                <th scope="col" className="w-[28%] px-4 py-3 font-semibold">
                   Salon
                 </th>
-                <th scope="col" className="px-4 py-3 font-semibold">
+                <th scope="col" className="w-[12%] px-4 py-3 font-semibold">
                   City
                 </th>
-                <th scope="col" className="px-4 py-3 font-semibold">
+                <th scope="col" className="w-[12%] px-4 py-3 font-semibold">
                   Plan
                 </th>
-                <th scope="col" className="px-4 py-3 font-semibold">
+                <th scope="col" className="w-[24%] px-4 py-3 font-semibold">
                   Owner
                 </th>
-                <th scope="col" className="px-4 py-3 font-semibold">
+                <th scope="col" className="w-[14%] px-4 py-3 font-semibold">
                   Created
                 </th>
-                <th scope="col" className="px-4 py-3 font-semibold">
+                <th scope="col" className="w-[6%] px-4 py-3 font-semibold">
                   <span className="sr-only">Open</span>
+                </th>
+                <th scope="col" className="w-[4%] px-4 py-3 font-semibold">
+                  <span className="sr-only">Delete</span>
                 </th>
               </tr>
             </thead>
@@ -148,7 +176,7 @@ export default async function AdminBusinessesPage({
                   <td className="px-4 py-3 text-[#475467]">{b.city ?? "—"}</td>
                   <td className="px-4 py-3">
                     <span className="inline-flex items-center rounded-full bg-[#E7ECF2] px-2 py-0.5 text-[11px] font-semibold text-[#3a2f22]">
-                      {b.subscription ? b.subscription.plan.charAt(0) + b.subscription.plan.slice(1).toLowerCase() : "No plan"}
+                      {b.businessSubscription ? b.businessSubscription.plan.name : "No plan"}
                     </span>
                   </td>
                   <td className="px-4 py-3 text-[#475467]">
@@ -168,6 +196,9 @@ export default async function AdminBusinessesPage({
                     >
                       Open <ArrowRight className="h-3.5 w-3.5" />
                     </Link>
+                  </td>
+                  <td className="px-4 py-3 text-right">
+                    <DeleteBusinessButton businessId={b.id} businessName={b.name} />
                   </td>
                 </tr>
               ))}

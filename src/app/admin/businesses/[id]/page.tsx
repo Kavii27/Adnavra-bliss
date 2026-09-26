@@ -34,7 +34,7 @@ export default async function AdminBusinessDetailPage({ params }: { params: Prom
       district: true,
       categories: true,
       salonTypes: true,
-      subscription: { select: { plan: true, status: true } },
+      businessSubscription: { select: { status: true, plan: { select: { name: true } } } },
       users: { where: { role: "OWNER" }, select: { email: true, name: true } },
       _count: { select: { services: true, images: true } },
     },
@@ -60,8 +60,8 @@ export default async function AdminBusinessDetailPage({ params }: { params: Prom
             {business.city ? ` • ${business.city}` : ""}
             {owner ? ` • Owner: ${owner.email}` : " • No owner linked"}
             {" • "}
-            {business.subscription
-              ? `${business.subscription.plan.charAt(0) + business.subscription.plan.slice(1).toLowerCase()} (${business.subscription.status.charAt(0) + business.subscription.status.slice(1).toLowerCase()})`
+            {business.businessSubscription
+              ? `${business.businessSubscription.plan.name} (${business.businessSubscription.status.charAt(0) + business.businessSubscription.status.slice(1).toLowerCase()})`
               : "No plan"}
           </p>
         </div>
