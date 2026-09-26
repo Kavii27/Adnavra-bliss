@@ -82,12 +82,12 @@ export default async function DashboardLayout({ children }: { children: React.Re
       <div className="flex min-h-[100dvh] items-center justify-center bg-[#faf6ef] px-4">
         <div className="w-full max-w-sm rounded-2xl border border-[#E3E8F0] bg-white p-6 text-center">
           <p className="text-sm text-[#3a2f22]">You need to set your own password before continuing.</p>
-          <a
+          <Link
             href="/dashboard/change-password"
             className="mt-4 inline-flex h-11 w-full items-center justify-center rounded-lg bg-[linear-gradient(135deg,#3a2f22_0%,#8a6d4f_100%)] text-sm font-semibold text-white"
           >
             Set password
-          </a>
+          </Link>
         </div>
       </div>
     );

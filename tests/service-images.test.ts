@@ -55,10 +55,15 @@ describe("resolveServiceImageCandidates", () => {
     expect(c[c.length - 1]).toBe("/service-images/_category/default.webp");
   });
 
-  it("skips a specific image that has not been added yet", () => {
-    // "keratin-treatment" is matched but not in the manifest yet.
+  it("always tries the specific image first, even before a file is uploaded", () => {
+    // "keratin-treatment" may have no file on disk yet — the candidate is
+    // still listed first and ServiceImage's onError chain falls through to
+    // the category image. This is what lets an admin upload work instantly
+    // with no rebuild (no build-time manifest gate).
     const c = resolveServiceImageCandidates("Keratin Treatment", "hair-styling");
-    expect(c[0]).toBe("/service-images/_category/hair-styling.webp");
+    expect(c[0]).toBe("/service-images/hair-styling/keratin-treatment.webp");
+    expect(c[1]).toBe("/service-images/_category/hair-styling.webp");
+    expect(c[c.length - 1]).toBe("/service-images/_category/default.webp");
   });
 
   it("uses the category image when the name matches nothing", () => {

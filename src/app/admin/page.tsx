@@ -1,7 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { notFound } from "next/navigation";
-import { AlertCircle, ArrowRight, Crown, Layers, Megaphone, Sparkles, Store, Zap } from "lucide-react";
+import { AlertCircle, ArrowRight, Crown, Layers, Megaphone, Sparkles, Store, Zap, Image as ImageIcon } from "lucide-react";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 
@@ -60,6 +60,12 @@ export default async function AdminHomePage() {
       icon: Store,
       title: "Businesses",
       description: "Add a salon with its owner login, then finish its setup — profile, services, photos, salon-type tags.",
+    },
+    {
+      href: "/admin/service-images",
+      icon: ImageIcon,
+      title: "Treatment Photos",
+      description: "Manage the shared stock photos shown automatically on every salon's treatment cards.",
     },
     {
       href: "/admin/subscriptions",
