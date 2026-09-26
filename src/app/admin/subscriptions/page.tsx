@@ -60,8 +60,9 @@ export default async function AdminSubscriptionsPage({
       <div>
         <h1 className="text-xl font-semibold tracking-tight text-[#3a2f22]">Subscriptions</h1>
         <p className="mt-1 text-sm text-[#a89880]">
-          Assign a plan to each business. Salons pay outside the platform for now — this screen is how their plan
-          takes effect.
+          Controls which dashboard features each salon can use (staff limits, gift cards, memberships, products).
+          This is separate from Marketplace Plans, which control search ranking and featured placement on the public
+          site.
         </p>
         <div className="mt-6 flex items-center gap-2 rounded-lg border border-[#FDECEC] bg-[#FDECEC] p-4 text-sm font-medium text-[#B91C1C]">
           <AlertCircle className="h-4 w-4 shrink-0" /> Could not load businesses. Please try again.
@@ -80,8 +81,9 @@ export default async function AdminSubscriptionsPage({
       </Link>
       <h1 className="text-xl font-semibold tracking-tight text-[#3a2f22]">Subscriptions</h1>
       <p className="mt-1 text-sm text-[#a89880]">
-        Assign a plan to each business. Salons pay outside the platform for now — changing the plan here takes
-        effect immediately, including the Premium “Featured” badge.
+        Controls which dashboard features each salon can use (staff limits, gift cards, memberships, products).
+        This is separate from Marketplace Plans, which control search ranking and featured placement on the public
+        site.
       </p>
 
       {errorParam && (

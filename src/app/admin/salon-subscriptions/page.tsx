@@ -60,9 +60,10 @@ export default async function SalonSubscriptionsPage() {
           <Store className="h-5 w-5 text-[#f5ead9]" />
         </span>
         <div>
-          <h1 className="text-[28px] font-semibold leading-tight tracking-tight text-[#3a2f22]">Salon Subscriptions</h1>
+          <h1 className="text-[28px] font-semibold leading-tight tracking-tight text-[#3a2f22]">Marketplace Plans</h1>
           <p className="mt-0.5 text-sm text-[#a89880]">
-            Assign a plan to each salon, change it, set start/end dates, and enable or disable it. Boosted salons are
+            Silver, Gold, Platinum: controls a salon&apos;s search ranking, featured placement, and boost allowance on the
+            public site. This is separate from the Feature Plans that control dashboard access. Boosted salons are
             flagged below.
           </p>
         </div>

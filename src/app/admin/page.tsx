@@ -40,8 +40,8 @@ export default async function AdminHomePage() {
     {
       href: "/admin/salon-subscriptions",
       icon: Crown,
-      title: "Salon Subscriptions",
-      description: "View every salon's plan, assign/change it, set start-end dates, and enable or disable it.",
+      title: "Marketplace Plans (Silver / Gold / Platinum)",
+      description: "Controls search ranking, featured placement, and boost allowance. Assign, change, or disable per salon.",
     },
     {
       href: "/admin/boosts",
@@ -70,8 +70,8 @@ export default async function AdminHomePage() {
     {
       href: "/admin/subscriptions",
       icon: Crown,
-      title: "Subscriptions (legacy)",
-      description: "The old Starter/Professional/Premium system — being replaced by Salon Subscriptions above.",
+      title: "Feature Plans (Starter / Professional / Premium)",
+      description: "Controls which dashboard features a salon can use: staff limits, gift cards, memberships, products. Unrelated to marketplace visibility above.",
     },
   ];
 
