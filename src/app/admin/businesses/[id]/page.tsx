@@ -4,6 +4,7 @@ import { ArrowLeft, ArrowRight, ExternalLink } from "lucide-react";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { AdminBusinessProfileForm } from "@/components/admin/admin-business-profile-form";
+import { AdminBusinessHoursForm } from "@/components/admin/admin-business-hours-form";
 
 /**
  * Admin business detail page (Task 3.1).
@@ -34,6 +35,7 @@ export default async function AdminBusinessDetailPage({ params }: { params: Prom
       district: true,
       categories: true,
       salonTypes: true,
+      openingHours: true,
       businessSubscription: { select: { status: true, plan: { select: { name: true } } } },
       users: { where: { role: "OWNER" }, select: { email: true, name: true } },
       _count: { select: { services: true, images: true } },
@@ -76,7 +78,7 @@ export default async function AdminBusinessDetailPage({ params }: { params: Prom
       </div>
 
       {/* Tab cards — Profile edits inline, Services/Photos link to their managers */}
-      <div className="mt-6 grid gap-3 sm:grid-cols-3">
+      <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <div className="rounded-lg border border-[#8a6d4f] bg-white p-4">
           <p className="text-sm font-semibold text-[#3a2f22]">Profile</p>
           <p className="mt-0.5 text-xs text-[#a89880]">Name, contact, address, salon-type tags. Edit below.</p>
@@ -106,6 +108,13 @@ export default async function AdminBusinessDetailPage({ params }: { params: Prom
             {business._count.images} photo{business._count.images === 1 ? "" : "s"} — logo, cover, gallery.
           </p>
         </Link>
+        <a
+          href="#hours"
+          className="group rounded-lg border border-[#E3E8F0] bg-white p-4 transition hover:border-[#8a6d4f]"
+        >
+          <p className="text-sm font-semibold text-[#3a2f22]">Hours</p>
+          <p className="mt-0.5 text-xs text-[#a89880]">Set opening/closing time per day. Edit below.</p>
+        </a>
       </div>
 
       <div className="mt-6">
@@ -124,6 +133,10 @@ export default async function AdminBusinessDetailPage({ params }: { params: Prom
             salonTypes: business.salonTypes ?? [],
           }}
         />
+      </div>
+
+      <div id="hours" className="mt-6 scroll-mt-6">
+        <AdminBusinessHoursForm businessId={business.id} initialHours={business.openingHours} />
       </div>
     </div>
   );
