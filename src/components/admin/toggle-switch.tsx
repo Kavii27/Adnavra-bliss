@@ -8,9 +8,20 @@ type Props = {
   dark?: boolean;
 };
 
+// Fixed pixel geometry, defined once, used both for computing the knob's
+// travel distance and as inline-style fallbacks below. Never rely on
+// Tailwind utility classes alone for a component this small — a single
+// dropped class is exactly what caused the original bug.
+const TRACK_WIDTH = 36; // px
+const TRACK_HEIGHT = 20; // px
+const KNOB_SIZE = 16; // px
+const KNOB_INSET = 2; // px
+
 export function ToggleSwitch({ checked, onChange, disabled, label, dark }: Props) {
+  const knobTravel = TRACK_WIDTH - KNOB_SIZE - KNOB_INSET * 2; // px the knob moves when checked
+
   return (
-    <label className="inline-flex cursor-pointer items-center gap-2">
+    <label className="grid w-full cursor-pointer grid-cols-[36px_1fr] items-center gap-x-3">
       <button
         type="button"
         role="switch"
@@ -18,17 +29,42 @@ export function ToggleSwitch({ checked, onChange, disabled, label, dark }: Props
         aria-label={label}
         disabled={disabled}
         onClick={() => onChange(!checked)}
-        className={`relative h-5 w-9 shrink-0 rounded-full transition-colors disabled:opacity-50 ${
+        style={{
+          width: TRACK_WIDTH,
+          height: TRACK_HEIGHT,
+          minWidth: TRACK_WIDTH,
+          padding: 0,
+          margin: 0,
+          border: "none",
+          outline: "none",
+          appearance: "none",
+          WebkitAppearance: "none",
+          lineHeight: 0,
+        }}
+        className={`relative inline-block shrink-0 rounded-full transition-colors disabled:cursor-not-allowed disabled:opacity-50 ${
           checked ? "bg-[#c9a26d]" : dark ? "bg-white/20" : "bg-[#E3E8F0]"
         }`}
       >
         <span
-          className={`absolute top-0.5 h-4 w-4 rounded-full bg-white shadow-sm transition-transform ${
-            checked ? "translate-x-[18px]" : "translate-x-0.5"
-          }`}
+          aria-hidden="true"
+          style={{
+            position: "absolute",
+            top: KNOB_INSET,
+            left: KNOB_INSET,
+            width: KNOB_SIZE,
+            height: KNOB_SIZE,
+            borderRadius: 9999,
+            background: "#ffffff",
+            boxShadow: "0 1px 2px rgba(0,0,0,0.25)",
+            transform: `translateX(${checked ? knobTravel : 0}px)`,
+            transition: "transform 150ms ease",
+            pointerEvents: "none",
+          }}
         />
       </button>
-      <span className={`text-xs font-medium ${dark ? "text-[#faf6ef]/90" : "text-[#3a2f22]"}`}>{label}</span>
+      <span className={`text-xs font-medium leading-tight ${dark ? "text-[#faf6ef]/90" : "text-[#3a2f22]"}`}>
+        {label}
+      </span>
     </label>
   );
 }
