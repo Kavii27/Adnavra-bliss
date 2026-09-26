@@ -92,11 +92,13 @@ async function fetchBoosts() {
 }
 
 async function fetchBoostableBusinesses() {
-  const subs = await db.businessSubscription.findMany({
-    where: { status: "ACTIVE", OR: [{ endDate: null }, { endDate: { gt: new Date() } }] },
-    include: { business: { select: { id: true, name: true, slug: true } } },
+  // Every salon on the platform can be manually boosted by an admin —
+  // subscription status only matters for the AUTO rotation cron, not for
+  // this manual override form. See lib/boosting-service.ts createBoost().
+  return db.business.findMany({
+    orderBy: { name: "asc" },
+    select: { id: true, name: true, slug: true },
   });
-  return subs.map((s) => s.business).sort((a, b) => a.name.localeCompare(b.name));
 }
 
 type BoostRow = Awaited<ReturnType<typeof fetchBoosts>>[number];

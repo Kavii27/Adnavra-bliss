@@ -14,11 +14,7 @@ export function ManualBoostForm({ businesses }: { businesses: { id: string; name
   const [error, setError] = useState<string | null>(null);
 
   if (businesses.length === 0) {
-    return (
-      <p className="text-xs text-[#a89880]">
-        No salon has an active subscription right now — assign a plan first on the Salon Subscriptions screen.
-      </p>
-    );
+    return <p className="text-xs text-[#a89880]">No salons on the platform yet — add one first.</p>;
   }
 
   async function handleBoost() {

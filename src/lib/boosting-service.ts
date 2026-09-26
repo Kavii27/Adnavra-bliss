@@ -49,9 +49,15 @@ export async function isSalonCurrentlyBoosted(businessId: string, now: Date = ne
   return active.length > 0;
 }
 
+// Used when a business has no active BusinessSubscription and an admin
+// manually boosts it anyway — gives it a plain 24-hour window instead of
+// reading a plan that doesn't exist.
+const DEFAULT_MANUAL_BOOST_HOURS = 24;
+
 /**
  * Admin (or the system) creates a boost for a business right now.
- * Enforces the plan's weekly limit — throws if the limit is already hit.
+ * AUTO boosts (fair-rotation cron) require an active, boost-eligible plan.
+ * MANUAL admin boosts work on any salon, subscription or not.
  */
 export async function createBoost(params: {
   businessId: string;
@@ -61,29 +67,47 @@ export async function createBoost(params: {
 }) {
   const now = params.now ?? new Date();
 
+  const business = await db.business.findUnique({ where: { id: params.businessId }, select: { id: true } });
+  if (!business) {
+    throw new Error("Business not found");
+  }
+
   const subscription = await db.businessSubscription.findUnique({
     where: { businessId: params.businessId },
     include: { plan: true },
   });
   const expired = subscription?.endDate ? subscription.endDate.getTime() <= now.getTime() : false;
-  if (!subscription || subscription.status !== "ACTIVE" || expired) {
-    throw new Error("Business has no active subscription");
+  const hasActiveSubscription = Boolean(subscription && subscription.status === "ACTIVE" && !expired);
+
+  // AUTO boosts (the fair-rotation cron job) must only ever pick up
+  // salons with a real, active, boost-eligible plan — this branch is
+  // unchanged from before.
+  if (params.source === "AUTO") {
+    if (!hasActiveSubscription) {
+      throw new Error("Business has no active subscription");
+    }
+    const recentBoosts = (await getRecentBoosts(params.businessId, now)).map(toBoostRecord);
+    if (!canBoost(subscription!.plan, recentBoosts, now)) {
+      throw new Error("Business has reached its plan's weekly boost limit");
+    }
+    const { startAt, endAt } = computeBoostWindow(subscription!.plan, now);
+    return db.salonBoost.create({
+      data: { businessId: params.businessId, source: "AUTO", startAt, endAt, createdByUserId: null },
+    });
   }
 
-  const recentBoosts = (await getRecentBoosts(params.businessId, now)).map(toBoostRecord);
-
-  // Manual admin boosts bypass the weekly-limit check (admins can always
-  // override), but automatic boosts must respect the plan's configured cap.
-  if (params.source === "AUTO" && !canBoost(subscription.plan, recentBoosts, now)) {
-    throw new Error("Business has reached its plan's weekly boost limit");
-  }
-
-  const { startAt, endAt } = computeBoostWindow(subscription.plan, now);
+  // MANUAL admin boosts: any salon on the platform can be boosted,
+  // subscription or not. Bypasses the weekly-limit check entirely (an
+  // admin override is always allowed). Uses the salon's own plan duration
+  // when it has one, otherwise falls back to a flat 24-hour window.
+  const { startAt, endAt } = hasActiveSubscription
+    ? computeBoostWindow(subscription!.plan, now)
+    : computeBoostWindow({ boostsPerWeek: 0, maxBoostHours: DEFAULT_MANUAL_BOOST_HOURS }, now);
 
   return db.salonBoost.create({
     data: {
       businessId: params.businessId,
-      source: params.source,
+      source: "MANUAL",
       startAt,
       endAt,
       createdByUserId: params.createdByUserId ?? null,
