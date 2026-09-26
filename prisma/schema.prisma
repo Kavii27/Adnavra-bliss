@@ -166,10 +166,11 @@ model Business {
 // ── User (Auth.js) ─────────────────────────────────────────────────
 
 model User {
-  id            String    @id @default(cuid())
-  email         String    @unique
-  password      String // bcrypt hash, cost 12 — via lib/password.ts only
-  name          String?
+  id                 String   @id @default(cuid())
+  email              String   @unique
+  password           String // bcrypt hash, cost 12 — via lib/password.ts only
+  mustChangePassword Boolean  @default(false) // true for admin-created accounts until the owner sets their own password
+  name               String?
   role          Role      @default(CUSTOMER)
   // Tenant link — nullable for ADMIN / platform users; required for OWNER/STAFF enforced at app layer.
   // Keeps businessId index per AGENTS.md for all tenant-scoped queries.

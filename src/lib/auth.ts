@@ -23,11 +23,13 @@ declare module "next-auth" {
       id: string;
       role: string;
       businessId: string | null;
+      mustChangePassword: boolean;
     } & DefaultSession["user"];
   }
   interface User {
     role: string;
     businessId: string | null;
+    mustChangePassword: boolean;
   }
 }
 
@@ -99,6 +101,7 @@ export const authConfig = {
           name: user.name,
           role: user.role,
           businessId: user.businessId,
+          mustChangePassword: user.mustChangePassword,
         } as unknown as import("next-auth").User;
       },
     }),
@@ -211,6 +214,7 @@ export const authConfig = {
           (user as Record<string, unknown>).id = created.id;
           (user as Record<string, unknown>).role = created.role;
           (user as Record<string, unknown>).businessId = created.businessId;
+          (user as Record<string, unknown>).mustChangePassword = false;
           return true;
         } catch (err) {
           console.error("[auth][google signIn] failed:", err instanceof Error ? err.message : "unknown");
@@ -238,6 +242,9 @@ export const authConfig = {
           (token as Record<string, unknown>).businessId = (user.businessId as string | null) ?? null;
           (token as Record<string, unknown>).email = user.email as string;
           (token as Record<string, unknown>).name = user.name as string | undefined;
+          (token as Record<string, unknown>).mustChangePassword = Boolean(
+            (user as Record<string, unknown>).mustChangePassword,
+          );
           if ((user as Record<string, unknown>).image) {
             (token as Record<string, unknown>).picture = user.image as string;
           }
@@ -246,7 +253,7 @@ export const authConfig = {
           const email = (profile as Record<string, unknown>).email?.toString().toLowerCase() ?? (user.email as string)?.toLowerCase();
           if (email) {
             try {
-              const dbUser = await db.user.findUnique({ where: { email }, select: { id: true, role: true, businessId: true, email: true, name: true, image: true } });
+              const dbUser = await db.user.findUnique({ where: { email }, select: { id: true, role: true, businessId: true, email: true, name: true, image: true, mustChangePassword: true } });
               if (dbUser) {
                 (token as Record<string, unknown>).id = dbUser.id;
                 (token as Record<string, unknown>).role = dbUser.role;
@@ -254,6 +261,7 @@ export const authConfig = {
                 (token as Record<string, unknown>).email = dbUser.email;
                 (token as Record<string, unknown>).name = dbUser.name ?? (user.name as string);
                 (token as Record<string, unknown>).picture = dbUser.image ?? (user.image as string);
+                (token as Record<string, unknown>).mustChangePassword = Boolean(dbUser.mustChangePassword);
                 token.sub = dbUser.id;
               }
             } catch {
@@ -266,6 +274,9 @@ export const authConfig = {
           (token as Record<string, unknown>).businessId = ((user as Record<string, unknown>).businessId as string | null) ?? null;
           (token as Record<string, unknown>).email = user.email as string;
           (token as Record<string, unknown>).name = user.name as string | undefined;
+          (token as Record<string, unknown>).mustChangePassword = Boolean(
+            (user as Record<string, unknown>).mustChangePassword,
+          );
         }
       }
 
@@ -274,13 +285,14 @@ export const authConfig = {
         try {
           const dbUser = await db.user.findUnique({
             where: { email: (token as Record<string, unknown>).email as string },
-            select: { id: true, role: true, businessId: true, name: true },
+            select: { id: true, role: true, businessId: true, name: true, mustChangePassword: true },
           });
           if (dbUser) {
             (token as Record<string, unknown>).id = dbUser.id;
             (token as Record<string, unknown>).role = dbUser.role;
             (token as Record<string, unknown>).businessId = dbUser.businessId;
             if (dbUser.name) (token as Record<string, unknown>).name = dbUser.name;
+            (token as Record<string, unknown>).mustChangePassword = Boolean(dbUser.mustChangePassword);
             token.sub = dbUser.id;
           }
         } catch {
@@ -304,6 +316,25 @@ export const authConfig = {
           // ignore DB errors in JWT path and keep the existing token
         }
       }
+
+      // Forced-password-change fix: a token minted before the owner set
+      // their own password still carries mustChangePassword=true even after
+      // the PATCH clears it in the DB. Re-read the flag when it is true so
+      // the gate opens immediately without requiring a re-login. Only
+      // queries in the rare true case, so steady-state requests cost nothing.
+      if ((token as Record<string, unknown>).mustChangePassword && token.sub) {
+        try {
+          const fresh = await db.user.findUnique({
+            where: { id: token.sub as string },
+            select: { mustChangePassword: true },
+          });
+          if (fresh) {
+            (token as Record<string, unknown>).mustChangePassword = Boolean(fresh.mustChangePassword);
+          }
+        } catch {
+          // keep existing token on DB error
+        }
+      }
       return token;
     },
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -314,6 +345,9 @@ export const authConfig = {
         (session.user as unknown as Record<string, unknown>).role = (token as unknown as Record<string, string>).role;
         (session.user as unknown as Record<string, unknown>).businessId =
           (token as unknown as Record<string, string | null>).businessId ?? null;
+        (session.user as unknown as Record<string, unknown>).mustChangePassword = Boolean(
+          (token as unknown as Record<string, unknown>).mustChangePassword,
+        );
         if (!(session.user as unknown as Record<string, unknown>).id && token.sub) {
           (session.user as unknown as Record<string, unknown>).id = token.sub;
         }

@@ -107,6 +107,7 @@ export async function POST(request: NextRequest) {
       data: {
         email: ownerEmail,
         password: hashed,
+        mustChangePassword: true,
         name: ownerName,
         role: "OWNER",
         businessId: business.id,

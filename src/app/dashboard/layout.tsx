@@ -45,6 +45,60 @@ export default async function DashboardLayout({ children }: { children: React.Re
   }
 
   const businessId = (session.user as unknown as { businessId: string | null }).businessId;
+
+  // Forced password change (Phase 11): admin-created accounts carry
+  // mustChangePassword=true until the owner sets their own password.
+  // Read the DB as source of truth so a token minted before the flag
+  // existed (or before it was cleared) can never bypass or stick the gate.
+  const userId = (session.user as unknown as { id?: string }).id;
+  let mustChangePassword = Boolean(
+    (session.user as unknown as { mustChangePassword?: boolean }).mustChangePassword,
+  );
+  if (userId) {
+    try {
+      const fresh = await db.user.findUnique({
+        where: { id: userId },
+        select: { mustChangePassword: true },
+      });
+      if (fresh) mustChangePassword = fresh.mustChangePassword;
+    } catch {
+      // keep session value on DB error
+    }
+  }
+
+  // The change-password page itself lives under /dashboard/*, so it must
+  // be allowlisted — otherwise the gate below would replace the form with
+  // another "go set your password" prompt pointing at itself (infinite loop).
+  const headersForGate = await headers();
+  const gatePathname =
+    headersForGate.get("x-pathname") ??
+    headersForGate.get("x-next-pathname") ??
+    headersForGate.get("next-url") ??
+    "";
+  const isChangePasswordRoute = gatePathname.startsWith("/dashboard/change-password");
+
+  if (mustChangePassword && !isChangePasswordRoute) {
+    return (
+      <div className="flex min-h-[100dvh] items-center justify-center bg-[#faf6ef] px-4">
+        <div className="w-full max-w-sm rounded-2xl border border-[#E3E8F0] bg-white p-6 text-center">
+          <p className="text-sm text-[#3a2f22]">You need to set your own password before continuing.</p>
+          <a
+            href="/dashboard/change-password"
+            className="mt-4 inline-flex h-11 w-full items-center justify-center rounded-lg bg-[linear-gradient(135deg,#3a2f22_0%,#8a6d4f_100%)] text-sm font-semibold text-white"
+          >
+            Set password
+          </a>
+        </div>
+      </div>
+    );
+  }
+
+  if (mustChangePassword && isChangePasswordRoute) {
+    // Render the form full-screen, without sidebar/topbar chrome, so the
+    // owner sees only the password step until it is completed.
+    return <>{children}</>;
+  }
+
   // Onboarding guardrail: new OWNER/STAFF with no business should create salon profile first
   // ADMIN can view dashboard without a business
   if ((role === "OWNER" || role === "STAFF") && !businessId) {
