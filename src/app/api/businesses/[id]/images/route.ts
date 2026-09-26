@@ -132,12 +132,29 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
   if (!business) return NextResponse.json({ error: "Business not found" }, { status: 404 });
 
   if (kind === "gallery") {
-    const count = await db.businessImage.count({ where: { businessId: id, kind: "gallery" } });
-    if (count >= MAX_GALLERY_PHOTOS) {
-      return NextResponse.json(
-        { error: `Gallery is full (maximum ${MAX_GALLERY_PHOTOS} photos). Delete one first.` },
-        { status: 409 },
-      );
+    // Plan-enforced limit first — reads the salon's live BusinessSubscription
+    // row, so an admin changing galleryLimit on /admin/subscription-plans
+    // takes effect immediately without a deploy.
+    const sub = await db.businessSubscription.findUnique({
+      where: { businessId: id },
+      include: { plan: true },
+    });
+    if (sub?.plan.galleryLimit != null) {
+      const count = await db.businessImage.count({ where: { businessId: id, kind: "gallery" } });
+      if (count >= sub.plan.galleryLimit) {
+        return NextResponse.json(
+          { error: `Your plan allows up to ${sub.plan.galleryLimit} gallery photos.` },
+          { status: 403 },
+        );
+      }
+    } else {
+      const count = await db.businessImage.count({ where: { businessId: id, kind: "gallery" } });
+      if (count >= MAX_GALLERY_PHOTOS) {
+        return NextResponse.json(
+          { error: `Gallery is full (maximum ${MAX_GALLERY_PHOTOS} photos). Delete one first.` },
+          { status: 409 },
+        );
+      }
     }
   }
 

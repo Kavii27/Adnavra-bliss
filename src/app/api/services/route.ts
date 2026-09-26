@@ -87,6 +87,24 @@ export async function POST(request: NextRequest) {
     effectiveBusinessId = sessionBusinessId;
   }
 
+  // Plan-enforced service limit — reads the salon's live BusinessSubscription
+  // row, so an admin changing serviceLimit on /admin/subscription-plans takes
+  // effect immediately without a deploy. No subscription (or null limit) =
+  // unlimited.
+  const sub = await db.businessSubscription.findUnique({
+    where: { businessId: effectiveBusinessId },
+    include: { plan: true },
+  });
+  if (sub?.plan.serviceLimit != null) {
+    const count = await db.service.count({ where: { businessId: effectiveBusinessId } });
+    if (count >= sub.plan.serviceLimit) {
+      return NextResponse.json(
+        { error: `Your plan allows up to ${sub.plan.serviceLimit} services.` },
+        { status: 403 },
+      );
+    }
+  }
+
   const service = await db.service.create({
     data: {
       businessId: effectiveBusinessId,
