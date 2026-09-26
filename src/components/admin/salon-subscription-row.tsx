@@ -2,7 +2,8 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { AlertCircle, Check, Loader2 } from "lucide-react";
+import { AlertCircle, Calendar, Check, Loader2 } from "lucide-react";
+import { DatePickerModal, fromISODate, toISODate } from "@/components/shared/date-picker-modal";
 
 type Status = "ACTIVE" | "SUSPENDED" | "CANCELLED";
 const STATUSES: Status[] = ["ACTIVE", "SUSPENDED", "CANCELLED"];
@@ -37,6 +38,7 @@ export function SalonSubscriptionRow({
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
+  const [dateField, setDateField] = useState<"start" | "end" | null>(null);
 
   const dirty =
     planKey !== initialPlanKey || status !== initialStatus || startDate !== initialStartDate || endDate !== initialEndDate;
@@ -106,28 +108,30 @@ export function SalonSubscriptionRow({
             </option>
           ))}
         </select>
-        <input
-          type="date"
+        <button
+          type="button"
           aria-label="Start date"
-          value={startDate}
           disabled={saving}
-          onChange={(e) => {
-            setStartDate(e.target.value);
-            setSaved(false);
-          }}
-          className={inputClass}
-        />
-        <input
-          type="date"
+          onClick={() => setDateField("start")}
+          className={`${inputClass} flex items-center gap-1.5 text-left`}
+        >
+          <Calendar className="h-3.5 w-3.5 shrink-0 text-[#a89880]" />
+          <span className="truncate">
+            {startDate ? fromISODate(startDate)?.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }) : "Start date"}
+          </span>
+        </button>
+        <button
+          type="button"
           aria-label="End date"
-          value={endDate}
           disabled={saving}
-          onChange={(e) => {
-            setEndDate(e.target.value);
-            setSaved(false);
-          }}
-          className={inputClass}
-        />
+          onClick={() => setDateField("end")}
+          className={`${inputClass} flex items-center gap-1.5 text-left`}
+        >
+          <Calendar className="h-3.5 w-3.5 shrink-0 text-[#a89880]" />
+          <span className="truncate">
+            {endDate ? fromISODate(endDate)?.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }) : "No end date"}
+          </span>
+        </button>
         <button
           type="button"
           onClick={handleSave}
@@ -149,6 +153,17 @@ export function SalonSubscriptionRow({
           <AlertCircle className="h-3.5 w-3.5 shrink-0" /> {error}
         </p>
       )}
+      <DatePickerModal
+        open={dateField !== null}
+        onClose={() => setDateField(null)}
+        value={fromISODate(dateField === "end" ? endDate : startDate)}
+        minDate={dateField === "end" ? fromISODate(startDate) : null}
+        onSelect={(d) => {
+          if (dateField === "end") setEndDate(toISODate(d));
+          else setStartDate(toISODate(d));
+          setSaved(false);
+        }}
+      />
     </div>
   );
 }

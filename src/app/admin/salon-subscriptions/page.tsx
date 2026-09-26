@@ -6,8 +6,23 @@ import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { getActiveBoosts } from "@/lib/boosting-service";
 import { SalonSubscriptionRow } from "@/components/admin/salon-subscription-row";
+import { SalonSortSelect, type SalonSortOption } from "@/components/admin/salon-sort-select";
 
 type SubscriptionWithPlan = Prisma.BusinessSubscriptionGetPayload<{ include: { plan: true } }>;
+
+function resolveOrderBy(sort: SalonSortOption): Prisma.BusinessOrderByWithRelationInput {
+  switch (sort) {
+    case "oldest":
+      return { createdAt: "asc" };
+    case "name_asc":
+      return { name: "asc" };
+    case "name_desc":
+      return { name: "desc" };
+    case "newest":
+    default:
+      return { createdAt: "desc" };
+  }
+}
 
 /**
  * Admin → Salon Subscription Assignment (PDF section 2).
@@ -16,14 +31,22 @@ type SubscriptionWithPlan = Prisma.BusinessSubscriptionGetPayload<{ include: { p
  * This replaces /admin/subscriptions (the old Starter/Professional/Premium
  * system) going forward.
  */
-export default async function SalonSubscriptionsPage() {
+export default async function SalonSubscriptionsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ sort?: string }>;
+}) {
   const session = await auth();
   const role = (session?.user as unknown as { role?: string } | undefined)?.role;
   if (!session?.user || role !== "ADMIN") {
     notFound();
   }
 
-  let businesses: { id: string; name: string; slug: string; city: string | null }[] = [];
+  const { sort: sortParam } = await searchParams;
+  const sort: SalonSortOption =
+    sortParam === "oldest" || sortParam === "name_asc" || sortParam === "name_desc" ? sortParam : "newest";
+
+  let businesses: { id: string; name: string; slug: string; city: string | null; createdAt: Date }[] = [];
   let subscriptions: SubscriptionWithPlan[] = [];
   let plans: Awaited<ReturnType<typeof db.subscriptionPlan.findMany>> = [];
   let boostedIds = new Set<string>();
@@ -31,7 +54,10 @@ export default async function SalonSubscriptionsPage() {
 
   try {
     const [businessRows, subscriptionRows, planRows, activeBoosts] = await Promise.all([
-      db.business.findMany({ orderBy: { name: "asc" }, select: { id: true, name: true, slug: true, city: true } }),
+      db.business.findMany({
+        orderBy: resolveOrderBy(sort),
+        select: { id: true, name: true, slug: true, city: true, createdAt: true },
+      }),
       db.businessSubscription.findMany({ include: { plan: true } }),
       db.subscriptionPlan.findMany({ where: { isActive: true }, orderBy: { rank: "asc" } }),
       getActiveBoosts(),
@@ -79,92 +105,78 @@ export default async function SalonSubscriptionsPage() {
           <p className="mt-1 text-xs text-[#a89880]">Salons appear here once they complete onboarding.</p>
         </div>
       ) : (
-        <div className="mt-8 overflow-x-auto rounded-2xl border border-[#E3E8F0] bg-white shadow-[0_1px_2px_rgba(58,47,34,0.04)]">
-          <table className="w-full min-w-[720px] text-left text-sm">
-            <thead>
-              <tr className="border-b border-[#E3E8F0] bg-[#faf6ef] text-xs uppercase tracking-wide text-[#a89880]">
-                <th scope="col" className="px-4 py-3 font-semibold">
-                  Salon
-                </th>
-                <th scope="col" className="px-4 py-3 font-semibold">
-                  Current plan
-                </th>
-                <th scope="col" className="px-4 py-3 font-semibold">
-                  Assign / change
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {businesses.map((b) => {
-                const sub = subscriptionByBusiness.get(b.id);
-                return (
-                  <tr key={b.id} className="border-b border-[#E3E8F0] last:border-0">
-                    <td className="px-4 py-3 align-top">
-                      <p className="font-semibold text-[#3a2f22]">{b.name}</p>
-                      <p className="mt-0.5 text-xs text-[#a89880]">
+        <>
+          <SalonSortSelect sort={sort} count={businesses.length} />
+          <div className="mt-4 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+            {businesses.map((b) => {
+              const sub = subscriptionByBusiness.get(b.id);
+              const isExpired = Boolean(sub?.endDate && new Date(sub.endDate).getTime() <= Date.now());
+              const displayLabel = sub
+                ? isExpired
+                  ? "Expired"
+                  : sub.status.charAt(0) + sub.status.slice(1).toLowerCase()
+                : null;
+              const badgeClass = isExpired
+                ? "bg-[#E7ECF2] text-[#4A4640]"
+                : sub?.status === "ACTIVE"
+                  ? "bg-[#DCF5E7] text-[#15803D]"
+                  : sub?.status === "SUSPENDED"
+                    ? "bg-[#FDECD8] text-[#B45309]"
+                    : "bg-[#FDECEC] text-[#B91C1C]";
+
+              return (
+                <div
+                  key={b.id}
+                  className="flex flex-col gap-3 rounded-2xl border border-[#E3E8F0] bg-white p-5 shadow-[0_1px_2px_rgba(58,47,34,0.04)]"
+                >
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="min-w-0">
+                      <p className="truncate font-semibold text-[#3a2f22]">{b.name}</p>
+                      <p className="mt-0.5 truncate text-xs text-[#a89880]">
                         /{b.slug}
                         {b.city ? ` • ${b.city}` : ""}
                       </p>
-                      {boostedIds.has(b.id) && (
-                        <span className="mt-1.5 inline-flex items-center rounded-full bg-[#c9a26d] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-[#3a2f22]">
-                          Boosted now
-                        </span>
-                      )}
-                    </td>
-                    <td className="px-4 py-3 align-top">
-                      {sub ? (
-                        (() => {
-                          // The stored `status` is what the admin set, but a
-                          // past endDate overrides it for display — matches
-                          // what ranking/boosting actually enforce, so this
-                          // screen never shows "Active" for a lapsed plan.
-                          const isExpired = Boolean(sub.endDate && new Date(sub.endDate).getTime() <= Date.now());
-                          const displayLabel = isExpired ? "Expired" : sub.status.charAt(0) + sub.status.slice(1).toLowerCase();
-                          const badgeClass = isExpired
-                            ? "bg-[#E7ECF2] text-[#4A4640]"
-                            : sub.status === "ACTIVE"
-                              ? "bg-[#DCF5E7] text-[#15803D]"
-                              : sub.status === "SUSPENDED"
-                                ? "bg-[#FDECD8] text-[#B45309]"
-                                : "bg-[#FDECEC] text-[#B91C1C]";
-                          return (
-                            <div className="flex flex-col gap-1">
-                              <span className="inline-flex w-fit items-center rounded-full bg-[#EAF3F2] px-2 py-0.5 text-[11px] font-semibold text-[#3a2f22]">
-                                {sub.plan.name}
-                              </span>
-                              <span
-                                className={`inline-flex w-fit items-center rounded-full px-2 py-0.5 text-[11px] font-semibold ${badgeClass}`}
-                              >
-                                {displayLabel}
-                              </span>
-                              <span className="text-[11px] text-[#a89880]">
-                                Started {new Date(sub.startDate).toLocaleDateString()}
-                                {sub.endDate ? ` • Ends ${new Date(sub.endDate).toLocaleDateString()}` : ""}
-                              </span>
-                            </div>
-                          );
-                        })()
-                      ) : (
-                        <span className="text-xs text-[#a89880]">No plan assigned</span>
-                      )}
-                    </td>
-                    <td className="px-4 py-3 align-top">
-                      <SalonSubscriptionRow
-                        businessId={b.id}
-                        plans={plans.map((p) => ({ key: p.key, name: p.name }))}
-                        initialPlanKey={sub?.plan.key ?? plans[0]?.key ?? ""}
-                        initialStatus={sub?.status ?? "ACTIVE"}
-                        initialStartDate={sub?.startDate ? new Date(sub.startDate).toISOString().slice(0, 10) : ""}
-                        initialEndDate={sub?.endDate ? new Date(sub.endDate).toISOString().slice(0, 10) : ""}
-                        hasSubscription={Boolean(sub)}
-                      />
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
+                    </div>
+                    {boostedIds.has(b.id) && (
+                      <span className="shrink-0 rounded-full bg-[#c9a26d] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-[#3a2f22]">
+                        Boosted now
+                      </span>
+                    )}
+                  </div>
+
+                  {sub ? (
+                    <div className="flex flex-wrap items-center gap-1.5">
+                      <span className="inline-flex items-center rounded-full bg-[#EAF3F2] px-2 py-0.5 text-[11px] font-semibold text-[#3a2f22]">
+                        {sub.plan.name}
+                      </span>
+                      <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-semibold ${badgeClass}`}>
+                        {displayLabel}
+                      </span>
+                      <span className="text-[11px] text-[#a89880]">
+                        Since {new Date(sub.startDate).toLocaleDateString()}
+                        {sub.endDate ? ` · ends ${new Date(sub.endDate).toLocaleDateString()}` : ""}
+                      </span>
+                    </div>
+                  ) : (
+                    <span className="text-xs text-[#a89880]">No plan assigned</span>
+                  )}
+
+                  <div className="mt-1 border-t border-[#E3E8F0] pt-3">
+                    <SalonSubscriptionRow
+                      businessId={b.id}
+                      plans={plans.map((p) => ({ key: p.key, name: p.name }))}
+                      initialPlanKey={sub?.plan.key ?? plans[0]?.key ?? ""}
+                      initialStatus={sub?.status ?? "ACTIVE"}
+                      initialStartDate={sub?.startDate ? new Date(sub.startDate).toISOString().slice(0, 10) : ""}
+                      initialEndDate={sub?.endDate ? new Date(sub.endDate).toISOString().slice(0, 10) : ""}
+                      hasSubscription={Boolean(sub)}
+                    />
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </>
       )}
     </div>
   );
