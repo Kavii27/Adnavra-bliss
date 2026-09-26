@@ -77,7 +77,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
           </form>
         </div>
       </nav>
-      <div className="w-full px-4 py-6 sm:px-8 sm:py-8">{children}</div>
+      <div className="mx-auto w-full max-w-[1400px] px-4 py-6 sm:px-8 sm:py-8">{children}</div>
     </div>
   );
 }
