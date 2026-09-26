@@ -1,7 +1,7 @@
 import { HomeHeader } from "@/components/customer/home/home-header";
 import { SiteFooter } from "@/components/marketing/site-footer";
 import { VenueGrid } from "@/components/customer/home/venue-grid";
-import { fetchVenuesWhere } from "@/lib/marketplace-venues";
+import { fetchFeaturedVenues } from "@/lib/marketplace-venues";
 import { getServerT } from "@/lib/i18n/server";
 
 export const dynamic = "force-dynamic";
@@ -16,7 +16,7 @@ export async function generateMetadata() {
 
 export default async function FeaturedPage() {
   const t = await getServerT();
-  const businesses = await fetchVenuesWhere({ marketplacePriority: true }, "desc", 100);
+  const businesses = await fetchFeaturedVenues(100);
 
   return (
     <main className="relative min-h-screen bg-[#FDF9F3]">

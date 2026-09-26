@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { MapPin, BadgeCheck, ArrowUpRight } from "lucide-react";
+import { MapPin, BadgeCheck, ArrowUpRight, Zap } from "lucide-react";
 import { taxonomyLabelKey } from "@/lib/categories";
 import { useLocale } from "@/lib/i18n/locale-context";
 
@@ -16,6 +16,7 @@ type VenueCardProps = {
   categories?: string[] | null;
   salonTypes?: string[] | null;
   featured?: boolean | null;
+  boosted?: boolean | null;
   fromPriceMinor?: number | null;
 };
 
@@ -37,6 +38,7 @@ export function VenueCard({
   categories,
   salonTypes,
   featured,
+  boosted,
   fromPriceMinor,
 }: VenueCardProps) {
   const locationText = [address, city].filter(Boolean).join(" · ") || city || "Sri Lanka";
@@ -82,9 +84,18 @@ export function VenueCard({
       </div>
 
       <div className="flex flex-1 flex-col gap-1.5 p-4">
-        {featured === true && (
-          <span className="inline-flex w-fit items-center gap-1 rounded-full bg-[#795831] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-white">
-            <BadgeCheck className="h-3 w-3" /> {t("venue.featured")}
+        {(featured === true || boosted === true) && (
+          <span className="flex flex-wrap gap-1">
+            {featured === true && (
+              <span className="inline-flex w-fit items-center gap-1 rounded-full bg-[#795831] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-white">
+                <BadgeCheck className="h-3 w-3" /> {t("venue.featured")}
+              </span>
+            )}
+            {boosted === true && (
+              <span className="inline-flex w-fit items-center gap-1 rounded-full bg-[#FDF0DA] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-[#9A6B2A]">
+                <Zap className="h-3 w-3" /> {t("venue.boosted")}
+              </span>
+            )}
           </span>
         )}
         <p className="line-clamp-1 flex items-center gap-1 text-[11px] font-medium text-[#795831]">

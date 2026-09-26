@@ -14,6 +14,7 @@ type Venue = {
   categories?: string[] | null;
   salonTypes?: string[] | null;
   featured?: boolean | null;
+  boosted?: boolean | null;
   fromPriceMinor?: number | null;
 };
 
@@ -52,6 +53,7 @@ export function VenueGrid({
             categories={b.categories}
             salonTypes={b.salonTypes}
             featured={b.featured}
+            boosted={b.boosted}
             fromPriceMinor={b.fromPriceMinor}
           />
         </div>

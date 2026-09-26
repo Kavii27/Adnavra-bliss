@@ -26,6 +26,7 @@ type Result = {
   categories: string[];
   salonTypes: string[];
   marketplacePriority: boolean;
+  isBoosted?: boolean | null;
 };
 
 function parseCenter(params: URLSearchParams): [number, number] {
@@ -379,9 +380,18 @@ function SearchInner() {
                   {/* Photo / placeholder — cover photo if present, else neutral block, heart/save inert, no rating */}
                   <ResultPhoto name={r.name} coverUrl={r.coverUrl} logoUrl={r.logoUrl} />
                   <div className="p-4">
-                    {r.marketplacePriority && (
-                      <span className="mb-1.5 inline-flex items-center rounded-full bg-[#795831] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-white">
-                        {t("search.featured")}
+                    {(r.marketplacePriority || r.isBoosted) && (
+                      <span className="mb-1.5 flex flex-wrap gap-1">
+                        {r.marketplacePriority && (
+                          <span className="inline-flex items-center rounded-full bg-[#795831] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-white">
+                            {t("search.featured")}
+                          </span>
+                        )}
+                        {r.isBoosted === true && (
+                          <span className="inline-flex items-center rounded-full bg-[#FDF0DA] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-[#9A6B2A]">
+                            {t("venue.boosted")}
+                          </span>
+                        )}
                       </span>
                     )}
                     <p className="text-sm font-semibold text-[#1F1E1D] truncate">{r.name}</p>
