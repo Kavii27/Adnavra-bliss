@@ -2,6 +2,7 @@
 import { useEffect, useState, type FormEvent } from "react";
 import { AlertCircle, Calendar, Loader2, X } from "lucide-react";
 import { DatePickerModal, fromISODate, toISODate } from "@/components/shared/date-picker-modal";
+import { StyledNativeSelect } from "@/components/ui/select";
 
 type StaffOption = { id: string; name: string };
 type ServiceOption = { id: string; name: string; duration: number; price: number };
@@ -142,7 +143,7 @@ export function AddBookingModal({ businessId, staff, defaultDate, onClose, onCre
             <X className="h-4 w-4" />
           </button>
         </div>
-        <p className="mt-1 text-xs text-[#a89880]">Walk-in or phone booking — added to the calendar immediately.</p>
+        <p className="mt-1 text-xs text-[#a89880]">Walk-in or phone booking. Added to the calendar immediately.</p>
 
         {error && (
           <div className="mt-3 flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
@@ -163,20 +164,20 @@ export function AddBookingModal({ businessId, staff, defaultDate, onClose, onCre
           <form onSubmit={submit} className="mt-4 flex flex-col gap-3">
             <div>
               <label htmlFor="ab-service" className={labelClass}>Service</label>
-              <select id="ab-service" value={serviceId} onChange={(e) => setServiceId(e.target.value)} className={inputClass}>
+              <StyledNativeSelect id="ab-service" aria-label="Service" value={serviceId} onChange={(e) => setServiceId(e.target.value)} wrapperClassName="w-full" className="w-full">
                 {services.map((s) => (
                   <option key={s.id} value={s.id}>{s.name}</option>
                 ))}
-              </select>
+              </StyledNativeSelect>
             </div>
             <div>
               <label htmlFor="ab-staff" className={labelClass}>Team member</label>
-              <select id="ab-staff" value={staffMemberId} onChange={(e) => setStaffMemberId(e.target.value)} className={inputClass}>
+              <StyledNativeSelect id="ab-staff" aria-label="Team member" value={staffMemberId} onChange={(e) => setStaffMemberId(e.target.value)} wrapperClassName="w-full" className="w-full">
                 <option value="">Unassigned</option>
                 {staff.map((s) => (
                   <option key={s.id} value={s.id}>{s.name}</option>
                 ))}
-              </select>
+              </StyledNativeSelect>
             </div>
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               <div>

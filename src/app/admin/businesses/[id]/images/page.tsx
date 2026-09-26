@@ -36,10 +36,10 @@ export default async function AdminBusinessImagesPage({ params }: { params: Prom
       >
         <ArrowLeft className="h-3.5 w-3.5" /> Back to businesses
       </Link>
-      <h1 className="text-xl font-semibold tracking-tight text-[#3a2f22]">Photos — {business.name}</h1>
+      <h1 className="text-xl font-semibold tracking-tight text-[#3a2f22]">Photos: {business.name}</h1>
       <p className="mt-1 text-sm text-[#a89880]">
-        Replace the logo, cover, or gallery for this salon without signing in as the owner. Minimum 512px wide,
-        JPEG/PNG/WebP up to 8MB — smaller files are rejected.
+        Replace the logo, cover, or gallery for this salon without signing in as the owner. Minimum 512px wide.
+        JPEG, PNG or WebP up to 8MB. Smaller files are rejected.
       </p>
       <div className="mt-6">
         <AdminBusinessImagesManager

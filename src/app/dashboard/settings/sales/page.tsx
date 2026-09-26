@@ -62,7 +62,7 @@ function SalesSettingsInner() {
   async function save() {
     if (!businessId) return;
     if (taxRate < 0 || taxRate > 100) {
-      setError("Tax rate must be 0–100%");
+      setError("Tax rate must be 0 to 100%");
       return;
     }
     setSaving(true);

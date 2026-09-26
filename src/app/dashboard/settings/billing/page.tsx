@@ -29,11 +29,11 @@ const PLANS: { id: string; name: string; price: string; period: string; popular?
 ];
 
 function formatDate(d: Date | null | undefined): string {
-  if (!d) return "—";
+  if (!d) return "-";
   try {
     return new Date(d).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" });
   } catch {
-    return "—";
+    return "-";
   }
 }
 

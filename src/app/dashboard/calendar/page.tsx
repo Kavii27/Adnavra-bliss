@@ -5,6 +5,7 @@ import { Loader2, AlertCircle, Store, ChevronLeft, ChevronRight, Plus, Calendar 
 import { PlanGate } from "@/components/dashboard/plan-gate";
 import { CalendarProTools } from "@/components/dashboard/calendar-pro-tools";
 import { AddBookingModal } from "@/components/dashboard/add-booking-modal";
+import { UiSelect } from "@/components/ui/select";
 
 const SERIF = "font-[family-name:var(--font-display)]";
 
@@ -184,19 +185,14 @@ export default function CalendarPage() {
           <span className="ml-1 text-sm font-medium text-[#1F1E1D]">{dayLabel}</span>
         </div>
 
-        <select
-          aria-label="Filter by team member"
+        <UiSelect
+          ariaLabel="Filter by team member"
           value={staffFilter}
-          onChange={(e) => setStaffFilter(e.target.value)}
-          className="min-h-11 w-full rounded-lg bg-[#FBF7EF] px-3 py-2 text-sm font-medium text-[#4A4640] focus:outline-none focus:ring-2 focus:ring-[var(--color-sidebar-active)] sm:ml-2 sm:w-auto sm:border-l sm:border-[#E9E1D3] sm:rounded-full sm:pl-4 sm:text-xs"
-        >
-          <option value="">All team members</option>
-          {staff.map((s) => (
-            <option key={s.id} value={s.id}>
-              {s.name}
-            </option>
-          ))}
-        </select>
+          onValueChange={(v) => setStaffFilter(v)}
+          options={[{ value: "", label: "All team members" }, ...staff.map((s) => ({ value: s.id, label: s.name }))]}
+          className="w-full sm:ml-2 sm:w-auto"
+          triggerClassName="w-full sm:w-auto"
+        />
 
         <div className="grid grid-cols-2 gap-2 sm:ml-auto sm:flex sm:items-center">
           <span className="inline-flex min-h-11 items-center justify-center rounded-lg border border-[#E9E1D3] bg-[#FBF7EF] px-3 py-2 text-xs font-semibold text-[#1F1E1D]">
@@ -272,7 +268,7 @@ export default function CalendarPage() {
                     <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-[#8A8377]">
                       <span className="inline-flex items-center gap-1.5">
                         <ClockIcon className="h-3.5 w-3.5" />
-                        {new Date(b.startTime).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })} – {new Date(b.endTime).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                        {new Date(b.startTime).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })} to {new Date(b.endTime).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
                       </span>
                       {b.staffMember && <span>{b.staffMember.name}</span>}
                     </div>
@@ -299,7 +295,7 @@ export default function CalendarPage() {
             <div>
               <div className="flex items-center justify-center border-b border-[#E9E1D3] bg-[#FAF7F2] px-3 py-3">
                 <div className="flex flex-col items-center gap-1">
-                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#F3EEE4] text-xs font-semibold text-[#1F1E1D]">—</div>
+                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#F3EEE4] text-xs font-semibold text-[#1F1E1D]">-</div>
                   <span className="text-xs font-medium text-[#8A8377]">Unassigned</span>
                 </div>
               </div>
@@ -326,7 +322,7 @@ export default function CalendarPage() {
             {columns.map((c) => (
               <div key={String(c.id ?? "unassigned")} className="flex flex-col items-center justify-center gap-1 border-r border-[#E9E1D3] px-2 py-3 last:border-r-0">
                 <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#F3EEE4] text-xs font-semibold text-[#1F1E1D] ring-1 ring-black/5">
-                  {c.name === "Unassigned" ? "—" : initials(c.name)}
+                  {c.name === "Unassigned" ? "-" : initials(c.name)}
                 </div>
                 <span className="max-w-full truncate text-xs font-medium text-[#1F1E1D] text-center">{c.name}</span>
               </div>
@@ -391,7 +387,7 @@ export default function CalendarPage() {
                           <p className="font-semibold leading-tight truncate">{b.service?.name}</p>
                           <p className="leading-tight truncate opacity-80 text-[11px]">{b.customer?.name} · {b.reference}</p>
                           <p className="text-[11px] font-medium opacity-70">
-                            {new Date(b.startTime).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })} –{" "}
+                            {new Date(b.startTime).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })} to{" "}
                             {new Date(b.endTime).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
                           </p>
                         </div>

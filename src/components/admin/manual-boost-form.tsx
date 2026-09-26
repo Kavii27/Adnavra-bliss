@@ -3,9 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { AlertCircle, Loader2, Zap } from "lucide-react";
-
-const inputClass =
-  "h-9 rounded-lg border border-[#E3E8F0] bg-white px-2.5 text-sm text-[#3a2f22] outline-none focus:border-[#c9a26d] disabled:opacity-50";
+import { StyledNativeSelect } from "@/components/ui/select";
 
 export function ManualBoostForm({ businesses }: { businesses: { id: string; name: string; slug: string }[] }) {
   const router = useRouter();
@@ -14,7 +12,7 @@ export function ManualBoostForm({ businesses }: { businesses: { id: string; name
   const [error, setError] = useState<string | null>(null);
 
   if (businesses.length === 0) {
-    return <p className="text-xs text-[#a89880]">No salons on the platform yet — add one first.</p>;
+    return <p className="text-xs text-[#a89880]">No salons on the platform yet. Add one first.</p>;
   }
 
   async function handleBoost() {
@@ -39,19 +37,18 @@ export function ManualBoostForm({ businesses }: { businesses: { id: string; name
   return (
     <div>
       <div className="flex flex-wrap items-center gap-3">
-        <select
+        <StyledNativeSelect
           aria-label="Salon to boost"
           value={businessId}
           disabled={saving}
           onChange={(e) => setBusinessId(e.target.value)}
-          className={inputClass}
         >
           {businesses.map((b) => (
             <option key={b.id} value={b.id}>
               {b.name} (/{b.slug})
             </option>
           ))}
-        </select>
+        </StyledNativeSelect>
         <button
           type="button"
           onClick={handleBoost}
@@ -63,7 +60,7 @@ export function ManualBoostForm({ businesses }: { businesses: { id: string; name
         </button>
       </div>
       <p className="mt-2 text-xs text-[#a89880]">
-        Manual boosts bypass the plan&apos;s weekly limit — use for one-off promotions.
+        Manual boosts bypass the plan weekly limit. Use for one-off promotions.
       </p>
       {error && (
         <p className="mt-2 inline-flex items-center gap-1.5 text-xs font-medium text-[#B91C1C]">

@@ -25,10 +25,10 @@ type Row = {
 };
 
 const SEGMENT_DEFS: { name: Segment; description: string }[] = [
-  { name: "New", description: "First visit only — welcome them back." },
-  { name: "Regular", description: "2–5 visits — your core repeat base." },
-  { name: "Loyal", description: "6+ visits — candidates for loyalty rewards." },
-  { name: "At risk", description: "No visit in 60+ days — win them back." },
+  { name: "New", description: "First visit only. Welcome them back." },
+  { name: "Regular", description: "2 to 5 visits. Your core repeat base." },
+  { name: "Loyal", description: "6+ visits. Candidates for loyalty rewards." },
+  { name: "At risk", description: "No visit in 60+ days. Win them back." },
   { name: "High spend", description: "Top 25% by completed spend." },
 ];
 
@@ -193,7 +193,7 @@ function SegmentsInner() {
                         </span>
                       </td>
                       <td className="px-4 py-3 text-right text-[#3a2f22]">{r.visits}</td>
-                      <td className="px-4 py-3 text-right text-[#3a2f22]">{r.spend > 0 ? lkr(r.spend) : "—"}</td>
+                      <td className="px-4 py-3 text-right text-[#3a2f22]">{r.spend > 0 ? lkr(r.spend) : "-"}</td>
                       <td className="px-4 py-3 text-[#a89880] text-xs">{r.lastVisit ? new Date(r.lastVisit).toLocaleDateString("en-GB") : "Never"}</td>
                     </tr>
                   ))}

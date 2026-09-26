@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { PlanGate } from "@/components/dashboard/plan-gate";
 import { useBusinessId, lkr, formatDate } from "@/components/dashboard/use-business";
+import { StyledNativeSelect } from "@/components/ui/select";
 
 type Supplier = { id: string; name: string; isActive: boolean };
 type Product = { id: string; name: string };
@@ -189,7 +190,7 @@ function StockOrdersInner() {
 
       {suppliers.length === 0 && !error && (
         <div className="mt-6 rounded-xl border border-[#e6dcc8] bg-[#f6efe3] p-6 text-sm text-[#a89880]">
-          Add a supplier first — orders are placed against a supplier.{" "}
+          Add a supplier first. Orders are placed against a supplier.{" "}
           <Link href="/dashboard/catalog/suppliers" className="font-medium text-[#3a2f22] underline">Go to Suppliers</Link>.
         </div>
       )}
@@ -243,12 +244,12 @@ function StockOrdersInner() {
             <div className="mt-4 space-y-4">
               <div>
                 <label className="text-sm font-medium text-[#3a2f22]">Supplier *</label>
-                <select value={supplierId} onChange={(e) => setSupplierId(e.target.value)} className="mt-1 w-full rounded-md border border-[#e6dcc8] bg-[#f6efe3] px-3 py-2 text-sm text-[#3a2f22]">
-                  <option value="" className="text-black">Choose a supplier</option>
+                <StyledNativeSelect aria-label="Supplier" value={supplierId} onChange={(e) => setSupplierId(e.target.value)} wrapperClassName="mt-1 w-full" className="w-full">
+                  <option value="">Choose a supplier</option>
                   {suppliers.map((s) => (
-                    <option key={s.id} value={s.id} className="text-black">{s.name}</option>
+                    <option key={s.id} value={s.id}>{s.name}</option>
                   ))}
-                </select>
+                </StyledNativeSelect>
               </div>
               {lines.map((l, idx) => (
                 <div key={idx} className="rounded-lg border border-[#e6dcc8] bg-[#f6efe3] p-3 space-y-2">
@@ -258,12 +259,12 @@ function StockOrdersInner() {
                       <button onClick={() => setLines((prev) => prev.filter((_, i) => i !== idx))} className="text-xs text-red-300 hover:underline">Remove</button>
                     )}
                   </div>
-                  <select value={l.productId} onChange={(e) => updateLine(idx, { productId: e.target.value })} className="w-full rounded-md border border-[#e6dcc8] bg-[#faf6ef] px-3 py-2 text-sm text-[#3a2f22]">
-                    <option value="" className="text-black">Custom item (type name below)</option>
+                  <StyledNativeSelect aria-label={`Line ${idx + 1} product`} value={l.productId} onChange={(e) => updateLine(idx, { productId: e.target.value })} wrapperClassName="w-full" className="w-full">
+                    <option value="">Custom item (type name below)</option>
                     {products.map((p) => (
-                      <option key={p.id} value={p.id} className="text-black">{p.name}</option>
+                      <option key={p.id} value={p.id}>{p.name}</option>
                     ))}
-                  </select>
+                  </StyledNativeSelect>
                   <Input value={l.productName} onChange={(e) => updateLine(idx, { productName: e.target.value })} placeholder="Product name *" className="bg-[#faf6ef] border-[#e6dcc8] text-[#3a2f22] placeholder:text-[#a89880]" />
                   <div className="grid grid-cols-2 gap-2">
                     <Input value={l.quantity} onChange={(e) => updateLine(idx, { quantity: e.target.value })} type="number" min={1} placeholder="Qty *" className="bg-[#faf6ef] border-[#e6dcc8] text-[#3a2f22]" />

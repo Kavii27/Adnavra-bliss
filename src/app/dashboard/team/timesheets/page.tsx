@@ -6,6 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { PlanGate } from "@/components/dashboard/plan-gate";
 import { useBusinessId } from "@/components/dashboard/use-business";
+import { UiSelect } from "@/components/ui/select";
+import { StyledNativeSelect } from "@/components/ui/select";
 
 type Staff = { id: string; name: string };
 type Entry = {
@@ -193,18 +195,20 @@ function TimesheetsInner() {
 
       {staff.length === 0 && !error ? (
         <div className="mt-6 rounded-2xl border border-[#E9E1D3] bg-white p-6 text-sm text-[#8A8377] shadow-[0_4px_20px_rgba(30,28,26,0.05)]">
-          Add team members first — hours are logged per staff.{" "}
+          Add team members first. Hours are logged per staff.{" "}
           <Link href="/dashboard/team/members" className="font-medium text-[#1F1E1D] underline">Go to Team members</Link>.
         </div>
       ) : (
         <>
           <div className="mt-6 flex flex-wrap items-center gap-3">
-            <select value={staffFilter} onChange={(e) => setStaffFilter(e.target.value)} className="rounded-lg border border-[#E9E1D3] bg-white px-3 py-2 text-sm text-[#1F1E1D]">
-              <option value="ALL" className="text-black">All staff</option>
-              {staff.map((s) => (
-                <option key={s.id} value={s.id} className="text-black">{s.name}</option>
-              ))}
-            </select>
+            <UiSelect
+              ariaLabel="Filter by staff member"
+              value={staffFilter}
+              onValueChange={(v) => setStaffFilter(v)}
+              options={[{ value: "ALL", label: "All staff" }, ...staff.map((s) => ({ value: s.id, label: s.name }))]}
+              className="w-full sm:w-auto"
+              triggerClassName="w-full sm:w-auto"
+            />
             <span className="text-sm text-[#8A8377]">{entries.length} entries · {totalHours.toFixed(1)}h logged</span>
           </div>
 
@@ -258,12 +262,12 @@ function TimesheetsInner() {
                         <td className="px-4 py-3 font-medium text-[#1F1E1D]">{e.staffMember.name}</td>
                         <td className="px-4 py-3 text-[#8A8377] text-xs">{new Date(e.date).toLocaleDateString("en-GB")}</td>
                         <td className="px-4 py-3 text-[#8A8377] text-xs">
-                          {e.clockIn ? new Date(e.clockIn).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "—"}
+                          {e.clockIn ? new Date(e.clockIn).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "-"}
                           {" → "}
-                          {e.clockOut ? new Date(e.clockOut).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "—"}
+                          {e.clockOut ? new Date(e.clockOut).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "-"}
                         </td>
                         <td className="px-4 py-3 text-right text-[#1F1E1D]">{e.hours.toFixed(1)}h</td>
-                        <td className="px-4 py-3 text-[#8A8377] text-xs max-w-40 truncate">{e.note ?? "—"}</td>
+                        <td className="px-4 py-3 text-[#8A8377] text-xs max-w-40 truncate">{e.note ?? "-"}</td>
                         <td className="px-4 py-3 text-right">
                           <button onClick={() => handleDelete(e.id)} className="p-2 rounded-lg border border-[#E9E1D3] bg-white hover:bg-red-50" aria-label="Delete entry">
                             <Trash2 className="h-4 w-4 text-red-500" />
@@ -287,12 +291,12 @@ function TimesheetsInner() {
             <div className="mt-4 space-y-4">
               <div>
                 <label className="text-sm font-medium text-[#1F1E1D]">Staff member *</label>
-                <select value={staffId} onChange={(e) => setStaffId(e.target.value)} className="mt-1 w-full rounded-md border border-[#E9E1D3] bg-[#FBF7EF] px-3 py-2 text-sm text-[#1F1E1D]">
-                  <option value="" className="text-black">Choose staff</option>
+                <StyledNativeSelect aria-label="Staff member" value={staffId} onChange={(e) => setStaffId(e.target.value)} wrapperClassName="mt-1 w-full" className="w-full">
+                  <option value="">Choose staff</option>
                   {staff.map((s) => (
-                    <option key={s.id} value={s.id} className="text-black">{s.name}</option>
+                    <option key={s.id} value={s.id}>{s.name}</option>
                   ))}
-                </select>
+                </StyledNativeSelect>
               </div>
               <div>
                 <label className="text-sm font-medium text-[#1F1E1D]">Date *</label>

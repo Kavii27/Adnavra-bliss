@@ -151,7 +151,7 @@ export function SubscriptionPlanCard({ plan }: { plan: SubscriptionPlan }) {
             className={inputClass}
             value={fields.priceMonthly}
             disabled={saving}
-            placeholder="—"
+            placeholder="-"
             onChange={(e) => update("priceMonthly", e.target.value)}
           />
         </label>

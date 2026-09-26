@@ -127,7 +127,7 @@ export default async function AdminBusinessesPage({
             {query ? `No salons match "${query}"` : "No salons yet"}
           </p>
           <p className="mt-1 text-xs text-[#a89880]">
-            {query ? "Try a different search." : "Add your first salon — its owner login is created at the same time."}
+            {query ? "Try a different search." : "Add your first salon. Its owner login is created at the same time."}
           </p>
           {!query && (
             <Link
@@ -173,14 +173,14 @@ export default async function AdminBusinessesPage({
                     <p className="font-semibold text-[#3a2f22]">{b.name}</p>
                     <p className="mt-0.5 text-xs text-[#a89880]">/{b.slug}</p>
                   </td>
-                  <td className="px-4 py-3 text-[#475467]">{b.city ?? "—"}</td>
+                  <td className="px-4 py-3 text-[#475467]">{b.city ?? "-"}</td>
                   <td className="px-4 py-3">
                     <span className="inline-flex items-center rounded-full bg-[#E7ECF2] px-2 py-0.5 text-[11px] font-semibold text-[#3a2f22]">
                       {b.businessSubscription ? b.businessSubscription.plan.name : "No plan"}
                     </span>
                   </td>
                   <td className="px-4 py-3 text-[#475467]">
-                    {b.users.length > 0 ? b.users.map((u) => u.email).join(", ") : "—"}
+                    {b.users.length > 0 ? b.users.map((u) => u.email).join(", ") : "-"}
                   </td>
                   <td className="px-4 py-3 text-[#475467]">
                     {new Date(b.createdAt).toLocaleDateString("en-LK", {

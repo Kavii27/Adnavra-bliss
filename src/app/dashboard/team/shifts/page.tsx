@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { PlanGate } from "@/components/dashboard/plan-gate";
 import { useBusinessId } from "@/components/dashboard/use-business";
+import { StyledNativeSelect } from "@/components/ui/select";
 
 type Staff = { id: string; name: string };
 type Shift = {
@@ -194,7 +195,7 @@ function ShiftsInner() {
 
       {staff.length === 0 && !error ? (
         <div className="mt-6 rounded-2xl border border-[#E9E1D3] bg-white p-6 text-sm text-[#8A8377] shadow-[0_4px_20px_rgba(30,28,26,0.05)]">
-          Add team members first — shifts are assigned to staff.{" "}
+          Add team members first. Shifts are assigned to staff.{" "}
           <Link href="/dashboard/team/members" className="font-medium text-[#1F1E1D] underline">Go to Team members</Link>.
         </div>
       ) : (
@@ -224,12 +225,12 @@ function ShiftsInner() {
                       <p className={`text-xs font-semibold ${isToday ? "text-[#1F1E1D]" : "text-[#8A8377]"}`}>{label}</p>
                       <div className="mt-2 space-y-1.5">
                         {list.length === 0 ? (
-                          <p className="text-[11px] text-[#8A8377]">—</p>
+                          <p className="text-[11px] text-[#8A8377]">-</p>
                         ) : (
                           list.map((s) => (
                             <div key={s.id} className="rounded-lg bg-[#FAF7F2] border border-[#E9E1D3] px-2 py-1.5 text-[11px] group">
                               <p className="font-medium text-[#1F1E1D] truncate">{s.staffMember.name}</p>
-                              <p className="text-[#8A8377]">{fmtTime(s.start)}–{fmtTime(s.end)}</p>
+                              <p className="text-[#8A8377]">{fmtTime(s.start)} to {fmtTime(s.end)}</p>
                               <button onClick={() => handleDelete(s.id)} className="mt-0.5 inline-flex items-center gap-1 text-[11px] text-red-500 hover:underline"><Trash2 className="h-3 w-3" /> Remove</button>
                             </div>
                           ))
@@ -262,12 +263,12 @@ function ShiftsInner() {
             <div className="mt-4 space-y-4">
               <div>
                 <label className="text-sm font-medium text-[#1F1E1D]">Staff member *</label>
-                <select value={staffId} onChange={(e) => setStaffId(e.target.value)} className="mt-1 w-full rounded-md border border-[#E9E1D3] bg-[#FBF7EF] px-3 py-2 text-sm text-[#1F1E1D]">
-                  <option value="" className="text-black">Choose staff</option>
+                <StyledNativeSelect aria-label="Staff member" value={staffId} onChange={(e) => setStaffId(e.target.value)} wrapperClassName="mt-1 w-full" className="w-full">
+                  <option value="">Choose staff</option>
                   {staff.map((s) => (
-                    <option key={s.id} value={s.id} className="text-black">{s.name}</option>
+                    <option key={s.id} value={s.id}>{s.name}</option>
                   ))}
-                </select>
+                </StyledNativeSelect>
               </div>
               <div>
                 <label className="text-sm font-medium text-[#1F1E1D]">Date *</label>

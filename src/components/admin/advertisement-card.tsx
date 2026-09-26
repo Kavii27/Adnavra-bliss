@@ -6,13 +6,14 @@ import type { Prisma } from "@prisma/client";
 import { AlertCircle, BarChart3, Calendar, Check, Loader2, Trash2 } from "lucide-react";
 import { ToggleSwitch } from "@/components/admin/toggle-switch";
 import { DatePickerModal, fromISODate, toISODate } from "@/components/shared/date-picker-modal";
+import { StyledNativeSelect } from "@/components/ui/select";
 
 type AdWithPlacement = Prisma.AdvertisementGetPayload<{ include: { placement: true } }> & {
   stats: { impressions: number; clicks: number };
 };
 
 const inputClass =
-  "h-9 w-full rounded-lg border border-[#E3E8F0] bg-[#faf6ef] px-2.5 text-sm text-[#3a2f22] outline-none focus:border-[#c9a26d] disabled:opacity-50";
+  "h-10 w-full rounded-md border border-[#E3E8F0] bg-white px-3 text-sm text-[#3a2f22] outline-none transition hover:border-[#c9a26d] focus:border-[#8a6d4f] disabled:opacity-50";
 const labelClass = "text-[11px] font-semibold uppercase tracking-wide text-[#a89880]";
 const dateTriggerClass =
   "flex min-h-11 w-full items-center gap-1.5 rounded-lg border border-[#E3E8F0] bg-[#faf6ef] px-2.5 text-left text-sm text-[#3a2f22] transition-colors hover:border-[#c9a26d] disabled:opacity-50";
@@ -125,8 +126,9 @@ export function AdvertisementCard({ ad, placements }: { ad: AdWithPlacement; pla
           </label>
           <label className="space-y-1">
             <span className={labelClass}>Placement</span>
-            <select
-              className={inputClass}
+            <StyledNativeSelect
+              wrapperClassName="w-full"
+              className="w-full"
               value={fields.placementKey}
               disabled={saving || deleting}
               onChange={(e) => update("placementKey", e.target.value)}
@@ -136,7 +138,7 @@ export function AdvertisementCard({ ad, placements }: { ad: AdWithPlacement; pla
                   {p.name}
                 </option>
               ))}
-            </select>
+            </StyledNativeSelect>
           </label>
           <label className="space-y-1">
             <span className={labelClass}>Destination URL</span>

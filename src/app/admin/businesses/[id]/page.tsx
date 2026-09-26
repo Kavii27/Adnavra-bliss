@@ -92,7 +92,7 @@ export default async function AdminBusinessDetailPage({ params }: { params: Prom
             <ArrowRight className="h-3.5 w-3.5 text-[#a89880] transition group-hover:translate-x-0.5 group-hover:text-[#8a6d4f]" />
           </p>
           <p className="mt-0.5 text-xs text-[#a89880]">
-            {business._count.services} service{business._count.services === 1 ? "" : "s"} — add prices on the
+            {business._count.services} service{business._count.services === 1 ? "" : "s"}. Add prices on the
             owner&apos;s behalf.
           </p>
         </Link>
@@ -105,7 +105,7 @@ export default async function AdminBusinessDetailPage({ params }: { params: Prom
             <ArrowRight className="h-3.5 w-3.5 text-[#a89880] transition group-hover:translate-x-0.5 group-hover:text-[#8a6d4f]" />
           </p>
           <p className="mt-0.5 text-xs text-[#a89880]">
-            {business._count.images} photo{business._count.images === 1 ? "" : "s"} — logo, cover, gallery.
+            {business._count.images} photo{business._count.images === 1 ? "" : "s"}: logo, cover, gallery.
           </p>
         </Link>
         <a

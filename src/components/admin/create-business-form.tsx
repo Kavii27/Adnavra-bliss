@@ -104,7 +104,7 @@ export function CreateBusinessForm() {
       setCopied(true);
       setTimeout(() => setCopied(false), 2500);
     } catch {
-      setError("Copy failed — select the password manually.");
+      setError("Copy failed. Select the password manually.");
     }
   }
 
@@ -113,10 +113,10 @@ export function CreateBusinessForm() {
       <div className="space-y-6">
         <div className="flex items-center gap-2 rounded-lg border border-[#DCF5E7] bg-[#DCF5E7] p-4 text-sm font-medium text-[#15803D]">
           <Check className="h-4 w-4 shrink-0" />
-          Salon created — {created.business.name} (/{created.business.slug}) with owner {created.owner.email}.
+          Salon created: {created.business.name} (/{created.business.slug}) with owner {created.owner.email}.
         </div>
         <section className="rounded-lg border border-[#E3E8F0] bg-white p-6">
-          <h2 className="text-sm font-semibold text-[#3a2f22]">Temporary password — copy it now</h2>
+          <h2 className="text-sm font-semibold text-[#3a2f22]">Temporary password. Copy it now</h2>
           <p className="mt-1 text-xs text-[#a89880]">
             This is shown once and never stored. Send it to the salon owner (e.g. via WhatsApp) and ask them to log
             in and change it immediately.
@@ -154,7 +154,7 @@ export function CreateBusinessForm() {
             onClick={() => router.push(`/admin/businesses/${created.business.id}`)}
             className="bg-[#8a6d4f] text-white hover:bg-[#5f4630]"
           >
-            Open salon detail — add services
+            Open salon detail and add services
           </Button>
           <Button
             type="button"

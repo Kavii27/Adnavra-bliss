@@ -171,7 +171,7 @@ export function AdminBusinessProfileForm({ businessId, initial }: Props) {
       <fieldset className="mt-5">
         <legend className="text-sm font-medium text-[#3a2f22]">Salon type</legend>
         <p className="mt-0.5 text-xs text-[#a89880]">
-          Same picker as the owner&apos;s Settings page — tags on the marketplace card and public page. Pick up to 4.
+          Same picker as the owner&apos;s Settings page, tags the marketplace card and public page. Pick up to 4.
         </p>
         <div className="mt-2">
           <SalonTypePicker value={salonTypes} onChange={setSalonTypes} idPrefix={`admin-${businessId}-salon-type`} />

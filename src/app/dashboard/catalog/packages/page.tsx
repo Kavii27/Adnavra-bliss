@@ -162,7 +162,7 @@ function CatalogPackagesInner() {
 
       {services.length === 0 && !error && (
         <div className="mt-6 rounded-xl border border-[#e6dcc8] bg-[#f6efe3] p-6 text-sm text-[#a89880]">
-          Add services first — packages bundle your existing services.{" "}
+          Add services first. Packages bundle your existing services.{" "}
           <Link href="/dashboard/catalog/service-menu" className="font-medium text-[#3a2f22] underline">Go to Service menu</Link>.
         </div>
       )}
@@ -227,7 +227,7 @@ function CatalogPackagesInner() {
                   })}
                 </div>
                 {picked.length > 0 && (
-                  <p className="mt-1 text-xs text-[#a89880]">Services total {lkr(pickedTotal)} — price the bundle below that to show a saving.</p>
+                  <p className="mt-1 text-xs text-[#a89880]">Services total {lkr(pickedTotal)}. Price the bundle below that to show a saving.</p>
                 )}
               </div>
               <div>

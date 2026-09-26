@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { AlertCircle, Calendar, Check, Loader2 } from "lucide-react";
 import { DatePickerModal, fromISODate, toISODate } from "@/components/shared/date-picker-modal";
+import { StyledNativeSelect } from "@/components/ui/select";
 
 type Status = "ACTIVE" | "SUSPENDED" | "CANCELLED";
 const STATUSES: Status[] = ["ACTIVE", "SUSPENDED", "CANCELLED"];
@@ -19,7 +20,7 @@ type Props = {
 };
 
 const inputClass =
-  "h-9 rounded-md border border-[#E3E8F0] bg-white px-2 text-sm font-medium text-[#3a2f22] disabled:opacity-50";
+  "h-10 rounded-md border border-[#E3E8F0] bg-white pl-3 pr-9 text-sm font-medium text-[#3a2f22] outline-none transition hover:border-[#c9a26d] focus:border-[#8a6d4f] disabled:opacity-50";
 
 export function SalonSubscriptionRow({
   businessId,
@@ -70,13 +71,13 @@ export function SalonSubscriptionRow({
   }
 
   if (plans.length === 0) {
-    return <p className="text-xs text-[#a89880]">No active plans to assign — create one first.</p>;
+    return <p className="text-xs text-[#a89880]">No active plans to assign. Create one first.</p>;
   }
 
   return (
     <div className="flex flex-col gap-2">
       <div className="flex flex-wrap items-center gap-2">
-        <select
+        <StyledNativeSelect
           aria-label="Plan"
           value={planKey}
           disabled={saving}
@@ -84,15 +85,14 @@ export function SalonSubscriptionRow({
             setPlanKey(e.target.value);
             setSaved(false);
           }}
-          className={inputClass}
         >
           {plans.map((p) => (
             <option key={p.key} value={p.key}>
               {p.name}
             </option>
           ))}
-        </select>
-        <select
+        </StyledNativeSelect>
+        <StyledNativeSelect
           aria-label="Status"
           value={status}
           disabled={saving}
@@ -100,14 +100,13 @@ export function SalonSubscriptionRow({
             setStatus(e.target.value as Status);
             setSaved(false);
           }}
-          className={inputClass}
         >
           {STATUSES.map((s) => (
             <option key={s} value={s}>
               {s.charAt(0) + s.slice(1).toLowerCase()}
             </option>
           ))}
-        </select>
+        </StyledNativeSelect>
         <button
           type="button"
           aria-label="Start date"
@@ -147,7 +146,7 @@ export function SalonSubscriptionRow({
           </span>
         )}
       </div>
-      {!hasSubscription && <p className="text-xs text-[#a89880]">No subscription row yet — saving creates one.</p>}
+      {!hasSubscription && <p className="text-xs text-[#a89880]">No subscription yet. Saving creates one.</p>}
       {error && (
         <p className="inline-flex items-center gap-1.5 text-xs font-medium text-[#B91C1C]">
           <AlertCircle className="h-3.5 w-3.5 shrink-0" /> {error}

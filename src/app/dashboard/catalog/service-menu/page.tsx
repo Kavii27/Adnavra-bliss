@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import Link from "next/link";
 import { Loader2, AlertCircle, Pencil, Trash2, Plus, Clock, Check, Store, Layers } from "lucide-react";
 import { SERVICE_CATEGORIES } from "@/lib/categories";
+import { StyledNativeSelect } from "@/components/ui/select";
 
 type Service = {
   id: string;
@@ -317,12 +318,12 @@ export default function ServiceMenuPage() {
               <div>
                 <label className="text-sm font-medium text-[#3a2f22]">Category</label>
                 <div className="mt-1 flex gap-2">
-                  <select value={category} onChange={(e) => setCategory(e.target.value)} className="flex-1 rounded-md border border-[#e6dcc8] bg-[#f6efe3] px-3 py-2 text-sm text-[#3a2f22]">
-                    <option value="" className="text-black">No category</option>
+                  <StyledNativeSelect aria-label="Category" value={category} onChange={(e) => setCategory(e.target.value)} wrapperClassName="flex-1" className="w-full">
+                    <option value="">No category</option>
                     {SERVICE_CATEGORIES.map((c) => (
-                      <option key={c.slug} value={c.slug} className="text-black">{c.label}</option>
+                      <option key={c.slug} value={c.slug}>{c.label}</option>
                     ))}
-                  </select>
+                  </StyledNativeSelect>
                 </div>
                 <p className="text-xs text-[#a89880] mt-1">Or type a new category name directly in the list above via the service form. Using a new value creates it automatically.</p>
               </div>

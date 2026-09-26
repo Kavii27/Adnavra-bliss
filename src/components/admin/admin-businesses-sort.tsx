@@ -1,12 +1,13 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
+import { UiSelect } from "@/components/ui/select";
 
 const OPTIONS: { value: string; label: string }[] = [
   { value: "newest", label: "Newest first" },
   { value: "oldest", label: "Oldest first" },
-  { value: "name_asc", label: "Name (A–Z)" },
-  { value: "name_desc", label: "Name (Z–A)" },
+  { value: "name_asc", label: "Name (A to Z)" },
+  { value: "name_desc", label: "Name (Z to A)" },
 ];
 
 export function AdminBusinessesSort({ initialSort }: { initialSort: string }) {
@@ -21,17 +22,11 @@ export function AdminBusinessesSort({ initialSort }: { initialSort: string }) {
   }
 
   return (
-    <select
-      defaultValue={initialSort}
-      onChange={(e) => apply(e.target.value)}
-      aria-label="Sort businesses"
-      className="h-10 rounded-md border border-[#E3E8F0] bg-white px-3 text-sm font-medium text-[#3a2f22] outline-none focus:border-[#8a6d4f]"
-    >
-      {OPTIONS.map((o) => (
-        <option key={o.value} value={o.value}>
-          {o.label}
-        </option>
-      ))}
-    </select>
+    <UiSelect
+      ariaLabel="Sort businesses"
+      value={OPTIONS.some((o) => o.value === initialSort) ? initialSort : "newest"}
+      onValueChange={apply}
+      options={OPTIONS}
+    />
   );
 }

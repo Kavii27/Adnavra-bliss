@@ -177,7 +177,7 @@ function ClientsListPageInner() {
                 <tbody className="divide-y divide-[#E9E1D3]">
                   {filtered.map((c) => {
                     const sales = salesByCustomer[c.id];
-                    const salesText = sales === undefined ? (salesLoading ? "…" : "—") : sales === 0 ? "—" : lkr(sales);
+                    const salesText = sales === undefined ? (salesLoading ? "…" : "-") : sales === 0 ? "-" : lkr(sales);
                     return (
                       <tr key={c.id} className="hover:bg-[#FBF7EF]">
                         <td className="px-4 py-3">
@@ -189,8 +189,8 @@ function ClientsListPageInner() {
                             </div>
                           </div>
                         </td>
-                        <td className="px-4 py-3 text-[#8A8377]">{c.phone ?? "—"}</td>
-                        <td className="px-4 py-3 text-[#8A8377]">—</td>
+                        <td className="px-4 py-3 text-[#8A8377]">{c.phone ?? "-"}</td>
+                        <td className="px-4 py-3 text-[#8A8377]">-</td>
                         <td className="px-4 py-3 text-right text-[#1F1E1D]">{salesText}</td>
                         <td className="px-4 py-3 text-[#8A8377] text-xs">{new Date(c.createdAt).toLocaleDateString("en-GB")}</td>
                       </tr>

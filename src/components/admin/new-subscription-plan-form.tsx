@@ -75,7 +75,7 @@ export function NewSubscriptionPlanForm() {
         </label>
       </div>
       <p className="mt-3 text-xs text-[#a89880]">
-        Creates the plan with sensible defaults for everything else — edit it in its card above once created.
+        Creates the plan with sensible defaults for everything else. Edit it in its card above once created.
       </p>
       <button
         type="button"

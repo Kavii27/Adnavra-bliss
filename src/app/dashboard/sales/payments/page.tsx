@@ -62,12 +62,12 @@ function PaymentsInner() {
       if (lR.ok && Array.isArray(lR.j.data)) {
         for (const r of lR.j.data as LedgerRow[]) {
           if (r.status !== "COMPLETED") continue;
-          list.push({ id: `ledger-${r.id}`, label: r.label, customer: r.customer?.name ?? "—", amount: r.amount, date: r.occurredAt, source: "Ledger", status: r.status });
+          list.push({ id: `ledger-${r.id}`, label: r.label, customer: r.customer?.name ?? "-", amount: r.amount, date: r.occurredAt, source: "Ledger", status: r.status });
         }
       }
       if (bR.ok && Array.isArray(bR.j.data)) {
         for (const b of bR.j.data as CompletedBooking[]) {
-          list.push({ id: `booking-${b.id}`, label: b.service?.name ?? "Service", customer: b.customer?.name ?? "—", amount: b.service?.price ?? 0, date: b.startTime, source: "Booking", status: "COMPLETED" });
+          list.push({ id: `booking-${b.id}`, label: b.service?.name ?? "Service", customer: b.customer?.name ?? "-", amount: b.service?.price ?? 0, date: b.startTime, source: "Booking", status: "COMPLETED" });
         }
       }
       list.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
@@ -128,7 +128,7 @@ function PaymentsInner() {
 
       {!gatewayOn && (
         <div className="mt-6 rounded-xl border border-[#E9E1D3] bg-[#FBF7EF] p-4 text-sm text-[#8A8377]">
-          No payment provider connected yet — amounts below are recorded revenue.{" "}
+          No payment provider connected yet. Amounts below are recorded revenue.{" "}
           <Link href="/dashboard/settings/payments" className="font-medium text-[#795831] underline">Connect one in Settings → Payments</Link>.
         </div>
       )}

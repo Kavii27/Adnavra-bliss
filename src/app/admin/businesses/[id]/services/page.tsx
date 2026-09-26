@@ -33,7 +33,7 @@ export default async function AdminBusinessServicesPage({ params }: { params: Pr
       >
         <ArrowLeft className="h-3.5 w-3.5" /> Back to {business.name}
       </Link>
-      <h1 className="text-xl font-semibold tracking-tight text-[#3a2f22]">Services — {business.name}</h1>
+      <h1 className="text-xl font-semibold tracking-tight text-[#3a2f22]">Services: {business.name}</h1>
       <p className="mt-1 text-sm text-[#a89880]">
         Manage this salon&apos;s price list without signing in as the owner. Changes appear on the public booking
         page immediately.

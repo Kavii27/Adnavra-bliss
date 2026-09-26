@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { AlertCircle, Check, Loader2 } from "lucide-react";
+import { StyledNativeSelect } from "@/components/ui/select";
 
 type Plan = "STARTER" | "PROFESSIONAL" | "PREMIUM";
 type Status = "ACTIVE" | "SUSPENDED" | "CANCELLED";
@@ -51,7 +52,7 @@ export function SubscriptionRow({ businessId, initialPlan, initialStatus, hasSub
         <label className="sr-only" htmlFor={`plan-${businessId}`}>
           Plan
         </label>
-        <select
+        <StyledNativeSelect
           id={`plan-${businessId}`}
           value={plan}
           onChange={(e) => {
@@ -59,18 +60,17 @@ export function SubscriptionRow({ businessId, initialPlan, initialStatus, hasSub
             setSaved(false);
           }}
           disabled={saving}
-          className="h-9 rounded-md border border-[#E3E8F0] bg-white px-2 text-sm font-medium text-[#3a2f22] disabled:opacity-50"
         >
           {PLANS.map((p) => (
             <option key={p} value={p}>
               {p.charAt(0) + p.slice(1).toLowerCase()}
             </option>
           ))}
-        </select>
+        </StyledNativeSelect>
         <label className="sr-only" htmlFor={`status-${businessId}`}>
           Status
         </label>
-        <select
+        <StyledNativeSelect
           id={`status-${businessId}`}
           value={status}
           onChange={(e) => {
@@ -78,14 +78,13 @@ export function SubscriptionRow({ businessId, initialPlan, initialStatus, hasSub
             setSaved(false);
           }}
           disabled={saving}
-          className="h-9 rounded-md border border-[#E3E8F0] bg-white px-2 text-sm font-medium text-[#3a2f22] disabled:opacity-50"
         >
           {STATUSES.map((s) => (
             <option key={s} value={s}>
               {s.charAt(0) + s.slice(1).toLowerCase()}
             </option>
           ))}
-        </select>
+        </StyledNativeSelect>
         <button
           type="button"
           onClick={handleSave}
@@ -102,7 +101,7 @@ export function SubscriptionRow({ businessId, initialPlan, initialStatus, hasSub
         )}
       </div>
       {!hasSubscriptionRow && (
-        <p className="text-xs text-[#a89880]">No subscription row yet — saving creates one.</p>
+        <p className="text-xs text-[#a89880]">No subscription yet. Saving creates one.</p>
       )}
       {plan === "PREMIUM" && (
         <p className="text-xs text-[#a89880]">Premium enables the “Featured” marketplace badge automatically.</p>

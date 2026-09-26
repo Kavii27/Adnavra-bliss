@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { PlanGate } from "@/components/dashboard/plan-gate";
 import { useBusinessId } from "@/components/dashboard/use-business";
+import { StyledNativeSelect } from "@/components/ui/select";
 
 type FormField = {
   label: string;
@@ -149,12 +150,12 @@ function FormsSettingsInner() {
               </div>
               <div className="mt-3 flex gap-2">
                 <Input value={label} onChange={(e) => setLabel(e.target.value)} placeholder="Question, e.g. Any allergies?" className="flex-1 bg-[#FAF7F2] border-[#E9E1D3] text-[#1F1E1D] placeholder:text-[#8A8377]" />
-                <select value={type} onChange={(e) => setType(e.target.value as FormField["type"])} className="rounded-md border border-[#E9E1D3] bg-[#FAF7F2] px-2 py-2 text-sm text-[#1F1E1D]">
-                  <option value="text" className="text-black">Short answer</option>
-                  <option value="textarea" className="text-black">Long answer</option>
-                  <option value="select" className="text-black">Pick one</option>
-                  <option value="checkbox" className="text-black">Yes / no</option>
-                </select>
+                <StyledNativeSelect aria-label="Question type" value={type} onChange={(e) => setType(e.target.value as FormField["type"])}>
+                  <option value="text">Short answer</option>
+                  <option value="textarea">Long answer</option>
+                  <option value="select">Pick one</option>
+                  <option value="checkbox">Yes / no</option>
+                </StyledNativeSelect>
                 <Button onClick={addField} variant="secondaryDark"><Plus className="h-4 w-4" /></Button>
               </div>
             </div>

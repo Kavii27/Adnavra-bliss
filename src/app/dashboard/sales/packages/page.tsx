@@ -5,6 +5,7 @@ import { Loader2, AlertCircle, Store, Plus, Check, Package } from "lucide-react"
 import { Button } from "@/components/ui/button";
 import { PlanGate } from "@/components/dashboard/plan-gate";
 import { useBusinessId, lkr } from "@/components/dashboard/use-business";
+import { StyledNativeSelect } from "@/components/ui/select";
 
 type CatalogPackage = { id: string; name: string; price: number; isActive: boolean };
 type PackageSale = {
@@ -213,21 +214,21 @@ function PackagesSoldInner() {
             <div className="mt-4 space-y-4">
               <div>
                 <label className="text-sm font-medium text-[#1F1E1D]">Package *</label>
-                <select value={packageId} onChange={(e) => setPackageId(e.target.value)} className="mt-1 w-full rounded-md border border-[#E9E1D3] bg-[#FBF7EF] px-3 py-2 text-sm text-[#1F1E1D]">
-                  <option value="" className="text-black">Choose a package</option>
+                <StyledNativeSelect aria-label="Package" value={packageId} onChange={(e) => setPackageId(e.target.value)} wrapperClassName="mt-1 w-full" className="w-full">
+                  <option value="">Choose a package</option>
                   {catalog.filter((p) => p.isActive).map((p) => (
-                    <option key={p.id} value={p.id} className="text-black">{p.name} · {lkr(p.price)}</option>
+                    <option key={p.id} value={p.id}>{p.name} · {lkr(p.price)}</option>
                   ))}
-                </select>
+                </StyledNativeSelect>
               </div>
               <div>
                 <label className="text-sm font-medium text-[#1F1E1D]">Customer</label>
-                <select value={customerId} onChange={(e) => setCustomerId(e.target.value)} className="mt-1 w-full rounded-md border border-[#E9E1D3] bg-[#FBF7EF] px-3 py-2 text-sm text-[#1F1E1D]">
-                  <option value="" className="text-black">Walk-in (no customer)</option>
+                <StyledNativeSelect aria-label="Customer" value={customerId} onChange={(e) => setCustomerId(e.target.value)} wrapperClassName="mt-1 w-full" className="w-full">
+                  <option value="">Walk-in (no customer)</option>
                   {customers.map((c) => (
-                    <option key={c.id} value={c.id} className="text-black">{c.name}</option>
+                    <option key={c.id} value={c.id}>{c.name}</option>
                   ))}
-                </select>
+                </StyledNativeSelect>
               </div>
               {formError && <p className="text-sm text-red-500 flex items-center gap-1"><AlertCircle className="h-4 w-4" /> {formError}</p>}
               <div className="flex justify-end gap-2">

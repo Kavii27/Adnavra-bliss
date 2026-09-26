@@ -190,7 +190,7 @@ export default function AppointmentsPage() {
         <>
           <div className="mt-6 overflow-hidden rounded-2xl border border-[#E9E1D3] bg-white shadow-[0_4px_20px_rgba(30,28,26,0.05)] divide-y divide-[#F3EEE4]">
             <div className="px-4 py-3 bg-[#FBF7EF] text-xs text-[#8A8377] flex items-center gap-2">
-              <Calendar className="h-4 w-4" /> {total} booking(s) — page {page} of {totalPages} · {date}
+              <Calendar className="h-4 w-4" /> {total} booking(s), page {page} of {totalPages} · {date}
             </div>
             {groups.map((g) => {
               const first = g.bookings[0];
@@ -225,7 +225,7 @@ export default function AppointmentsPage() {
                         <li key={b.id} className="text-xs text-[#4A4640]">
                           {b.service?.name} · {b.service?.duration} min · {formatPrice(b.service?.price ?? 0)}
                           {" · "}
-                          <span className="inline-flex items-center gap-1 text-[#8A8377]"><Clock className="h-3 w-3" /> {new Date(b.startTime).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })} – {new Date(b.endTime).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</span>
+                          <span className="inline-flex items-center gap-1 text-[#8A8377]"><Clock className="h-3 w-3" /> {new Date(b.startTime).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })} to {new Date(b.endTime).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</span>
                         </li>
                       ))}
                     </ul>

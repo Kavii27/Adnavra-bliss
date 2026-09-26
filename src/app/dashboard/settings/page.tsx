@@ -218,7 +218,7 @@ export default function SettingsHubPage() {
               <Settings className="h-5 w-5" />
             </div>
             <h3 className="mt-4 text-sm font-semibold text-[#1F1E1D]">Billing & plan</h3>
-            <p className="mt-1 text-xs leading-relaxed text-[#8A8377]">Your subscription tier unlocks more of these sections.</p>
+            <p className="mt-1 text-xs leading-relaxed text-[#8A8377]">Your subscription tier opens more of these sections.</p>
             <span className="mt-3 inline-flex items-center gap-1 text-xs font-medium text-[#1F1E1D] group-hover:underline">
               View plans <ChevronRight className="h-3.5 w-3.5" />
             </span>

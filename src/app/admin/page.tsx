@@ -35,7 +35,7 @@ export default async function AdminHomePage() {
       href: "/admin/subscription-plans",
       icon: Layers,
       title: "Subscription Plans",
-      description: "Create and edit Silver/Gold/Platinum — boost frequency, search weight, gallery limits — no code changes.",
+      description: "Create and edit Silver, Gold and Platinum. Set boost frequency, search weight and gallery limits with no code changes.",
     },
     {
       href: "/admin/salon-subscriptions",
@@ -59,7 +59,7 @@ export default async function AdminHomePage() {
       href: "/admin/businesses",
       icon: Store,
       title: "Businesses",
-      description: "Add a salon with its owner login, then finish its setup — profile, services, photos, salon-type tags.",
+      description: "Add a salon with its owner login, then finish setup: profile, services, photos and salon-type tags.",
     },
     {
       href: "/admin/service-images",

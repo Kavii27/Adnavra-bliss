@@ -86,7 +86,7 @@ export default function DashboardHomePage() {
           </p>
           <h1 className={`${SERIF} mt-1 text-3xl font-medium tracking-tight text-[#1F1B17]`}>Home</h1>
           <p className="mt-1.5 text-sm text-[#8A8377]">
-            {formatLongDate(todayIso)} — day at a glance. All bookings are scoped to your business.
+            {formatLongDate(todayIso)}. Day at a glance. All bookings are scoped to your business.
           </p>
         </div>
         <button
@@ -132,7 +132,7 @@ export default function DashboardHomePage() {
                 ) : (
                   <p className={`${SERIF} mt-2 text-4xl font-semibold text-[#1F1B17]`}>{bookings.length}</p>
                 )}
-                <p className="mt-1 text-xs text-[#8A8377]">{loading ? "—" : `${confirmedCount} confirmed · ${pendingCount} pending`}</p>
+                <p className="mt-1 text-xs text-[#8A8377]">{loading ? "-" : `${confirmedCount} confirmed · ${pendingCount} pending`}</p>
               </div>
             </div>
 
@@ -147,7 +147,7 @@ export default function DashboardHomePage() {
                 ) : (
                   <>
                     <p className={`${SERIF} mt-2 truncate text-lg font-semibold text-[#1F1B17]`}>
-                      {upcoming[0].service?.name} — {upcoming[0].customer?.name}
+                      {upcoming[0].service?.name} · {upcoming[0].customer?.name}
                     </p>
                     <p className="mt-1.5 flex items-center gap-1.5 text-xs text-[#8A8377]">
                       <Clock className="h-3.5 w-3.5 text-[#9A7B4F]" />
@@ -260,7 +260,7 @@ export default function DashboardHomePage() {
                       </p>
                       <p className="flex flex-wrap items-center gap-3 text-xs text-[#8A8377]">
                         <span className="inline-flex items-center gap-1">
-                          <Clock className="h-3 w-3" /> {new Date(b.startTime).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })} –{" "}
+                          <Clock className="h-3 w-3" /> {new Date(b.startTime).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })} to{" "}
                           {new Date(b.endTime).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
                         </span>
                         <span>{b.service?.duration} min</span>

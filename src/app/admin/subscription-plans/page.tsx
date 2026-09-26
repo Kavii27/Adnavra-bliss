@@ -48,8 +48,8 @@ export default async function AdminSubscriptionPlansPage() {
         <div>
           <h1 className="text-[28px] font-semibold leading-tight tracking-tight text-[#3a2f22]">Subscription Plans</h1>
           <p className="mt-0.5 text-sm text-[#a89880]">
-            Define Silver, Gold, Platinum — or any future tier. Boost frequency, search visibility, and gallery
-            limits all come from these rows, not code — changes take effect immediately.
+            Define Silver, Gold, Platinum or any future tier. Boost frequency, search visibility, and gallery
+            limits all come from these rows, not code. Changes take effect immediately.
           </p>
         </div>
       </div>

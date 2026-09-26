@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { PlanGate } from "@/components/dashboard/plan-gate";
 import { useBusinessId } from "@/components/dashboard/use-business";
+import { StyledNativeSelect } from "@/components/ui/select";
 
 type LoyaltyAccount = {
   id: string;
@@ -239,12 +240,12 @@ function LoyaltyInner() {
             <div className="mt-4 space-y-4">
               <div>
                 <label className="text-sm font-medium text-[#1F1E1D]">Client *</label>
-                <select value={enrollId} onChange={(e) => setEnrollId(e.target.value)} className="mt-1 w-full rounded-md border border-[#E9E1D3] bg-[#FBF7EF] px-3 py-2 text-sm text-[#1F1E1D]">
-                  <option value="" className="text-black">Choose a client</option>
+                <StyledNativeSelect aria-label="Client" value={enrollId} onChange={(e) => setEnrollId(e.target.value)} wrapperClassName="mt-1 w-full" className="w-full">
+                  <option value="">Choose a client</option>
                   {unenrolled.map((c) => (
-                    <option key={c.id} value={c.id} className="text-black">{c.name}</option>
+                    <option key={c.id} value={c.id}>{c.name}</option>
                   ))}
-                </select>
+                </StyledNativeSelect>
               </div>
               {formError && <p className="text-sm text-red-500 flex items-center gap-1"><AlertCircle className="h-4 w-4" /> {formError}</p>}
               <div className="flex justify-end gap-2">

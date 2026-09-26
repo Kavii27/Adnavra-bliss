@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { PlanGate } from "@/components/dashboard/plan-gate";
 import { useBusinessId, lkr } from "@/components/dashboard/use-business";
+import { StyledNativeSelect } from "@/components/ui/select";
 
 type Promotion = {
   id: string;
@@ -282,10 +283,10 @@ function MarketingInner() {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="text-sm font-medium text-[#1F1E1D]">Discount type</label>
-                  <select value={kind} onChange={(e) => setKind(e.target.value as typeof kind)} className="mt-1 w-full rounded-md border border-[#E9E1D3] bg-[#FBF7EF] px-3 py-2 text-sm text-[#1F1E1D]">
-                    <option value="percent" className="text-black">Percent %</option>
-                    <option value="amount" className="text-black">Fixed LKR</option>
-                  </select>
+                  <StyledNativeSelect aria-label="Discount type" value={kind} onChange={(e) => setKind(e.target.value as typeof kind)} wrapperClassName="mt-1 w-full" className="w-full">
+                    <option value="percent">Percent %</option>
+                    <option value="amount">Fixed LKR</option>
+                  </StyledNativeSelect>
                 </div>
                 <div>
                   <label className="text-sm font-medium text-[#1F1E1D]">Value *</label>
@@ -312,10 +313,10 @@ function MarketingInner() {
               {isCampaign && (
                 <div>
                   <label className="text-sm font-medium text-[#1F1E1D]">Repeats</label>
-                  <select value={repeatRule} onChange={(e) => setRepeatRule(e.target.value)} className="mt-1 w-full rounded-md border border-[#E9E1D3] bg-[#FBF7EF] px-3 py-2 text-sm text-[#1F1E1D]">
-                    <option value="weekly" className="text-black">Weekly</option>
-                    <option value="monthly" className="text-black">Monthly</option>
-                  </select>
+                  <StyledNativeSelect aria-label="Repeats" value={repeatRule} onChange={(e) => setRepeatRule(e.target.value)} wrapperClassName="mt-1 w-full" className="w-full">
+                    <option value="weekly">Weekly</option>
+                    <option value="monthly">Monthly</option>
+                  </StyledNativeSelect>
                 </div>
               )}
               {formError && <p className="text-sm text-red-600 flex items-center gap-1"><AlertCircle className="h-4 w-4" /> {formError}</p>}

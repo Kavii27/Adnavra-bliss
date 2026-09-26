@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import { AlertCircle, Check, Clock, Loader2, Pencil, Plus, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { StyledNativeSelect } from "@/components/ui/select";
 import { SERVICE_CATEGORIES } from "@/lib/categories";
 import { ServiceImage } from "@/components/business/service-image";
 
@@ -315,11 +316,12 @@ export function AdminBusinessServicesManager({ businessId, businessSlug }: Props
                 <label htmlFor="admin-svc-category" className="text-sm font-medium text-[#3a2f22]">
                   Category
                 </label>
-                <select
+                <StyledNativeSelect
                   id="admin-svc-category"
+                  wrapperClassName="mt-1 w-full"
+                  className="w-full"
                   value={category}
                   onChange={(e) => setCategory(e.target.value)}
-                  className="mt-1 w-full rounded-md border border-[#E5DDD0] bg-white px-3 py-2 text-sm text-[#1F1E1D]"
                 >
                   <option value="">No category</option>
                   {SERVICE_CATEGORIES.map((c) => (
@@ -327,7 +329,7 @@ export function AdminBusinessServicesManager({ businessId, businessSlug }: Props
                       {c.label}
                     </option>
                   ))}
-                </select>
+                </StyledNativeSelect>
               </div>
               <label className="flex items-center gap-2 text-sm text-[#475467]">
                 <input

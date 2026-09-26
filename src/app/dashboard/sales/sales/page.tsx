@@ -6,6 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { PlanGate } from "@/components/dashboard/plan-gate";
 import { useBusinessId, lkr, formatDate } from "@/components/dashboard/use-business";
+import { UiSelect } from "@/components/ui/select";
+import { StyledNativeSelect } from "@/components/ui/select";
 
 type SaleRecord = {
   id: string;
@@ -197,12 +199,14 @@ function SalesInner() {
         </div>
         <div className="rounded-2xl border border-[#E9E1D3] bg-white p-4 shadow-[0_4px_20px_rgba(30,28,26,0.05)]">
           <p className="text-xs uppercase tracking-wide text-[#9A7B4F]">Filter</p>
-          <select value={filter} onChange={(e) => setFilter(e.target.value)} className="mt-2 w-full rounded-md border border-[#E9E1D3] bg-[#FBF7EF] px-2 py-1.5 text-sm text-[#1F1E1D]">
-            <option value="ALL" className="text-black">All categories</option>
-            {CATEGORIES.map((c) => (
-              <option key={c} value={c} className="text-black">{c.replace("_", " ")}</option>
-            ))}
-          </select>
+          <UiSelect
+            ariaLabel="Filter by category"
+            value={filter}
+            onValueChange={(v) => setFilter(v)}
+            options={[{ value: "ALL", label: "All categories" }, ...CATEGORIES.map((c) => ({ value: c as string, label: c.replace("_", " ") }))]}
+            className="mt-2 w-full"
+            triggerClassName="w-full"
+          />
         </div>
       </div>
 
@@ -216,7 +220,7 @@ function SalesInner() {
           >
             <ReceiptText className="h-6 w-6 text-[#1B1714]" />
           </div>
-          <p className="mt-4 text-sm text-[#4A4640]">No sales recorded yet. Package, membership, and gift-card sales appear here automatically — or record one manually.</p>
+          <p className="mt-4 text-sm text-[#4A4640]">No sales recorded yet. Package, membership, and gift-card sales appear here automatically, or record one manually.</p>
           <Button onClick={() => setShowForm(true)} className="mt-4 rounded-full bg-[#1F1B17] text-white hover:bg-[#795831]">Record sale</Button>
         </div>
       ) : (
@@ -239,7 +243,7 @@ function SalesInner() {
                   <tr key={r.id} className="hover:bg-[#FBF7EF]/60">
                     <td className="px-4 py-3 font-medium text-[#1F1E1D]">{r.label}</td>
                     <td className="px-4 py-3 text-[#8A8377] text-xs">{r.category.replace("_", " ")}</td>
-                    <td className="px-4 py-3 text-[#8A8377]">{r.customer?.name ?? "—"}</td>
+                    <td className="px-4 py-3 text-[#8A8377]">{r.customer?.name ?? "-"}</td>
                     <td className="px-4 py-3 text-[#8A8377] text-xs">{formatDate(r.occurredAt)}</td>
                     <td className="px-4 py-3 text-right text-[#1F1E1D]">{lkr(r.amount)}</td>
                     <td className="px-4 py-3">
@@ -268,7 +272,7 @@ function SalesInner() {
             <div className="mt-4 space-y-4">
               <div>
                 <label className="text-sm font-medium text-[#1F1E1D]">Description *</label>
-                <Input value={label} onChange={(e) => setLabel(e.target.value)} placeholder="Haircut — walk-in" className="mt-1 bg-[#FBF7EF] border-[#E9E1D3] text-[#1F1E1D] placeholder:text-[#8A8377]" />
+                <Input value={label} onChange={(e) => setLabel(e.target.value)} placeholder="Haircut, walk-in" className="mt-1 bg-[#FBF7EF] border-[#E9E1D3] text-[#1F1E1D] placeholder:text-[#8A8377]" />
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
@@ -277,21 +281,21 @@ function SalesInner() {
                 </div>
                 <div>
                   <label className="text-sm font-medium text-[#1F1E1D]">Category</label>
-                  <select value={category} onChange={(e) => setCategory(e.target.value as typeof category)} className="mt-1 w-full rounded-md border border-[#E9E1D3] bg-[#FBF7EF] px-3 py-2 text-sm text-[#1F1E1D]">
+                  <StyledNativeSelect aria-label="Category" value={category} onChange={(e) => setCategory(e.target.value as typeof category)} wrapperClassName="mt-1 w-full" className="w-full">
                     {CATEGORIES.map((c) => (
-                      <option key={c} value={c} className="text-black">{c.replace("_", " ")}</option>
+                      <option key={c} value={c}>{c.replace("_", " ")}</option>
                     ))}
-                  </select>
+                  </StyledNativeSelect>
                 </div>
               </div>
               <div>
                 <label className="text-sm font-medium text-[#1F1E1D]">Customer</label>
-                <select value={customerId} onChange={(e) => setCustomerId(e.target.value)} className="mt-1 w-full rounded-md border border-[#E9E1D3] bg-[#FBF7EF] px-3 py-2 text-sm text-[#1F1E1D]">
-                  <option value="" className="text-black">None</option>
+                <StyledNativeSelect aria-label="Customer" value={customerId} onChange={(e) => setCustomerId(e.target.value)} wrapperClassName="mt-1 w-full" className="w-full">
+                  <option value="">None</option>
                   {customers.map((c) => (
-                    <option key={c.id} value={c.id} className="text-black">{c.name}</option>
+                    <option key={c.id} value={c.id}>{c.name}</option>
                   ))}
-                </select>
+                </StyledNativeSelect>
               </div>
               {formError && <p className="text-sm text-red-500 flex items-center gap-1"><AlertCircle className="h-4 w-4" /> {formError}</p>}
               <div className="flex justify-end gap-2">

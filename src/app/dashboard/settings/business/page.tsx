@@ -7,6 +7,7 @@ import { PlanGate } from "@/components/dashboard/plan-gate";
 import { ImageUploader } from "@/components/dashboard/image-uploader";
 import { isBusinessTypeSlug } from "@/lib/categories";
 import { SalonTypePicker } from "@/components/business/category-picker";
+import { StyledNativeSelect } from "@/components/ui/select";
 // isBusinessTypeSlug is kept only for reading legacy rows whose type slugs
 // still sit inside `categories` (pre-salonTypes-migration backfill).
 import { Loader2, AlertCircle, Check, Store, Link as LinkIcon, ArrowLeft, Building2, Plus, Trash2 } from "lucide-react";
@@ -417,16 +418,18 @@ export default function BusinessSetupPage() {
               </div>
               <div>
                 <label className="text-sm font-medium text-[#1F1E1D]">Location type</label>
-                <select
+                <StyledNativeSelect
+                  aria-label="Location type"
                   value={locationType}
                   onChange={(e) => setLocationType(e.target.value)}
-                  className="mt-1 w-full rounded-md border border-[#E9E1D3] bg-[#FBF7EF] px-3 py-2 text-sm text-[#1F1E1D] focus:outline-none focus:border-[#9A7B4F] focus:ring-1 focus:ring-[#9A7B4F]/20"
+                  wrapperClassName="mt-1 w-full"
+                  className="w-full"
                 >
                   <option value="">Select...</option>
                   <option value="PHYSICAL">Physical location</option>
                   <option value="MOBILE">Mobile / home visits</option>
                   <option value="VIRTUAL">Virtual / online only</option>
-                </select>
+                </StyledNativeSelect>
               </div>
               <div>
                 <label className="text-sm font-medium text-[#1F1E1D]">Latitude</label>
@@ -450,10 +453,12 @@ export default function BusinessSetupPage() {
               </div>
               <div>
                 <label className="text-sm font-medium text-[#1F1E1D]">Team size</label>
-                <select
+                <StyledNativeSelect
+                  aria-label="Team size"
                   value={teamSize}
                   onChange={(e) => setTeamSize(e.target.value)}
-                  className="mt-1 w-full rounded-md border border-[#E9E1D3] bg-[#FBF7EF] px-3 py-2 text-sm text-[#1F1E1D] focus:outline-none focus:border-[#9A7B4F] focus:ring-1 focus:ring-[#9A7B4F]/20"
+                  wrapperClassName="mt-1 w-full"
+                  className="w-full"
                 >
                   <option value="">Select...</option>
                   <option value="INDEPENDENT">Just me</option>
@@ -461,7 +466,7 @@ export default function BusinessSetupPage() {
                   <option value="6-10">6-10</option>
                   <option value="11-20">11-20</option>
                   <option value="20+">20+</option>
-                </select>
+                </StyledNativeSelect>
               </div>
             </div>
             <div>
@@ -695,7 +700,7 @@ export default function BusinessSetupPage() {
                   <Input
                     value={newBranchName}
                     onChange={(e) => setNewBranchName(e.target.value)}
-                    placeholder="Branch name — e.g. Colombo 03"
+                    placeholder="Branch name, e.g. Colombo 03"
                     className="bg-[#FAF7F2] border-[#E9E1D3] text-[#1F1E1D] placeholder:text-[#8A8377]"
                   />
                   <Input

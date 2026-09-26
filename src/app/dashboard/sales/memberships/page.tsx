@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { PlanGate } from "@/components/dashboard/plan-gate";
 import { useBusinessId, lkr, formatDate } from "@/components/dashboard/use-business";
+import { StyledNativeSelect } from "@/components/ui/select";
 
 type Membership = { id: string; name: string; price: number; durationDays: number; isActive: boolean };
 type MembershipSale = {
@@ -312,12 +313,12 @@ function MembershipsInner() {
             <div className="mt-4 space-y-4">
               <div>
                 <label className="text-sm font-medium text-[#1F1E1D]">Plan *</label>
-                <select value={sellMembershipId} onChange={(e) => setSellMembershipId(e.target.value)} className="mt-1 w-full rounded-md border border-[#E9E1D3] bg-[#FBF7EF] px-3 py-2 text-sm text-[#1F1E1D]">
-                  <option value="" className="text-black">Choose a plan</option>
+                <StyledNativeSelect aria-label="Plan" value={sellMembershipId} onChange={(e) => setSellMembershipId(e.target.value)} wrapperClassName="mt-1 w-full" className="w-full">
+                  <option value="">Choose a plan</option>
                   {catalog.filter((m) => m.isActive).map((m) => (
-                    <option key={m.id} value={m.id} className="text-black">{m.name} · {lkr(m.price)} · {m.durationDays}d</option>
+                    <option key={m.id} value={m.id}>{m.name} · {lkr(m.price)} · {m.durationDays}d</option>
                   ))}
-                </select>
+                </StyledNativeSelect>
               </div>
               <div>
                 <label className="text-sm font-medium text-[#1F1E1D]">Customer name</label>

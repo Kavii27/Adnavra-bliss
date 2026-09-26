@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { PlanGate } from "@/components/dashboard/plan-gate";
 import { useBusinessId } from "@/components/dashboard/use-business";
+import { StyledNativeSelect } from "@/components/ui/select";
 
 const DEFAULTS = {
   manualCollection: true,
@@ -112,10 +113,10 @@ function PaymentsSettingsInner() {
               </div>
               <div className="mt-3">
                 <label className="text-sm font-medium text-[#1F1E1D]">Currency</label>
-                <select value={currency} onChange={(e) => setCurrency(e.target.value)} className="mt-1 w-full rounded-md border border-[#E9E1D3] bg-[#FAF7F2] px-3 py-2 text-sm text-[#1F1E1D]">
-                  <option value="LKR" className="text-black">LKR — Sri Lankan Rupee</option>
-                  <option value="USD" className="text-black">USD — US Dollar</option>
-                </select>
+                <StyledNativeSelect aria-label="Currency" value={currency} onChange={(e) => setCurrency(e.target.value)} wrapperClassName="mt-1 w-full" className="w-full">
+                  <option value="LKR">LKR: Sri Lankan Rupee</option>
+                  <option value="USD">USD: US Dollar</option>
+                </StyledNativeSelect>
               </div>
             </div>
 
@@ -123,14 +124,14 @@ function PaymentsSettingsInner() {
               <h2 className="text-sm font-semibold text-[#1F1E1D]">Online gateway</h2>
               <p className="mt-1 text-xs text-[#8A8377]">
                 Online card collection (PayHere / Stripe) is not connected. The gateway choice is a pending
-                business decision — this shell will become the connection screen once a provider is picked.
+                business decision. This shell will become the connection screen once a provider is picked.
                 Nothing here is wired to real money movement today.
               </p>
               <div className="mt-3 space-y-2 opacity-60">
                 {["PayHere", "Stripe"].map((p) => (
                   <div key={p} className="flex items-center justify-between rounded-lg border border-[#E9E1D3] bg-[#FBF7EF] px-3 py-2 text-sm">
                     <span className="text-[#1F1E1D]">{p}</span>
-                    <span className="text-xs text-[#8A8377]">Pending decision — not connected</span>
+                    <span className="text-xs text-[#8A8377]">Pending decision, not connected</span>
                   </div>
                 ))}
               </div>

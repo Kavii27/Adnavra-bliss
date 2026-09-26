@@ -65,7 +65,7 @@ export default function AppsPage() {
       <div>
         <p className="text-[10px] font-semibold uppercase tracking-[0.22em]" style={{ color: "#9A7B4F" }}>Integrations</p>
         <h1 className="font-[family-name:var(--font-display)] mt-1 text-3xl font-medium tracking-tight text-[#1F1B17]">Apps</h1>
-        <p className="text-sm text-[#8A8377] mt-1.5">Integrations that extend ADNAVRA. Browse freely on any plan — availability is marked per app.</p>
+        <p className="text-sm text-[#8A8377] mt-1.5">Integrations that extend ADNAVRA. Browse freely on any plan. Availability is marked per app.</p>
       </div>
 
       <div className="mt-6 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
@@ -89,7 +89,7 @@ export default function AppsPage() {
       </div>
 
       <p className="mt-6 text-xs text-[#8A8377]">
-        No functional third-party connection ships in this release — each card links to the dashboard
+        No functional third-party connection ships in this release. Each card links to the dashboard
         section its future integration will read from.
       </p>
     </div>

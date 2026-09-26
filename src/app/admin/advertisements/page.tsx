@@ -73,7 +73,7 @@ export default async function AdminAdvertisementsPage() {
       <div className="mt-8">
         <h2 className="text-sm font-semibold text-[#3a2f22]">Homepage hero banner</h2>
         <p className="mt-0.5 text-xs text-[#a89880]">
-          The single large image at the very top of the homepage — separate from the rotating placement banners
+          The single large image at the very top of the homepage, separate from the rotating placement banners
           below.
         </p>
         <div className="mt-3">

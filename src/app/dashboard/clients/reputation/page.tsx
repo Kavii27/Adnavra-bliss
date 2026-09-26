@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { PlanGate } from "@/components/dashboard/plan-gate";
 import { useBusinessId } from "@/components/dashboard/use-business";
+import { StyledNativeSelect } from "@/components/ui/select";
 
 type Review = {
   id: string;
@@ -162,7 +163,7 @@ function ReputationInner() {
         <div>
           <p className="text-[10px] font-semibold uppercase tracking-[0.22em]" style={{ color: "#9A7B4F" }}>Clients</p>
           <h1 className="font-[family-name:var(--font-display)] mt-1 text-3xl font-medium tracking-tight text-[#1F1B17]">Online reputation</h1>
-          <p className="text-sm text-[#8A8377] mt-1.5">One ratings system — the same reviews feed your marketplace listing.</p>
+          <p className="text-sm text-[#8A8377] mt-1.5">One ratings system. The same reviews feed your marketplace listing.</p>
         </div>
         <button
           onClick={() => { setFormError(null); setShowForm(true); }}
@@ -180,7 +181,7 @@ function ReputationInner() {
             <div className="rounded-2xl border border-[#E9E1D3] bg-white p-5 shadow-[0_4px_20px_rgba(30,28,26,0.05)]">
               <p className="text-xs uppercase tracking-wide text-[#8A8377]">Average rating</p>
               {total === 0 ? (
-                <p className="mt-2 text-sm text-[#8A8377]">No reviews yet — log walk-in feedback to build your rating.</p>
+                <p className="mt-2 text-sm text-[#8A8377]">No reviews yet. Log walk-in feedback to build your rating.</p>
               ) : (
                 <>
                   <p className="mt-1 font-[family-name:var(--font-display)] text-3xl font-semibold text-[#1F1B17]">{average.toFixed(1)}</p>
@@ -244,12 +245,12 @@ function ReputationInner() {
               </div>
               <div>
                 <label className="text-sm font-medium text-[#1F1E1D]">Client</label>
-                <select value={customerId} onChange={(e) => setCustomerId(e.target.value)} className="mt-1 w-full rounded-md border border-[#E9E1D3] bg-[#FBF7EF] px-3 py-2 text-sm text-[#1F1E1D]">
-                  <option value="" className="text-black">Anonymous</option>
+                <StyledNativeSelect aria-label="Client" value={customerId} onChange={(e) => setCustomerId(e.target.value)} wrapperClassName="mt-1 w-full" className="w-full">
+                  <option value="">Anonymous</option>
                   {customers.map((c) => (
-                    <option key={c.id} value={c.id} className="text-black">{c.name}</option>
+                    <option key={c.id} value={c.id}>{c.name}</option>
                   ))}
-                </select>
+                </StyledNativeSelect>
               </div>
               <div>
                 <label className="text-sm font-medium text-[#1F1E1D]">Comment</label>

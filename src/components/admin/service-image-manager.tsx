@@ -124,7 +124,7 @@ export function ServiceImageManager() {
     <div className="mt-6">
       {error && <p className="mb-3 text-sm font-medium text-[#B91C1C]">{error}</p>}
       <p className="mb-4 text-xs font-medium text-[#a89880]">
-        {totalWithImage} of {totalRules} treatments have their own specific photo — the rest use their
+        {totalWithImage} of {totalRules} treatments have their own specific photo. The rest use their
         category&apos;s general photo below.
       </p>
 
@@ -150,7 +150,7 @@ export function ServiceImageManager() {
               <ImagePreview src={group.hasDefault ? group.defaultUrl : inventory.globalDefault.imageUrl} />
               <div>
                 <p className="text-sm font-semibold text-[#3a2f22]">
-                  {CATEGORY_LABELS[group.category] ?? group.category} — category photo
+                  {CATEGORY_LABELS[group.category] ?? group.category}: category photo
                 </p>
                 <p className="text-xs text-[#a89880]">Used for any treatment in this category with no specific photo of its own.</p>
               </div>

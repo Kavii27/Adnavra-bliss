@@ -27,7 +27,7 @@ export default async function AdminNewBusinessPage() {
       <h1 className="text-xl font-semibold tracking-tight text-[#3a2f22]">Add salon</h1>
       <p className="mt-1 max-w-2xl text-sm text-[#a89880]">
         Create the salon profile and its owner login together. After creating, open the salon detail page to add
-        services, photos, and salon-type tags — the owner doesn&apos;t need to touch anything.
+        services, photos, and salon-type tags. The owner doesn&apos;t need to touch anything.
       </p>
       <div className="mt-6 max-w-2xl">
         <CreateBusinessForm />

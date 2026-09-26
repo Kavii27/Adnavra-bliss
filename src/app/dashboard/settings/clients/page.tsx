@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { PlanGate } from "@/components/dashboard/plan-gate";
 import { useBusinessId } from "@/components/dashboard/use-business";
+import { StyledNativeSelect } from "@/components/ui/select";
 
 type CustomField = { name: string; type: "text" | "phone" | "date" | "checkbox"; required: boolean };
 
@@ -134,12 +135,12 @@ function ClientSettingsInner() {
               </div>
               <div className="mt-3 flex gap-2">
                 <Input value={fieldName} onChange={(e) => setFieldName(e.target.value)} placeholder="Field name, e.g. Allergies" className="flex-1 bg-[#FAF7F2] border-[#E9E1D3] text-[#1F1E1D] placeholder:text-[#8A8377]" />
-                <select value={fieldType} onChange={(e) => setFieldType(e.target.value as CustomField["type"])} className="rounded-md border border-[#E9E1D3] bg-[#FAF7F2] px-2 py-2 text-sm text-[#1F1E1D]">
-                  <option value="text" className="text-black">Text</option>
-                  <option value="phone" className="text-black">Phone</option>
-                  <option value="date" className="text-black">Date</option>
-                  <option value="checkbox" className="text-black">Checkbox</option>
-                </select>
+                <StyledNativeSelect aria-label="Field type" value={fieldType} onChange={(e) => setFieldType(e.target.value as CustomField["type"])}>
+                  <option value="text">Text</option>
+                  <option value="phone">Phone</option>
+                  <option value="date">Date</option>
+                  <option value="checkbox">Checkbox</option>
+                </StyledNativeSelect>
                 <Button onClick={addField} variant="secondaryDark"><Plus className="h-4 w-4" /></Button>
               </div>
             </div>

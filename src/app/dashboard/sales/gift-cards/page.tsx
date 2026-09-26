@@ -191,7 +191,7 @@ function GiftCardsInner() {
                 {cards.map((c) => (
                   <tr key={c.id} className="hover:bg-[#FBF7EF]/60">
                     <td className="px-4 py-3 font-mono font-medium text-[#1F1E1D]">{c.code}</td>
-                    <td className="px-4 py-3 text-[#8A8377]">{c.recipientName ?? "—"}</td>
+                    <td className="px-4 py-3 text-[#8A8377]">{c.recipientName ?? "-"}</td>
                     <td className="px-4 py-3 text-right text-[#1F1E1D]">{lkr(c.amount)}</td>
                     <td className="px-4 py-3">
                       <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${STATUS_STYLES[c.status]}`}>{c.status}</span>

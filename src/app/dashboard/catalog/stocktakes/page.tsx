@@ -100,7 +100,7 @@ function StocktakesInner() {
       items.push({ productId: l.productId || null, productName: l.productName.trim(), expectedQty: exp, countedQty: cnt });
     }
     if (items.length === 0) {
-      setFormError("Nothing to count — add products in Catalog → Products first");
+      setFormError("Nothing to count. Add products in Catalog → Products first");
       return;
     }
     setSubmitting(true);
@@ -166,7 +166,7 @@ function StocktakesInner() {
 
       {products.length === 0 && !error && (
         <div className="mt-6 rounded-xl border border-[#e6dcc8] bg-[#f6efe3] p-6 text-sm text-[#a89880]">
-          Add products first — stocktakes count your catalog.{" "}
+          Add products first. Stocktakes count your catalog.{" "}
           <Link href="/dashboard/catalog/products" className="font-medium text-[#3a2f22] underline">Go to Products</Link>.
         </div>
       )}
