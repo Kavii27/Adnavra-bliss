@@ -1,7 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { notFound } from "next/navigation";
-import { AlertCircle, ArrowRight, Crown, Layers, LayoutTemplate, Megaphone, Sparkles, Store, Zap } from "lucide-react";
+import { AlertCircle, ArrowRight, Crown, Layers, Megaphone, Sparkles, Store, Zap } from "lucide-react";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 
@@ -52,14 +52,8 @@ export default async function AdminHomePage() {
     {
       href: "/admin/advertisements",
       icon: Megaphone,
-      title: "Advertisements",
-      description: "Create banner ads with image upload, schedule them, and track impressions/clicks.",
-    },
-    {
-      href: "/admin/homepage",
-      icon: LayoutTemplate,
-      title: "Homepage Banner",
-      description: "Update the live homepage banner image and its destination without a code deploy.",
+      title: "Advertisements & Banners",
+      description: "Update the homepage hero banner and create scheduled ads for every placement on the site.",
     },
     {
       href: "/admin/businesses",

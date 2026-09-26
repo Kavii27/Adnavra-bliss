@@ -7,6 +7,7 @@ import { db } from "@/lib/db";
 import { getServerT } from "@/lib/i18n/server";
 import { BookingWizard } from "@/components/booking/BookingWizard";
 import { BackButton } from "@/components/business/back-button";
+import { AdSlot } from "@/components/marketplace/ad-slot";
 
 const display = Cormorant_Garamond({
   subsets: ["latin"],
@@ -104,6 +105,7 @@ export default async function BookPage({
         style={{ backgroundImage: "radial-gradient(circle at 15% 0%, rgba(217,190,140,0.10), transparent 45%)" }}
       >
         <div className="w-full px-4 pb-8 sm:px-6 sm:pb-10 lg:px-12 lg:pb-14">
+          <AdSlot placement="booking_page" className="mb-4" />
           <BookingWizard
             businessSlug={businessSlug}
             initialServiceId={serviceId}

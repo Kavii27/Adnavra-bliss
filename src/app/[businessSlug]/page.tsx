@@ -20,6 +20,7 @@ import { VenueGallery } from "@/components/business/venue-gallery";
 import { ServiceTabs } from "@/components/business/service-tabs";
 import { BookingCard } from "@/components/business/booking-card";
 import { BackButton } from "@/components/business/back-button";
+import { AdSlot } from "@/components/marketplace/ad-slot";
 import { taxonomyLabelKey, isBusinessTypeSlug } from "@/lib/categories";
 import { getServerT } from "@/lib/i18n/server";
 
@@ -549,6 +550,8 @@ export default async function BusinessProfilePage({ params }: { params: Promise<
           </span>
         </div>
       </header>
+
+      <AdSlot placement="salon_profile" className="my-4" />
 
       <div className={`${WRAP} grid gap-8 py-8 lg:grid-cols-[1fr_380px] lg:gap-10 lg:py-12 xl:grid-cols-[1fr_400px]`}>
         {/* ── Main column ── */}

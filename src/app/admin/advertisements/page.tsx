@@ -4,7 +4,11 @@ import { AlertCircle, ArrowLeft, Megaphone } from "lucide-react";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { NewAdvertisementForm } from "@/components/admin/new-advertisement-form";
+import { NewPlacementForm } from "@/components/admin/new-placement-form";
 import { AdvertisementCard } from "@/components/admin/advertisement-card";
+import { HomepageBannerManager } from "@/components/admin/homepage-banner-manager";
+import { getHomepageBannerSetting } from "@/lib/platform-settings";
+import type { HomepageBannerSetting } from "@/schemas/platformSettings";
 
 /**
  * Admin → Advertisements (PDF sections 6-8): create banner ads with image
@@ -22,6 +26,12 @@ export default async function AdminAdvertisementsPage() {
   let placements: Awaited<ReturnType<typeof db.advertisementPlacement.findMany>> = [];
   let ads: Awaited<ReturnType<typeof fetchAdsWithStats>> = [];
   let loadError = false;
+  let homepageBanner: HomepageBannerSetting | null = null;
+  try {
+    homepageBanner = (await getHomepageBannerSetting()).banner;
+  } catch {
+    // non-fatal — the rest of the page still renders
+  }
 
   try {
     [placements, ads] = await Promise.all([
@@ -60,6 +70,21 @@ export default async function AdminAdvertisementsPage() {
         </div>
       </div>
 
+      <div className="mt-8">
+        <h2 className="text-sm font-semibold text-[#3a2f22]">Homepage hero banner</h2>
+        <p className="mt-0.5 text-xs text-[#a89880]">
+          The single large image at the very top of the homepage — separate from the rotating placement banners
+          below.
+        </p>
+        <div className="mt-3">
+          {homepageBanner ? (
+            <HomepageBannerManager initialSetting={homepageBanner} />
+          ) : (
+            <p className="text-xs text-[#B91C1C]">Could not load the homepage banner setting.</p>
+          )}
+        </div>
+      </div>
+
       {loadError ? (
         <div className="mt-6 flex items-center gap-2 rounded-lg border border-[#FDECEC] bg-[#FDECEC] p-4 text-sm font-medium text-[#B91C1C]">
           <AlertCircle className="h-4 w-4 shrink-0" /> Could not load advertisements. Please try again.
@@ -69,13 +94,12 @@ export default async function AdminAdvertisementsPage() {
           <div className="mt-8">
             <h2 className="text-sm font-semibold text-[#3a2f22]">Create an advertisement</h2>
             <div className="mt-3 rounded-2xl border border-dashed border-[#c9a26d]/40 bg-[#faf6ef] p-6">
-              {placements.length === 0 ? (
-                <p className="text-xs text-[#a89880]">
-                  No placements exist yet — create one via the API (POST /api/admin/advertisement-placements) first.
-                </p>
-              ) : (
-                <NewAdvertisementForm placements={placements.map((p) => ({ key: p.key, name: p.name }))} />
-              )}
+              <div className="space-y-4">
+                <NewPlacementForm />
+                {placements.length > 0 && (
+                  <NewAdvertisementForm placements={placements.map((p) => ({ key: p.key, name: p.name }))} />
+                )}
+              </div>
             </div>
           </div>
 

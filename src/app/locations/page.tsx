@@ -1,6 +1,7 @@
 import { HomeHeader } from "@/components/customer/home/home-header";
 import { SiteFooter } from "@/components/marketing/site-footer";
 import { BrowseByCity } from "@/components/customer/home/browse-by-city";
+import { AdSlot } from "@/components/marketplace/ad-slot";
 import { SRI_LANKA_LOCATIONS } from "@/lib/sri-lanka-locations";
 import { getServerT } from "@/lib/i18n/server";
 
@@ -17,7 +18,7 @@ export default function LocationsPage() {
     <main className="relative min-h-screen bg-[#FDF9F3]">
       <HomeHeader />
 
-      {/* Ad slot: reserved for a future backend-driven banner below the header. */}
+      <AdSlot placement="city_page" className="mb-4" />
 
       <BrowseByCity locations={SRI_LANKA_LOCATIONS} />
 

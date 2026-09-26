@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { HomeHeader } from "@/components/customer/home/home-header";
 import { SiteFooter } from "@/components/marketing/site-footer";
 import { VenueGrid } from "@/components/customer/home/venue-grid";
+import { AdSlot } from "@/components/marketplace/ad-slot";
 import { fetchVenuesByCategory } from "@/lib/marketplace-venues";
 import { SERVICE_CATEGORIES, taxonomyLabelKey } from "@/lib/categories";
 import { getServerT } from "@/lib/i18n/server";
@@ -44,6 +45,7 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
         </p>
 
         <div className="mt-8">
+          <AdSlot placement="category_page" className="mb-4" />
           <VenueGrid
             businesses={businesses}
             emptyText={`${t("cat.emptyOffering")} ${label}.`}

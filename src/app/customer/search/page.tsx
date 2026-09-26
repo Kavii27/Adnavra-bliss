@@ -7,6 +7,7 @@ import { Heart, MapPin, SlidersHorizontal, Map as MapIcon, EyeOff } from "lucide
 import { CustomerHeader } from "@/components/customer/customer-header";
 import { SearchBar } from "@/components/customer/search/search-bar";
 import { Button } from "@/components/ui/button";
+import { AdSlot } from "@/components/marketplace/ad-slot";
 import { taxonomyLabelKey } from "@/lib/categories";
 import { useLocale } from "@/lib/i18n/locale-context";
 
@@ -371,6 +372,7 @@ function SearchInner() {
             </div>
           ) : (
             <div className="mt-4 space-y-3">
+              <AdSlot placement="search_results" className="mb-4" />
               {results.map((r) => (
                 <Link
                   key={r.id}

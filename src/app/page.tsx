@@ -9,6 +9,7 @@ import { BrowseBySalonType } from "@/components/customer/home/browse-by-salon-ty
 import { HowItWorks } from "@/components/customer/home/how-it-works";
 import { TrustStatsBar } from "@/components/customer/home/trust-stats-bar";
 import { OwnerCtaBanner } from "@/components/customer/home/owner-cta-banner";
+import { AdSlot } from "@/components/marketplace/ad-slot";
 import { db } from "@/lib/db";
 import { fetchVenues, fetchFeaturedVenues, fetchCategoryCounts } from "@/lib/marketplace-venues";
 import { getHomepageBannerSetting } from "@/lib/platform-settings";
@@ -42,7 +43,7 @@ export default async function MarketplaceHome() {
 
       <div className="relative">
         <HomeHeader />
-        <AdBanner imageUrl={banner?.imageUrl} />
+        <AdBanner imageUrl={banner?.imageUrl} href={banner?.destinationUrl} />
 
         {/* Hero — search + trust stats */}
         <section className="relative border-b border-[#E5DDD0]">
@@ -60,6 +61,10 @@ export default async function MarketplaceHome() {
             <TrustStatsBar businessCount={businessCount} />
           </div>
         </section>
+
+        <div className="pt-6">
+          <AdSlot placement="homepage_top" />
+        </div>
 
       {/* Browse categories & services — moved here from the navbar */}
       <BrowseByCategory counts={categoryCounts} limit={8} />
@@ -79,6 +84,9 @@ export default async function MarketplaceHome() {
           businesses={recommended}
           emptyText="Recommended salons will appear here once businesses join."
         />
+        <div className="py-6">
+          <AdSlot placement="homepage_middle" />
+        </div>
         <VenueRailRow
           title="Near you"
           href="/near-you"
